@@ -185,7 +185,7 @@ export default function Dashboard() {
         {activeTab === 'students' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Enrollment Form Side Control Panel (Hidden from pure Teachers if necessary, or open for registrations) */}
-            <section className="bg-surfaceCard p-6 rounded-xl border border-slate-800 h-fit space-y-4">
+                       <section className="bg-surfaceCard p-6 rounded-xl border border-slate-800 h-fit space-y-4">
               <div className="flex justify-between items-center border-b border-slate-700 pb-2">
                 <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wide">Galmeessi Barataa Haaraa</h2>
               </div>
@@ -212,9 +212,10 @@ export default function Dashboard() {
                   <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded uppercase tracking-wider transition-colors mt-2">Kuusi Galmeessi</button>
                 </form>
               ) : (
-                <div className="text-xs text-slate-400 bg-brandNavy/50 border border-slate-800/80 p-4 rounded text-center font-mono">
+                <div className="text-xs text-slate-400 bg-brandNavy border border-slate-800 p-4 rounded text-center font-mono">
                   ⚠️ Profile Enrollment tools are restricted to Admin roles. Use the grading table cells to edit live academic marks.
                 </div>
+              )}
             </section>
           </div>
         )}
