@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/db';
+iimport { NextResponse } from 'next/server';
+import { connectToDatabase } from '../../../../lib/db'; // Fixed path import
 
 export async function PATCH(req) {
   try {
