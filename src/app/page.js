@@ -18,12 +18,29 @@ export default function Dashboard() {
   const [usersLoading, setUsersLoading] = useState(false);
   const [userForm, setUserForm] = useState({ username: '', email: '', password: '', role: 'Teacher' });
 
-  // Load client cookies/storage configurations on initialization
+    // Load authentication details safely straight from active browser cookies on initialization
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const storedRole = localStorage.getItem('userRole') || 'Teacher';
-      const storedName = localStorage.getItem('username') || 'User';
-      setUserRole(storedRole);
+      // Helper function to read a specific cookie value by key name
+      const getCookieValue = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+        return null;
+      };
+
+      // Read cookie parameters instead of relying on blank local storage blocks
+      const liveCookieRole = getCookieValue('userRole');
+      const storedName = localStorage.getItem('username') || 'Admin User';
+      
+      // If a valid cookie role exists (like 'Admin'), assign it straight to active state nodes
+      if (liveCookieRole) {
+        setUserRole(liveCookieRole);
+      } else {
+        // Fallback check just in case cookies aren't stored correctly
+        setUserRole(localStorage.getItem('userRole') || 'Teacher');
+      }
+      
       setUsername(storedName);
     }
   }, []);
