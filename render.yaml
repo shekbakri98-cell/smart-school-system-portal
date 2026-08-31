@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: smart-student-hub-next
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: JWT_SECRET
+        value: 8f3c78af3ca784d6b6ca784a21999825fec48ec651b145789f63a2a
