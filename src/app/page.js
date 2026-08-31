@@ -94,6 +94,30 @@ export default function Dashboard() {
           name: studentForm.name,
           grade: selectedGrade,
           subject: 'ICT'
+             <nav className="max-w-6xl mx-auto mb-6 flex bg-surfaceCard p-1.5 rounded-xl border border-slate-800 text-xs font-mono">
+        <button 
+          onClick={() => setActiveTab('students')}
+          className={`flex-1 text-center py-2.5 rounded-lg font-bold uppercase transition-all ${activeTab === 'students' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}
+        >
+          📖 Student Records Matrix
+        </button>
+
+        {/* ADD THIS NEW ATTENDANCE TAB BUTTON */}
+        <button 
+          onClick={() => setActiveTab('attendance')}
+          className={`flex-1 text-center py-2.5 rounded-lg font-bold uppercase transition-all ${activeTab === 'attendance' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}
+        >
+          📅 Daily Attendance Ledger
+        </button>
+        
+        {userRole === 'Admin' && (
+          <button 
+            onClick={() => setActiveTab('teachers')}
+            className={`flex-1 text-center py-2.5 rounded-lg font-bold uppercase transition-all ${activeTab === 'teachers' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}
+          >
+            🔒 Account Management Console
+          </button>
+        )}
         }) 
       });
       const data = await res.json();
