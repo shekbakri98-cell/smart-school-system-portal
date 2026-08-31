@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/db';
+import { connectToDatabase } from '../../../lib/db'; // Fixed path import
 
 export async function GET(req) {
   try {
