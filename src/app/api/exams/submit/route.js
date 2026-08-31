@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '../../../lib/db';
+import { connectToDatabase } from '../../../../lib/db'; // Corrected four-level deep relative import
 
 export async function POST(req) {
   try {
