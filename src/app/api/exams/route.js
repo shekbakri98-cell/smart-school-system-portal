@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '../../../../lib/db'; // Corrected four-level deep relative import
+import { connectToDatabase } from '../../../lib/db'; // Corrected three-level deep relative import
 
 // FETCH ALL EXAMS OR SPECIFIC STUDENT RESULTS
 export async function GET(req) {
