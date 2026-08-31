@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/db';
+import { connectToDatabase } from '../../../lib/db'; // Fixed relative path import style
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
