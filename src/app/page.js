@@ -362,34 +362,105 @@ export default function Dashboard() {
             </div>
           </div>
         )}
-
-        {/* VIEW 2: DIRECTOR REVENUE LEDGER */}
+        {/* ROLE CONSOLE VIEW 2: DIRECTOR REVENUE LEDGER (AFAAAN OROMOO TRANSLATION) */}
         {activeTab === 'director-finance' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
             <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 space-y-3">
-              <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Log Invoiced Fee</h2>
+              <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Kaffaltii Galmeessi</h2>
               <form onSubmit={handleFinanceSubmit} className="space-y-2">
-                <input type="text" placeholder="Student ID" value={financeForm.studentId} onChange={e => setFinanceForm({...financeForm, studentId: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
-                <select value={financeForm.feeType} onChange={e => setFinanceForm({...financeForm, feeType: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded"><option value="Tuition Q1">Tuition Q1</option><option value="Tuition Q2">Tuition Q2</option></select>
-                <input type="number" placeholder="Total Due" value={financeForm.amountDue} onChange={e => setFinanceForm({...financeForm, amountDue: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
-                <input type="number" placeholder="Amount Paid" value={financeForm.amountPaid} onChange={e => setFinanceForm({...financeForm, amountPaid: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
-                <button type="submit" className="w-full bg-purple-600 p-2 text-white font-bold rounded uppercase">Commit Dues</button>
+                <input type="text" placeholder="ID Barataa" value={financeForm.studentId} onChange={e => setFinanceForm({...financeForm, studentId: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                <select value={financeForm.feeType} onChange={e => setFinanceForm({...financeForm, feeType: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded">
+                  <option value="Tuition Q1">Kaffaltii Kurmaana 1ffaa</option>
+                  <option value="Tuition Q2">Kaffaltii Kurmaana 2ffaa</option>
+                  <option value="Registration Dues">Kaffaltii Galmeessaa</option>
+                </select>
+                <input type="number" placeholder="Idaa Waliigalaa (ETB)" value={financeForm.amountDue} onChange={e => setFinanceForm({...financeForm, amountDue: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                <input type="number" placeholder="Hamma Kaffalame (ETB)" value={financeForm.amountPaid} onChange={e => setFinanceForm({...financeForm, amountPaid: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                <button type="submit" className="w-full bg-purple-600 p-2 text-white font-bold rounded uppercase">Kaffaltii Raggaasisi</button>
               </form>
             </section>
             <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
-              <div className="flex justify-between items-center border-b border-slate-800 pb-2 mb-3"><h3 className="font-bold text-slate-200 text-xs">Accounting Registry</h3><button onClick={triggerFinanceCSVExport} className="bg-purple-950/60 text-purple-400 px-2 py-1 rounded border border-purple-800 text-[10px] font-bold uppercase">📥 CSV Sheet</button></div>
-              <div className="overflow-x-auto"><table className="w-full text-left"><thead><tr className="text-slate-400 text-[10px] uppercase"><th className="pb-2">Student ID</th><th>Name</th><th>Category</th><th>Due</th><th>Paid</th><th className="text-right">Status</th></tr></thead><tbody className="divide-y divide-slate-800 text-slate-300">{financeLedger.map((f, idx) => (<tr key={idx}><td className="py-2.5 font-bold text-purple-400">{f.studentId}</td><td>{f.name}</td><td>{f.fee_type}</td><td>{f.amount_due}</td><td>{f.amount_paid}</td><td className="text-right"><span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${f.payment_status === 'Paid' ? 'border-emerald-800 text-emerald-400' : 'border-amber-800 text-amber-400'}`}>{f.payment_status}</span></td></tr>))}</tbody></table></div>
+              <div className="flex justify-between items-center border-b border-slate-800 pb-2 mb-3">
+                <h3 className="font-bold text-slate-200 text-xs">Galmee Herregaa Waliigalaa</h3>
+                <button onClick={triggerFinanceCSVExport} className="bg-purple-950/60 text-purple-400 px-2 py-1 rounded border border-purple-800 text-[10px] font-bold uppercase">📥 Sanada Baasi</button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="text-slate-400 text-[10px] uppercase">
+                      <th className="pb-2">ID Barataa</th>
+                      <th>Maqaa</th>
+                      <th>Ramaddii</th>
+                      <th>Idaa</th>
+                      <th>Kaffalame</th>
+                      <th className="text-right">Haala Kaffaltii</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800 text-slate-300">
+                    {financeLedger.map((f, idx) => (
+                      <tr key={idx} className="hover:bg-slate-900/20">
+                        <td className="py-2.5 font-bold text-purple-400">{f.studentId}</td>
+                        <td>{f.name}</td>
+                        <td>{f.fee_type}</td>
+                        <td>{f.amount_due}</td>
+                        <td>{f.amount_paid}</td>
+                        <td className="text-right">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${f.payment_status === 'Paid' ? 'border-emerald-800 text-emerald-400' : 'border-amber-800 text-amber-400'}`}>
+                            {f.payment_status === 'Paid' ? 'Kaffalameera' : 'Hanga Tokko'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </section>
           </div>
         )}
-
-        {/* VIEW 3: DIRECTOR FACULTY PROFILES */}
+        {/* ROLE CONSOLE VIEW 3: DIRECTOR FACULTY PROFILES (AFAN OROMOO TRANSLATION) */}
         {activeTab === 'director-users' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
-            <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 h-fit space-y-3"><h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Create Profile Access</h2><form onSubmit={handleUserCreationSubmit} className="space-y-2"><input type="text" placeholder="Username" value={userForm.username} onChange={e => setUserForm({...userForm, username: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required /><input type="email" placeholder="Email" value={userForm.email} onChange={e => setUserForm({...userForm, email: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required /><input type="password" placeholder="Password" value={userForm.password} onChange={e => setUserForm({...userForm, password: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required /><select value={userForm.role} onChange={e => setUserForm({...userForm, role: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded"><option value="Teacher">Teacher</option><option value="Admin">Admin</option></select><button type="submit" className="w-full bg-purple-600 p-2 text-white font-bold rounded uppercase">Commit Profile</button></form></section>
-            <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800"><h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 text-xs">Faculty Registry</h3><div className="overflow-x-auto"><table className="w-full text-left"><thead><tr className="text-slate-400 text-[10px] uppercase"><th className="pb-2">User Identity</th><th>Email Route</th><th className="text-right">Access Permission</th></tr></thead><tbody className="divide-y divide-slate-800 text-slate-300">{systemUsers.map((user, idx) => (<tr key={idx}><td className="py-2.5 font-semibold text-slate-200">{user.username}</td><td>{user.email}</td><td className="text-right font-bold text-purple-400">{user.role}</td></tr>))}</tbody></table></div></section>
+            <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 h-fit space-y-3">
+              <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Eenyummaa Haaraa Banu</h2>
+              <form onSubmit={handleUserCreationSubmit} className="space-y-2">
+                <input type="text" placeholder="Maqaa Fayyadamaa" value={userForm.username} onChange={e => setUserForm({...userForm, username: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                <input type="email" placeholder="Imeelii" value={userForm.email} onChange={e => setUserForm({...userForm, email: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                <input type="password" placeholder="Jecha Iccitii" value={userForm.password} onChange={e => setUserForm({...userForm, password: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                <select value={userForm.role} onChange={e => setUserForm({...userForm, role: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded">
+                  <option value="Teacher">Barsiisaa</option>
+                  <option value="Admin">Daayirektara (Admin)</option>
+                </select>
+                <button type="submit" className="w-full bg-purple-600 p-2 text-white font-bold rounded uppercase">Galmeessi</button>
+              </form>
+            </section>
+            <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
+              <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 text-xs">Galmee Piroofayilii Hojjattootaa</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="text-slate-400 text-[10px] uppercase">
+                      <th className="pb-2">Maqaa Eenyummaa</th>
+                      <th>Karaa Imeelii</th>
+                      <th className="text-right">Aangoo Hayyamaa</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800 text-slate-300">
+                    {systemUsers.map((user, idx) => (
+                      <tr key={idx} className="hover:bg-slate-900/40">
+                        <td className="py-2.5 font-semibold text-slate-200">{user.username}</td>
+                        <td>{user.email}</td>
+                        <td className="text-right font-bold text-purple-400">
+                          {user.role === 'Admin' ? 'Bulchaa' : 'Barsiisaa'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
           </div>
         )}
+     
         {/* VIEW 4: INSTRUCTOR GRADING SHEET MATRIX */}
         {activeTab === 'instructor-roster' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
