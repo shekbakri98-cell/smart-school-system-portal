@@ -425,7 +425,23 @@ export default function Dashboard() {
                     <select value={currentQuestion.correct} onChange={e => setCurrentQuestion({...currentQuestion, correct: e.target.value})} className="w-full bg-surfaceCard border border-slate-700 p-1 text-white rounded outline-none"><option value="A">Key: A</option><option value="B">Key: B</option></select>
                     <button type="button" onClick={addQuestionToFormState} className="w-full py-1 bg-slate-800 text-slate-300 font-bold border border-slate-700 rounded text-[10px]">SAVE ENTRY ({examForm.questions.length})</button>
                     <button onClick={handleExamPublishSubmit} className="w-full bg-emerald-600 p-2 text-white font-bold rounded uppercase mt-1">Publish Manual Quiz</button>
-                  </div>
+                 {/* Locate these two buttons inside Option B and replace them with these clean styling parameters */}
+<button 
+  type="button" 
+  onClick={addQuestionToFormState} 
+  className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold border border-slate-700 rounded text-[11px] uppercase tracking-wide transition-colors"
+>
+  SAVE ENTRY ({examForm.questions.length})
+</button>
+
+<button 
+  onClick={handleExamPublishSubmit} 
+  className="w-full bg-emerald-600 hover:bg-emerald-700 p-2 text-white font-bold rounded uppercase mt-2 tracking-wider shadow-md transition-colors"
+>
+  Publish Manual Quiz
+</button>
+ 
+                </div>
                 </div>
               ) : ( <div className="text-slate-400 text-center p-4 bg-brandNavy border border-slate-800 rounded">🎒 Active assessments load according to grade sections.</div> )}
             </section>
