@@ -429,19 +429,14 @@ export default function Dashboard() {
                         <td className="text-right"><a href={b.download_url} target="_blank" rel="noreferrer" className="text-blue-400 underline font-bold">Download 📥</a></td>
                       </tr>
                     ))}
-                  </tbody>
+                                    </tbody>
                 </table>
               </div>
             </section>
           </div>
         )}
 
-        {/* TAB VIEW F: HUMAN RESOURCES MODULE */}
-        {activeTab === 'teachers' && userRole === 'Admin' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-xs font-mono">
-
-          )}
-{/* VIEW G: DATA ANALYTICS & SYSTEM OPERATIONS METRICS */}
+        {/* VIEW G: DATA ANALYTICS & SYSTEM OPERATIONS METRICS */}
         {activeTab === 'system' && (
           <div className="space-y-6 font-mono text-xs max-w-4xl mx-auto">
             {/* STATS OVERVIEW CARDS */}
@@ -482,13 +477,13 @@ export default function Dashboard() {
                 <div>
                   <div className="flex justify-between text-slate-300 mb-1"><span>Tuition Target vs Collected Dues Balance</span><span>Progress Overview</span></div>
                   <div className="w-full bg-brandNavy h-3 rounded border border-slate-800 overflow-hidden">
-                    <div className="bg-emerald-500 h-full transition-all duration-500" style={{ width: `\${Math.min(100, (financeLedger.reduce((acc, curr) => acc + Number(curr.amount_paid || 0), 0) / Math.max(1, financeLedger.reduce((acc, curr) => acc + Number(curr.amount_due || 0), 0))) * 100)}%` }}></div>
+                    <div className="bg-emerald-500 h-full transition-all duration-500" style={{ width: `${Math.min(100, (financeLedger.reduce((acc, curr) => acc + Number(curr.amount_paid || 0), 0) / Math.max(1, financeLedger.reduce((acc, curr) => acc + Number(curr.amount_due || 0), 0))) * 100)}%` }}></div>
                   </div>
                 </div>
                 <div>
                   <div className="flex justify-between text-slate-300 mb-1"><span>Roster Pass Rate Density</span><span>Benchmark Scale</span></div>
                   <div className="w-full bg-brandNavy h-3 rounded border border-slate-800 overflow-hidden">
-                    <div className="bg-blue-500 h-full transition-all duration-500" style={{ width: `\${students.length > 0 ? (students.filter(s => Number(s.totalScore || 0) >= 50).length / students.length) * 100 : 0}%` }}></div>
+                    <div className="bg-blue-500 h-full transition-all duration-500" style={{ width: `${students.length > 0 ? (students.filter(s => Number(s.totalScore || 0) >= 50).length / students.length) * 100 : 0}%` }}></div>
                   </div>
                 </div>
               </div>
@@ -525,14 +520,14 @@ export default function Dashboard() {
                 if (e.key === 'Enter' && e.target.value.trim()) {
                   const txt = e.target.value; e.target.value = '';
                   const log = document.getElementById('aiTerminalChatLog');
-                  log.innerHTML += `<p class="text-blue-400 font-bold mt-1">You:</p><p class="text-slate-200">\${txt}</p>`;
+                  log.innerHTML += `<p class="text-blue-400 font-bold mt-1">You:</p><p class="text-slate-200">${txt}</p>`;
                   
                   const res = await fetch('/api/ai-chat', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: txt, userRole: 'Admin' })
                   });
                   const d = await res.json();
-                  log.innerHTML += `<p class="text-emerald-400 font-bold mt-1">AI Support:</p><p class="text-slate-300">\${d.reply}</p>`;
+                  log.innerHTML += `<p class="text-emerald-400 font-bold mt-1">AI Support:</p><p class="text-slate-300">${d.reply}</p>`;
                   log.scrollTop = log.scrollHeight;
                 }
               }}
@@ -544,3 +539,6 @@ export default function Dashboard() {
     </div>
   );
 }
+
+
+    
