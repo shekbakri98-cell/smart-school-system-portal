@@ -292,68 +292,102 @@ export default function Dashboard() {
     document.cookie = "userRole=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     window.location.href = '/login';
   }
-  return (
-    // bg-[#0f172a] fayyadamnaan dukkanni isaa ni hir'ata, iftoomni ni dabala
+    return (
+    // bg-[#0f172a] (Slate-900) fi text-slate-100 fayyadamuun iftoomina bal'isa
     <div className="min-h-screen bg-[#0f172a] text-slate-100 p-6">
       
       {/* ENTERPRISE VIEW CONTROL PANEL HEADER */}
       <header className="max-w-6xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-700 pb-4 gap-4">
         <div>
           <h1 className="text-xl font-black text-white tracking-tight">MANA BARUMSAA SHEEK BAKRII SECONDARY</h1>
-          <p className="text-[10px] text-brandGold font-mono uppercase tracking-widest">Kansoolii Bulchiinsaa // Connected: {username}</p>
+          <p className="text-[10px] text-brandGold font-mono uppercase tracking-widest">Kansoolii Bulchiinsaa // Nagaan Dhufte: {username}</p>
         </div>
         
-        {/* INTERACTIVE PERSPECTIVE SWITCHER BUTTON MODULES */}
+        {/* INTERACTIVE PERSPECTIVE SWITCHER WIDGET */}
         <div className="flex flex-wrap items-center bg-[#1e293b] border border-slate-700 rounded-lg p-1 text-[11px] font-mono gap-1">
-          {/* Switcher buttons content remains same ... */}
+          <span className="text-slate-400 px-2 uppercase text-[9px] font-bold">Daawwannaa:</span>
+          
+          {/* toUpperCase() fayyadamnaan ADMIN fi Admin lamaanuu ni danda'u */}
+          {userRole && userRole.toUpperCase() === 'ADMIN' && (
+            <button onClick={() => { setCurrentRoleView('Director'); setActiveTab('director-overview'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Director' ? 'bg-purple-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>👨‍💼 Daayirektara</button>
+          )}
+          
+          {(userRole && (userRole.toUpperCase() === 'TEACHER' || userRole.toUpperCase() === 'ADMIN')) && (
+            <button onClick={() => { setCurrentRoleView('Instructor'); setActiveTab('instructor-roster'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Instructor' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>👩‍🏫 Barsiisaa</button>
+          )}
+          
+          <button onClick={() => { setCurrentRoleView('Student'); setActiveTab('student-transcript'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Student' ? 'bg-amber-600 text-black shadow' : 'text-slate-400 hover:text-white'}`}>🎒 Barataa</button>
+          
+          <button onClick={handleLogoutSequence} className="ml-2 bg-red-950/40 border border-red-900 text-red-400 text-[10px] px-2 py-1 rounded">Ba’i</button>
         </div>
       </header>
 
-      {/* DYNAMIC NAV CONTENT WRAPPER */}
+      {/* DYNAMIC CONTEXTUAL NAVBAR */}
       <nav className="max-w-6xl mx-auto mb-6 flex flex-wrap bg-[#1e293b] p-1 rounded-lg border border-slate-700 text-xs font-mono gap-1">
-        {/* Navbar buttons content remains same ... */}
+        {currentRoleView === 'Director' && (
+          <>
+            <button onClick={() => setActiveTab('director-overview')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-overview' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>📊 Fayyaalessa Hojii</button>
+            <button onClick={() => setActiveTab('director-finance')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-finance' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>💳 Galmee Galii</button>
+            <button onClick={() => setActiveTab('director-users')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-users' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>🔒 Galmee Barsiisotaa</button>
+          </>
+        )}
+        {currentRoleView === 'Instructor' && (
+          <>
+            <button onClick={() => setActiveTab('instructor-roster')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-roster' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📝 Kuusaa Qabxii</button>
+            <button onClick={() => setActiveTab('instructor-attendance')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-attendance' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📅 Hordoffii Hirmaannaa</button>
+            <button onClick={() => setActiveTab('instructor-exams')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-exams' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📝 Qormaata Baasuu</button>
+            <button onClick={() => setActiveTab('instructor-library')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-library' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📚 Kuusaa Kitaabaa</button>
+          </>
+        )}
+        {currentRoleView === 'Student' && (
+          <>
+            <button onClick={() => setActiveTab('student-transcript')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'student-transcript' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>🎓 Teessoo Qabxii Koo</button>
+            <button onClick={() => setActiveTab('student-exams')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'student-exams' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>📝 Wiirtuu Qormaataa</button>
+            <button onClick={() => setActiveTab('student-library')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'student-library' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>📚 Kitaabbati Dijitaalaa</button>
+          </>
+        )}
       </nav>
 
       <main className="max-w-6xl mx-auto">
-
-        {/* ROLE CONSOLE VIEW 1: EXECUTIVE DIRECTOR OVERVIEW (AFAN OROMOO TRANSLATION) */}
+      
+        {/* ROLE CONSOLE VIEW 1: EXECUTIVE DIRECTOR OVERVIEW (HIGH-CONTRAST UPDATE) */}
         {activeTab === 'director-overview' && (
           <div className="space-y-6 font-mono text-xs">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-surfaceCard p-5 rounded-xl border border-slate-800 flex flex-col justify-between shadow-lg">
+              <div className="bg-[#1e293b] p-5 rounded-xl border border-slate-700 flex flex-col justify-between shadow-xl">
                 <div>
-                  <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Waliigala Gali Masruufaa</span>
+                  <span className="text-slate-300 text-[10px] uppercase font-bold tracking-wider">Waliigala Gali Masruufaa</span>
                   <span className="text-2xl font-black text-emerald-400 mt-2 block">ETB {financeLedger.reduce((acc, curr) => acc + Number(curr.amount_paid || 0), 0).toLocaleString()}</span>
                 </div>
-                <div className="mt-4 pt-2 border-t border-slate-800/60">
-                  <div className="flex justify-between text-[9px] text-slate-500 mb-1"><span>Milkaa'ina Targetii</span><span>74%</span></div>
-                  <svg className="w-full h-1.5 bg-brandNavy rounded-full overflow-hidden">
+                <div className="mt-4 pt-2 border-t border-slate-700">
+                  <div className="flex justify-between text-[9px] text-slate-400 mb-1"><span>Milkaa'ina Targetii</span><span>74%</span></div>
+                  <svg className="w-full h-1.5 bg-[#0f172a] rounded-full overflow-hidden">
                     <rect x="0" y="0" width="74%" height="100%" fill="#10b981" />
                   </svg>
                 </div>
               </div>
 
-              <div className="bg-surfaceCard p-5 rounded-xl border border-slate-800 flex flex-col justify-between shadow-lg">
+              <div className="bg-[#1e293b] p-5 rounded-xl border border-slate-700 flex flex-col justify-between shadow-xl">
                 <div>
-                  <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Giddu-galeessa Qabxii ICT</span>
+                  <span className="text-slate-300 text-[10px] uppercase font-bold tracking-wider">Giddu-galeessa Qabxii ICT</span>
                   <span className="text-2xl font-black text-blue-400 mt-2 block">78.4%</span>
                 </div>
-                <div className="mt-4 pt-2 border-t border-slate-800/60">
-                  <div className="flex justify-between text-[9px] text-slate-500 mb-1"><span>Xumura Silabasii</span><span>78.4%</span></div>
-                  <svg className="w-full h-1.5 bg-brandNavy rounded-full overflow-hidden">
+                <div className="mt-4 pt-2 border-t border-slate-700">
+                  <div className="flex justify-between text-[9px] text-slate-400 mb-1"><span>Xumura Silabasii</span><span>78.4%</span></div>
+                  <svg className="w-full h-1.5 bg-[#0f172a] rounded-full overflow-hidden">
                     <rect x="0" y="0" width="78.4%" height="100%" fill="#3b82f6" />
                   </svg>
                 </div>
               </div>
 
-              <div className="bg-surfaceCard p-5 rounded-xl border border-slate-800 flex flex-col justify-between shadow-lg">
+              <div className="bg-[#1e293b] p-5 rounded-xl border border-slate-700 flex flex-col justify-between shadow-xl">
                 <div>
-                  <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Reetii Darbiinsa Waliigalaa</span>
+                  <span className="text-slate-300 text-[10px] uppercase font-bold tracking-wider">Reetii Darbiinsa Waliigalaa</span>
                   <span className="text-2xl font-black text-amber-400 mt-2 block">92.1%</span>
                 </div>
-                <div className="mt-4 pt-2 border-t border-slate-800/60">
-                  <div className="flex justify-between text-[9px] text-slate-500 mb-1"><span>Barattoota Darban</span><span>92.1%</span></div>
-                  <svg className="w-full h-1.5 bg-brandNavy rounded-full overflow-hidden">
+                <div className="mt-4 pt-2 border-t border-slate-700">
+                  <div className="flex justify-between text-[9px] text-slate-400 mb-1"><span>Barattoota Darban</span><span>92.1%</span></div>
+                  <svg className="w-full h-1.5 bg-[#0f172a] rounded-full overflow-hidden">
                     <rect x="0" y="0" width="92.1%" height="100%" fill="#f59e0b" />
                   </svg>
                 </div>
@@ -361,6 +395,7 @@ export default function Dashboard() {
             </div>
           </div>
         )}
+
                 {/* VIEW 2: DIRECTOR REVENUE LEDGER (SECURED) */}
         {activeTab === 'director-finance' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
