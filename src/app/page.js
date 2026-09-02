@@ -415,33 +415,33 @@ export default function Dashboard() {
                       Process & Deploy Local Sheet 📡
                     </button>
                   </div>
-
                   {/* SUB-SECTION 2: MANUAL TYPING OPTION */}
-                  <div className="bg-brandNavy border border-slate-800 p-2 rounded space-y-2 opacity-60 hover:opacity-100 transition-opacity">
+                  <div className="bg-brandNavy border border-slate-800 p-2 rounded space-y-2">
                     <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wide">✏️ Option B: Type Question Manually</h3>
                     <textarea placeholder="Question Text" value={currentQuestion.text} onChange={e => setCurrentQuestion({...currentQuestion, text: e.target.value})} className="w-full bg-surfaceCard border border-slate-700 p-1.5 rounded h-12 text-white outline-none"></textarea>
                     <input type="text" placeholder="Option A" value={currentQuestion.a} onChange={e => setCurrentQuestion({...currentQuestion, a: e.target.value})} className="w-full bg-surfaceCard border border-slate-700 p-1 text-white rounded outline-none" />
                     <input type="text" placeholder="Option B" value={currentQuestion.b} onChange={e => setCurrentQuestion({...currentQuestion, b: e.target.value})} className="w-full bg-surfaceCard border border-slate-700 p-1 text-white rounded outline-none" />
                     <select value={currentQuestion.correct} onChange={e => setCurrentQuestion({...currentQuestion, correct: e.target.value})} className="w-full bg-surfaceCard border border-slate-700 p-1 text-white rounded outline-none"><option value="A">Key: A</option><option value="B">Key: B</option></select>
-                    <button type="button" onClick={addQuestionToFormState} className="w-full py-1 bg-slate-800 text-slate-300 font-bold border border-slate-700 rounded text-[10px]">SAVE ENTRY ({examForm.questions.length})</button>
-                    <button onClick={handleExamPublishSubmit} className="w-full bg-emerald-600 p-2 text-white font-bold rounded uppercase mt-1">Publish Manual Quiz</button>
-                 {/* Locate these two buttons inside Option B and replace them with these clean styling parameters */}
-<button 
-  type="button" 
-  onClick={addQuestionToFormState} 
-  className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold border border-slate-700 rounded text-[11px] uppercase tracking-wide transition-colors"
->
-  SAVE ENTRY ({examForm.questions.length})
-</button>
+                    
+                    {/* ONLY ONE INSTANCE OF BUTTONS GOES HERE */}
+                    <button 
+                      type="button" 
+                      onClick={addQuestionToFormState} 
+                      className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold border border-slate-700 rounded text-[11px] uppercase tracking-wide transition-colors"
+                    >
+                      SAVE ENTRY ({examForm.questions.length})
+                    </button>
 
-<button 
-  onClick={handleExamPublishSubmit} 
-  className="w-full bg-emerald-600 hover:bg-emerald-700 p-2 text-white font-bold rounded uppercase mt-2 tracking-wider shadow-md transition-colors"
->
-  Publish Manual Quiz
-</button>
- 
-                </div>
+                    <button 
+                      onClick={handleExamPublishSubmit} 
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 p-2 text-white font-bold rounded uppercase mt-2 tracking-wider shadow-md transition-colors"
+                    >
+                      Publish Manual Quiz
+                    </button>
+                  </div>
+
+                  
+
                 </div>
               ) : ( <div className="text-slate-400 text-center p-4 bg-brandNavy border border-slate-800 rounded">🎒 Active assessments load according to grade sections.</div> )}
             </section>
