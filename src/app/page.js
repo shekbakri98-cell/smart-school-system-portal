@@ -318,25 +318,55 @@ export default function Dashboard() {
       </nav>
 
       <main className="max-w-6xl mx-auto">
-        {/* VIEW 1: EXECUTIVE DIRECTOR OVERVIEW */}
+               {/* ROLE CONSOLE VIEW 1: EXECUTIVE DIRECTOR OVERVIEW WITH ANIMATED SVG METERS */}
         {activeTab === 'director-overview' && (
           <div className="space-y-6 font-mono text-xs">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-surfaceCard p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
-                <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Total Revenue Pool</span>
-                <span className="text-2xl font-black text-emerald-400 mt-2">ETB {financeLedger.reduce((acc, curr) => acc + Number(curr.amount_paid || 0), 0).toLocaleString()}</span>
+              <div className="bg-surfaceCard p-5 rounded-xl border border-slate-800 flex flex-col justify-between shadow-lg">
+                <div>
+                  <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Total Revenue Pool</span>
+                  <span className="text-2xl font-black text-emerald-400 mt-2 block">ETB {financeLedger.reduce((acc, curr) => acc + Number(curr.amount_paid || 0), 0).toLocaleString()}</span>
+                </div>
+                {/* SVG Visual Progress Bar */}
+                <div className="mt-4 pt-2 border-t border-slate-800/60">
+                  <div className="flex justify-between text-[9px] text-slate-500 mb-1"><span>Target Realization</span><span>74%</span></div>
+                  <svg className="w-full h-1.5 bg-brandNavy rounded-full overflow-hidden">
+                    <rect x="0" y="0" width="74%" height="100%" fill="#10b981" className="transition-all duration-1000" />
+                  </svg>
+                </div>
               </div>
-              <div className="bg-surfaceCard p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
-                <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">ICT Class Performance Mean</span>
-                <span className="text-2xl font-black text-blue-400 mt-2">78.4%</span>
+
+              <div className="bg-surfaceCard p-5 rounded-xl border border-slate-800 flex flex-col justify-between shadow-lg">
+                <div>
+                  <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">ICT Performance Mean</span>
+                  <span className="text-2xl font-black text-blue-400 mt-2 block">78.4%</span>
+                </div>
+                {/* SVG Visual Progress Bar */}
+                <div className="mt-4 pt-2 border-t border-slate-800/60">
+                  <div className="flex justify-between text-[9px] text-slate-500 mb-1"><span>Syllabus Absorption</span><span>78.4%</span></div>
+                  <svg className="w-full h-1.5 bg-brandNavy rounded-full overflow-hidden">
+                    <rect x="0" y="0" width="78.4%" height="100%" fill="#3b82f6" className="transition-all duration-1000" />
+                  </svg>
+                </div>
               </div>
-              <div className="bg-surfaceCard p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
-                <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Absolute Institution Pass Rate</span>
-                <span className="text-2xl font-black text-amber-400 mt-2">92.1%</span>
+
+              <div className="bg-surfaceCard p-5 rounded-xl border border-slate-800 flex flex-col justify-between shadow-lg">
+                <div>
+                  <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Absolute Pass Rate</span>
+                  <span className="text-2xl font-black text-amber-400 mt-2 block">92.1%</span>
+                </div>
+                {/* SVG Visual Progress Bar */}
+                <div className="mt-4 pt-2 border-t border-slate-800/60">
+                  <div className="flex justify-between text-[9px] text-slate-500 mb-1"><span>Roster Density Passing</span><span>92.1%</span></div>
+                  <svg className="w-full h-1.5 bg-brandNavy rounded-full overflow-hidden">
+                    <rect x="0" y="0" width="92.1%" height="100%" fill="#f59e0b" className="transition-all duration-1000" />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
         )}
+
 
         {/* VIEW 2: DIRECTOR REVENUE LEDGER */}
         {activeTab === 'director-finance' && (
