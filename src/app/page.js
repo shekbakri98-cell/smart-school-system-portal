@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [students, setStudents] = useState([]);
   const [studentForm, setStudentForm] = useState({ studentId: '', name: '' });
   const [studentsLoading, setStudentsLoading] = useState(false);
+
   // Attendance Section States
   const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().split('T')[0]);
   const [attendanceRecords, setAttendanceRecords] = useState([]);
@@ -29,6 +30,7 @@ export default function Dashboard() {
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [studentAnswers, setStudentAnswers] = useState({});
   const [studentExId, setStudentExId] = useState('');
+
   // Finance Section States
   const [financeLedger, setFinanceLedger] = useState([]);
   const [financeLoading, setFinanceLoading] = useState(false);
@@ -64,6 +66,7 @@ export default function Dashboard() {
       setUsername(storedName);
     }
   }, []);
+
   // Central Dynamic Monitor Hook
   useEffect(() => {
     if (activeTab === 'instructor-roster' || activeTab === 'student-transcript') { fetchLiveRosterData(); } 
@@ -73,7 +76,6 @@ export default function Dashboard() {
     else if (activeTab === 'student-library' || activeTab === 'instructor-library') { fetchLiveLibraryBooks(); } 
     else if (activeTab === 'director-users') { fetchSystemUsers(); }
   }, [selectedGrade, activeTab, attendanceDate, currentRoleView]);
-
   // REST API Pipeline Fetch Handlers
   async function fetchLiveRosterData() {
     setStudentsLoading(true);
@@ -92,6 +94,7 @@ export default function Dashboard() {
       setAttendanceRecords(result.data || []);
     } catch (err) { console.error(err); } finally { setAttendanceLoading(false); }
   }
+
   async function fetchLiveExams() {
     setExamsLoading(true);
     try {
@@ -127,6 +130,7 @@ export default function Dashboard() {
       setSystemUsers(result.users || []);
     } catch (err) { console.error(err); } finally { setUsersLoading(false); }
   }
+
   // Submission Form Event Handlers
   async function handleEnrollmentSubmit(e) {
     e.preventDefault();
@@ -181,6 +185,7 @@ export default function Dashboard() {
       fetchLiveRosterData();
     } catch (err) { console.error(err); }
   }
+
   async function handleAttendanceCellChange(studentId, targetStatus) {
     try {
       const res = await fetch('/api/attendance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, date: attendanceDate, status: targetStatus }) });
@@ -201,7 +206,6 @@ export default function Dashboard() {
       if (res.ok) { alert("Exam structure deployed!"); setExamForm({ title: '', subject: 'ICT', questions: [] }); fetchLiveExams(); }
     } catch (err) { console.error(err); }
   }
-
   function triggerFinanceCSVExport() {
     if (!financeLedger || financeLedger.length === 0) return alert("No active logs.");
     let csv = "data:text/csv;charset=utf-8,Student ID,Full Name,Category,Due,Paid,Status\n";
@@ -218,7 +222,6 @@ export default function Dashboard() {
         <head>
           <title>Certificate - \${student.name}</title>
           <style>
-            @import url('https://googleapis.com');
             body { font-family: 'Share Tech Mono', monospace; padding: 20px; background: #fafafa; color: #1e293b; }
             .cert-border { border: 6px double #1e3a8a; padding: 30px; background: #ffffff; max-width: 800px; margin: auto; }
             .header-block { font-family: 'Cinzel', serif; font-size: 24px; color: #1e3a8a; text-align: center; }
@@ -239,9 +242,9 @@ export default function Dashboard() {
             <div class="sub-title">Official Student Performance Certificate</div>
             <div class="meta-grid">
               <div><strong>Student Name:</strong> \${student.name}</div>
-              <div><strong>Student ID:</strong> \${student.studentId}</div>
-              <div><strong>Grade Track:</strong> \${selectedGrade}</div>
-              <div><strong>Subject:</strong> \${student.subject || 'ICT'}</div>
+              <div><strong>Student ID:</strong> \text{\${student.studentId}}</div>
+              <div><strong>Grade Track:</strong> \text{\${selectedGrade}}</div>
+              <div><strong>Subject:</strong> \text{\${student.subject || 'ICT'}}</div>
             </div>
             <table class="tbl">
               <thead><tr><th style="text-align:left;">Assessment Component</th><th>Limit</th><th>Score Achieved</th></tr></thead>
@@ -268,6 +271,7 @@ export default function Dashboard() {
     document.cookie = "userRole=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     window.location.href = '/login';
   }
+
   return (
     <div className="min-h-screen bg-brandNavy text-slate-100 p-6">
       {/* ENTERPRISE VIEW CONTROL PANEL HEADER */}
@@ -361,12 +365,11 @@ export default function Dashboard() {
             <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800"><h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 text-xs">Faculty Registry</h3><div className="overflow-x-auto"><table className="w-full text-left"><thead><tr className="text-slate-400 text-[10px] uppercase"><th className="pb-2">User Identity</th><th>Email Route</th><th className="text-right">Access Permission</th></tr></thead><tbody className="divide-y divide-slate-800 text-slate-300">{systemUsers.map((user, idx) => (<tr key={idx}><td className="py-2.5 font-semibold text-slate-200">{user.username}</td><td>{user.email}</td><td className="text-right font-bold text-purple-400">{user.role}</td></tr>))}</tbody></table></div></section>
           </div>
         )}
-
-              {/* VIEW 4: INSTRUCTOR GRADING SHEET MATRIX */}
+        {/* VIEW 4: INSTRUCTOR GRADING SHEET MATRIX */}
         {activeTab === 'instructor-roster' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
             <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 h-fit space-y-3">
-              <h2 className="font-bold border-b border-slate-700 pb-1 text-slate-100 uppercase text-xs">Enroll Scholar</h2>
+              <h2 className="font-bold border-b border-slate-700 pb-1 text-slate-100 uppercase text-xs">Enroll New Scholar</h2>
               <form onSubmit={handleEnrollmentSubmit} className="space-y-2">
                 <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded">
                   <option value="12 Natural">12 Natural</option>
@@ -465,7 +468,6 @@ export default function Dashboard() {
             </div>
           </section>
         )}
-
         {/* VIEW 6: INSTRUCTOR EXAMS MODULE */}
         {activeTab === 'instructor-exams' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
@@ -483,11 +485,65 @@ export default function Dashboard() {
                   </select>
                   <button type="button" onClick={addQuestionToFormState} className="w-full py-1 bg-slate-800 text-amber-400 font-bold border border-slate-700 rounded text-[10px]">SAVE ENTRY ({examForm.questions.length})</button>
                 </div>
-Publish Manual Quiz
-  )}
-{/* VIEW 7: INSTRUCTOR LIBRARY TEXTBOOK CATALOG */}
-{activeTab === 'instructor-library' && (
-)}
+                <button type="submit" className="w-full bg-blue-600 p-2 text-white font-bold rounded uppercase">Publish Manual Quiz</button>
+              </form>
+            </section>
+            <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
+              <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 text-xs">Active Testing Matrix</h3>
+              <div className="space-y-2">
+                {exams.map((ex, idx) => (
+                  <div key={idx} className="p-3 bg-brandNavy border border-slate-800 rounded flex justify-between items-center">
+                    <div>
+                      <p className="font-bold text-slate-200">{ex.title}</p>
+                      <p className="text-[10px] text-slate-500 uppercase mt-0.5">Subject: {ex.subject} // Track: {ex.grade_section}</p>
+                    </div>
+                    <span className="text-[10px] bg-slate-800 border border-slate-700 px-2 py-1 rounded text-slate-400 font-bold uppercase">Active Live</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* VIEW 7: INSTRUCTOR LIBRARY TEXTBOOK CATALOG */}
+        {activeTab === 'instructor-library' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
+            <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 space-y-3">
+              <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Catalog Textbook</h2>
+              <form onSubmit={handleLibrarySubmit} className="space-y-2">
+                <input type="text" placeholder="Resource Title" value={libraryForm.title} onChange={e => setLibraryForm({...libraryForm, title: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                <input type="text" placeholder="Author Name" value={libraryForm.author} onChange={e => setLibraryForm({...libraryForm, author: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                <input type="text" placeholder="Asset Download Link URL" value={libraryForm.downloadUrl} onChange={e => setLibraryForm({...libraryForm, downloadUrl: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                <button type="submit" className="w-full bg-blue-600 p-2 text-white font-bold rounded uppercase">Commit Asset</button>
+              </form>
+            </section>
+            <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
+              <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 text-xs">Library Distribution Records</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-400 text-[10px] uppercase">
+                      <th className="pb-2">Title</th>
+                      <th>Author</th>
+                      <th>Section</th>
+                      <th className="text-right">Access</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800 text-slate-300">
+                    {books.map((b, idx) => (
+                      <tr key={idx} className="hover:bg-slate-900/20">
+                        <td className="py-2.5 font-semibold text-slate-200">{b.title}</td>
+                        <td>{b.author}</td>
+                        <td>{b.grade_section}</td>
+                        <td className="text-right"><a href={b.download_url} target="_blank" rel="noreferrer" className="text-blue-400 underline font-bold">Download 📥</a></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        )}
 {/* VIEW 8: STUDENT TRANSCRIPT ACCESSIBILITY */}
         {activeTab === 'student-transcript' && (
           <section className="bg-surfaceCard p-5 rounded-xl border border-slate-800 font-mono text-xs max-w-3xl mx-auto space-y-4">
@@ -629,3 +685,5 @@ Publish Manual Quiz
     </div>
   );
 }
+        
+        
