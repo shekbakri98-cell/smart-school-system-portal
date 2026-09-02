@@ -600,6 +600,42 @@ export default function Dashboard() {
             </section>
           </div>
         )}
+      {/* FLOATING CONTEXT-AWARE CONVERSATIONAL ASSISTANT WIDGET (AFAN OROMOO TRANSLATION) */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <div className="bg-surfaceCard border border-slate-800 shadow-2xl rounded-xl p-4 w-72 space-y-3 font-mono text-xs">
+          <div className="flex justify-between items-center border-b border-slate-700 pb-1.5">
+            <span className="font-bold text-emerald-400 animate-pulse">● Gargaaraa AI Dijitaalaa</span>
+            <span className="text-[10px] text-slate-500 uppercase tracking-widest">v3.3 Node</span>
+          </div>
+          <div className="h-32 overflow-y-auto bg-brandNavy p-2 rounded text-slate-300 space-y-1.5 text-[11px]" id="aiTerminalChatLog">
+            <p className="text-slate-500">// Sararri terminal amansiisaa dha.</p>
+            <p className="text-emerald-400 font-bold">Gargaaraa AI:</p>
+            <p className="leading-relaxed">Akkam! Mana barumsaa keessan irratti har'a maal si gargaaruu danda'a?</p>
+          </div>
+          <div className="flex gap-1.5">
+            <input 
+              type="text" 
+              placeholder="Gaaffii kee asitti barreessi..." 
+              onKeyDown={async (e) => {
+                if (e.key === 'Enter' && e.target.value.trim()) {
+                  const txt = e.target.value; e.target.value = '';
+                  const log = document.getElementById('aiTerminalChatLog');
+                  log.innerHTML += `<p class="text-blue-400 font-bold mt-1">Isin:</p><p class="text-slate-200">${txt}</p>`;
+                  
+                  const res = await fetch('/api/ai-chat', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: txt, userRole: 'Admin' })
+                  });
+                  const d = await res.json();
+                  log.innerHTML += `<p class="text-emerald-400 font-bold mt-1">Gargaaraa AI:</p><p class="text-slate-300">${d.reply}</p>`;
+                  log.scrollTop = log.scrollHeight;
+                }
+              }}
+              className="w-full bg-brandNavy border border-slate-800 rounded p-1.5 text-white outline-none text-[11px]" 
+            />
+          </div>
+        </div>
+      </div>
 
         {/* VIEW 7: INSTRUCTOR LIBRARY TEXTBOOK CATALOG */}
         {activeTab === 'instructor-library' && (
