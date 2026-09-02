@@ -513,27 +513,26 @@ export default function Dashboard() {
             </section>
           </div>
         )}
-  
-        {/* VIEW 4: INSTRUCTOR GRADING SHEET MATRIX */}
+                  {/* VIEW 4: INSTRUCTOR GRADING SHEET MATRIX (HIGH-CONTRAST UPDATE) */}
         {activeTab === 'instructor-roster' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
-            <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 h-fit space-y-3">
-              <h2 className="font-bold border-b border-slate-700 pb-1 text-slate-100 uppercase text-xs">Enroll New Scholar</h2>
+            <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 h-fit space-y-3 shadow-xl">
+              <h2 className="font-bold border-b border-slate-700 pb-1 text-slate-100 uppercase text-xs">Barataa Haaraa Galmeessi</h2>
               <form onSubmit={handleEnrollmentSubmit} className="space-y-2">
-                <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded">
+                <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded">
                   <option value="12 Natural">12 Natural</option>
                   <option value="12 Social">12 Social</option>
                 </select>
-                <input type="text" placeholder="Student ID" value={studentForm.studentId} onChange={e => setStudentForm({...studentForm, studentId: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
-                <input type="text" placeholder="Full Name" value={studentForm.name} onChange={e => setStudentForm({...studentForm, name: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
-                <button type="submit" className="w-full bg-blue-600 p-2 text-white font-bold rounded uppercase">Kuusi Galmeessi</button>
+                <input type="text" placeholder="ID Barataa" value={studentForm.studentId} onChange={e => setStudentForm({...studentForm, studentId: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-blue-500" required />
+                <input type="text" placeholder="Maqaa Guutuu" value={studentForm.name} onChange={e => setStudentForm({...studentForm, name: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-blue-500" required />
+                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 p-2 text-white font-bold rounded uppercase transition-colors">Kuusi Galmeessi</button>
               </form>
             </section>
 
-            <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800 overflow-hidden">
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="font-bold text-slate-200 text-xs">Active Marks Sheets</h3>
-                <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-brandNavy border border-slate-800 p-1 text-white rounded outline-none">
+            <section className="lg:col-span-2 bg-[#1e293b] p-4 rounded-lg border border-slate-700 overflow-hidden shadow-xl">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-bold text-slate-200 text-xs">Galmee Qabxii Barattootaa</h3>
+                <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-[#0f172a] border border-slate-700 p-1 text-white rounded outline-none text-xs">
                   <option value="12 Natural">12 Natural</option>
                   <option value="12 Social">12 Social</option>
                 </select>
@@ -541,28 +540,28 @@ export default function Dashboard() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left whitespace-nowrap">
                   <thead>
-                    <tr className="border-b border-slate-800 text-slate-400 text-[10px] uppercase">
+                    <tr className="border-b border-slate-700 text-slate-400 text-[10px] uppercase tracking-wider">
                       <th className="pb-2">ID</th>
-                      <th>Maqaa</th>
+                      <th>Maqaa Barataa</th>
                       <th>T1 (10)</th>
                       <th>T2 (10)</th>
                       <th>Asgn (20)</th>
                       <th>Final (60)</th>
-                      <th className="text-center">Total</th>
-                      <th className="text-right">Print</th>
+                      <th className="text-center">Waliigala</th>
+                      <th className="text-right">Waraqa</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800 text-slate-300">
+                  <tbody className="divide-y divide-slate-700 text-slate-300">
                     {students.map((s, idx) => (
-                      <tr key={idx} className="hover:bg-slate-900/20">
+                      <tr key={idx} className="hover:bg-[#0f172a]/40 transition-colors">
                         <td className="py-2.5 font-bold text-blue-400">{s.studentId}</td>
-                        <td className="font-semibold text-slate-200">{s.name}</td>
-                        <td><input type="number" defaultValue={s.test1} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'test1', e.target.value)} className="w-10 bg-brandNavy text-center rounded border border-slate-800 text-white" /></td>
-                        <td><input type="number" defaultValue={s.test2} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'test2', e.target.value)} className="w-10 bg-brandNavy text-center rounded border border-slate-800 text-white" /></td>
-                        <td><input type="number" defaultValue={s.assignment} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'assignment', e.target.value)} className="w-10 bg-brandNavy text-center rounded border border-slate-800 text-white" /></td>
-                        <td><input type="number" defaultValue={s.finalExam} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'finalExam', e.target.value)} className="w-10 bg-brandNavy text-center rounded border border-slate-800 text-white" /></td>
-                        <td className="text-center font-black text-emerald-400">{s.totalScore || 0}</td>
-                        <td className="text-right"><button onClick={() => triggerStudentReportCardPrint(s)} className="bg-slate-800 text-amber-400 border border-slate-700 font-bold px-2 py-0.5 rounded text-[10px]">🖨️ Cert</button></td>
+                        <td className="font-semibold text-slate-100">{s.name}</td>
+                        <td><input type="number" defaultValue={s.test1} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'test1', e.target.value)} className="w-12 bg-[#0f172a] text-center rounded border border-slate-700 text-white p-1 focus:border-blue-500" /></td>
+                        <td><input type="number" defaultValue={s.test2} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'test2', e.target.value)} className="w-12 bg-[#0f172a] text-center rounded border border-slate-700 text-white p-1 focus:border-blue-500" /></td>
+                        <td><input type="number" defaultValue={s.assignment} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'assignment', e.target.value)} className="w-12 bg-[#0f172a] text-center rounded border border-slate-700 text-white p-1 focus:border-blue-500" /></td>
+                        <td><input type="number" defaultValue={s.finalExam} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'finalExam', e.target.value)} className="w-12 bg-[#0f172a] text-center rounded border border-slate-700 text-white p-1 focus:border-blue-500" /></td>
+                        <td className="text-center font-black text-emerald-400 text-sm">{s.totalScore || 0}</td>
+                        <td className="text-right"><button onClick={() => triggerStudentReportCardPrint(s)} className="bg-slate-700 hover:bg-slate-600 text-amber-400 border border-slate-600 font-bold px-2 py-1 rounded text-[10px] transition-colors">🖨️ Cert</button></td>
                       </tr>
                     ))}
                   </tbody>
@@ -571,6 +570,7 @@ export default function Dashboard() {
             </section>
           </div>
         )}
+
 
         {/* VIEW 5: INSTRUCTOR SESSION ATTENDANCE MATRIX */}
         {activeTab === 'instructor-attendance' && (
