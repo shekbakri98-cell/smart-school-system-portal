@@ -202,27 +202,21 @@ export default function Dashboard() {
       if (res.ok) { alert("Online examination module deployed successfully!"); setExamForm({ title: '', subject: 'ICT', questions: [] }); fetchLiveExams(); }
     } catch (err) { console.error(err); }
   }
-  function triggerStudentReportCardPrint(student) {
-    const pWin = window.open('', '_blank');
-    pWin.document.write(`
-      // LOCAL DATA EXCEL/CSV LEDGER EXPORT TOOL UTILITY
+    // 1. DYNAMIC DATA EXCEL/CSV LEDGER EXPORT UTILITY (SEPARATED CLEANLY)
   function triggerFinanceCSVExport() {
     if (!financeLedger || financeLedger.length === 0) {
       alert("No active transaction data logs available to compile for local export.");
       return;
     }
 
-    // Build standard structured CSV header nodes rows
     let csvContent = "data:text/csv;charset=utf-8,Student ID,Full Name,Fee Type Category,Amount Due (ETB),Amount Paid (ETB),Payment Matrix Status\n";
     
-    // Unpack data rows array loops systematically split into columns dividers
     financeLedger.forEach((row) => {
       const cleanName = row.name ? row.name.replace(/,/g, " ") : "Unknown Student";
       const line = `${row.studentId},${cleanName},${row.fee_type},${row.amount_due},${row.amount_paid},${row.payment_status}\n`;
       csvContent += line;
     });
 
-    // Fire browser download pipeline using hidden data anchor handles
     const encodedUri = encodeURI(csvContent);
     const linkAnchor = document.createElement("a");
     linkAnchor.setAttribute("href", encodedUri);
@@ -232,13 +226,13 @@ export default function Dashboard() {
     document.body.removeChild(linkAnchor);
   }
 
-  // PREMIUM STYLED CERTIFICATE GENERATION ENGINE (UPGRADED CSS INTERFACE)
+  // 2. PREMIUM STYLED CERTIFICATE GENERATION ENGINE
   function triggerStudentReportCardPrint(student) {
     const pWin = window.open('', '_blank');
     pWin.document.write(`
       <html>
         <head>
-          <title>Academic Certificate - ${student.name}</title>
+          <title>Academic Certificate - \${student.name}</title>
           <style>
             @import url('https://googleapis.com');
             body { font-family: 'Share Tech Mono', monospace; padding: 20px; background: #fafafa; color: #1e293b; }
@@ -264,10 +258,10 @@ export default function Dashboard() {
             <div class="sub-title">Official Student Performance Certificate</div>
             
             <div class="meta-grid">
-              <div class="meta-item"><strong>Student Roster:</strong> ${student.name}</div>
-              <div class="meta-item"><strong>Identifier ID:</strong> ${student.studentId}</div>
-              <div class="meta-item"><strong>Grade Track:</strong> ${selectedGrade}</div>
-              <div class="meta-item"><strong>Subject Branch:</strong> ${student.subject || 'ICT Core Matrix'}</div>
+              <div class="meta-item"><strong>Student Roster:</strong> \${student.name}</div>
+              <div class="meta-item"><strong>Identifier ID:</strong> \${student.studentId}</div>
+              <div class="meta-item"><strong>Grade Track:</strong> \${selectedGrade}</div>
+              <div class="meta-item"><strong>Subject Branch:</strong> \${student.subject || 'ICT Core Matrix'}</div>
             </div>
 
             <table class="tbl">
@@ -275,11 +269,11 @@ export default function Dashboard() {
                 <tr><th>Assessment Evaluation Category</th><th>Maximum Limit</th><th>Score Achieved</th></tr>
               </thead>
               <tbody>
-                <tr><td>Continuous Assessment Test 1</td><td>10 Marks</td><td>${student.test1 || 0}</td></tr>
-                <tr><td>Continuous Assessment Test 2</td><td>10 Marks</td><td>${student.test2 || 0}</td></tr>
-                <tr><td>Practical Lab Assignment Work</td><td>20 Marks</td><td>${student.assignment || 0}</td></tr>
-                <tr><td>Final Comprehensive Examination</td><td>60 Marks</td><td>${student.finalExam || 0}</td></tr>
-                <tr class="total-row"><td>Waliigala / Cumulative Achievement Scale</td><td>100 Marks</td><td>${student.totalScore || 0} / 100</td></tr>
+                <tr><td>Continuous Assessment Test 1</td><td>10 Marks</td><td>\${student.test1 || 0}</td></tr>
+                <tr><td>Continuous Assessment Test 2</td><td>10 Marks</td><td>\${student.test2 || 0}</td></tr>
+                <tr><td>Practical Lab Assignment Work</td><td>20 Marks</td><td>\${student.assignment || 0}</td></tr>
+                <tr><td>Final Comprehensive Examination</td><td>60 Marks</td><td>\${student.finalExam || 0}</td></tr>
+                <tr class="total-row"><td>Waliigala / Cumulative Achievement Scale</td><td>100 Marks</td><td>\${student.totalScore || 0} / 100</td></tr>
               </tbody>
             </table>
 
