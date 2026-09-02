@@ -364,28 +364,76 @@ export default function Dashboard() {
             </div>
           </section>
         )}
-        {/* VIEW 3: ONLINE EXAMS ASSESSMENT ENGINE */}
+                {/* VIEW 3: ONLINE QUIZ ASSESSMENT MANAGER (UPGRADED WITH LOCAL FILE BULK UPLOAD) */}
         {activeTab === 'exams' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-xs font-mono">
             <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 space-y-3">
               <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase">Deploy Examination</h2>
               {userRole === 'Admin' ? (
-                <div className="space-y-2">
-                  <input type="text" placeholder="Exam Title" value={examForm.title} onChange={e => setExamForm({...examForm, title: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" />
-                  <div className="bg-brandNavy border border-slate-800 p-2 rounded space-y-2">
+                <div className="space-y-4">
+                  {/* Common Exam Metadata Fields */}
+                  <div className="space-y-2">
+                    <input type="text" placeholder="Exam Title (e.g., Final Quiz)" id="bulkExamTitle" className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" />
+                    <select id="bulkExamSubject" className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded"><option value="ICT">ICT Matrix</option><option value="Maths">Mathematics</option></select>
+                  </div>
+
+                  {/* SUB-SECTION 1: BULK LOCAL FILE UPLOAD LAYER */}
+                  <div className="bg-brandNavy p-3 rounded border border-blue-900/40 space-y-2">
+                    <h3 className="font-bold text-blue-400 text-[10px] uppercase tracking-wide">📦 Option A: Bulk upload from local file</h3>
+                    <p className="text-[9px] text-slate-400">// Format: Question,OptionA,OptionB,OptionC,OptionD,CorrectKey</p>
+                    <input 
+                      type="file" 
+                      accept=".csv,.txt"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = async (event) => {
+                          localStorage.setItem('cachedBulkCsvData', event.target.result);
+                          alert("Local spreadsheet file loaded into buffer memory successfully!");
+                        };
+                        reader.readAsText(file);
+                      }}
+                      className="w-full text-slate-400 bg-surfaceCard p-1.5 rounded border border-slate-800 text-[10px]"
+                    />
+                    <button 
+                      onClick={async () => {
+                        const titleVal = document.getElementById('bulkExamTitle').value;
+                        const subVal = document.getElementById('bulkExamSubject').value;
+                        const csvData = localStorage.getItem('cachedBulkCsvData');
+                        
+                        if (!titleVal || !csvData) { return alert("Please specify an Exam Title and select a local file source first."); }
+                        
+                        const response = await fetch('/api/exams/bulk', {
+                          method: 'POST', headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ title: titleVal, gradeSection: selectedGrade, subject: subVal, rawCsvData: csvData })
+                        });
+                        if (response.ok) { alert("Bulk questions deployed live successfully!"); localStorage.removeItem('cachedBulkCsvData'); fetchLiveExams(); }
+                      }}
+                      className="w-full bg-blue-600 hover:bg-blue-700 py-1.5 font-bold text-white rounded uppercase text-[10px]"
+                    >
+                      Process & Deploy Local Sheet 📡
+                    </button>
+                  </div>
+
+                  {/* SUB-SECTION 2: MANUAL TYPING OPTION */}
+                  <div className="bg-brandNavy border border-slate-800 p-2 rounded space-y-2 opacity-60 hover:opacity-100 transition-opacity">
+                    <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wide">✏️ Option B: Type Question Manually</h3>
                     <textarea placeholder="Question Text" value={currentQuestion.text} onChange={e => setCurrentQuestion({...currentQuestion, text: e.target.value})} className="w-full bg-surfaceCard border border-slate-700 p-1.5 rounded h-12 text-white outline-none"></textarea>
                     <input type="text" placeholder="Option A" value={currentQuestion.a} onChange={e => setCurrentQuestion({...currentQuestion, a: e.target.value})} className="w-full bg-surfaceCard border border-slate-700 p-1 text-white rounded outline-none" />
                     <input type="text" placeholder="Option B" value={currentQuestion.b} onChange={e => setCurrentQuestion({...currentQuestion, b: e.target.value})} className="w-full bg-surfaceCard border border-slate-700 p-1 text-white rounded outline-none" />
                     <select value={currentQuestion.correct} onChange={e => setCurrentQuestion({...currentQuestion, correct: e.target.value})} className="w-full bg-surfaceCard border border-slate-700 p-1 text-white rounded outline-none"><option value="A">Key: A</option><option value="B">Key: B</option></select>
-                    <button type="button" onClick={addQuestionToFormState} className="w-full py-1 bg-slate-800 text-slate-300 font-bold border border-slate-700 rounded text-[10px]">ADD QUESTION ({examForm.questions.length})</button>
+                    <button type="button" onClick={addQuestionToFormState} className="w-full py-1 bg-slate-800 text-slate-300 font-bold border border-slate-700 rounded text-[10px]">SAVE ENTRY ({examForm.questions.length})</button>
+                    <button onClick={handleExamPublishSubmit} className="w-full bg-emerald-600 p-2 text-white font-bold rounded uppercase mt-1">Publish Manual Quiz</button>
                   </div>
-                  <button onClick={handleExamPublishSubmit} className="w-full bg-emerald-600 p-2 text-white font-bold rounded uppercase">Publish Assessment</button>
                 </div>
               ) : ( <div className="text-slate-400 text-center p-4 bg-brandNavy border border-slate-800 rounded">🎒 Active assessments load according to grade sections.</div> )}
             </section>
+            
             <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
               <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 uppercase">Active Testing Matrix Nodes</h3>
               <div className="space-y-2">
+                {examsLoading && <p className="text-slate-400 animate-pulse">Syncing nodes...</p>}
                 {!examsLoading && exams.map((ex, idx) => (
                   <div key={idx} className="p-3 bg-brandNavy border border-slate-800 rounded flex justify-between items-center">
                     <div><p className="font-bold text-slate-200">{ex.title}</p><p className="text-[10px] text-slate-500 uppercase">Subject: {ex.subject} // Grade: {ex.grade_section}</p></div>
