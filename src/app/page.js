@@ -438,22 +438,31 @@ export default function Dashboard() {
             </section>
           </div>
         )}
-        {/* ROLE CONSOLE VIEW 3: DIRECTOR FACULTY PROFILES (AFAN OROMOO TRANSLATION) */}
+            {/* ROLE CONSOLE VIEW 3: DIRECTOR FACULTY PROFILES (SECURED FOR ADMIN ONLY) */}
         {activeTab === 'director-users' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
             <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 h-fit space-y-3">
               <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Eenyummaa Haaraa Banu</h2>
-              <form onSubmit={handleUserCreationSubmit} className="space-y-2">
-                <input type="text" placeholder="Maqaa Fayyadamaa" value={userForm.username} onChange={e => setUserForm({...userForm, username: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
-                <input type="email" placeholder="Imeelii" value={userForm.email} onChange={e => setUserForm({...userForm, email: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
-                <input type="password" placeholder="Jecha Iccitii" value={userForm.password} onChange={e => setUserForm({...userForm, password: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
-                <select value={userForm.role} onChange={e => setUserForm({...userForm, role: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded">
-                  <option value="Teacher">Barsiisaa</option>
-                  <option value="Admin">Daayirektara (Admin)</option>
-                </select>
-                <button type="submit" className="w-full bg-purple-600 p-2 text-white font-bold rounded uppercase">Galmeessi</button>
-              </form>
+              
+              {/* ADMIN ACCESS GUARD: Daayirektara qofaaf eegumsa uumuu */}
+              {userRole === 'Admin' ? (
+                <form onSubmit={handleUserCreationSubmit} className="space-y-2">
+                  <input type="text" placeholder="Maqaa Fayyadamaa" value={userForm.username} onChange={e => setUserForm({...userForm, username: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                  <input type="email" placeholder="Imeelii" value={userForm.email} onChange={e => setUserForm({...userForm, email: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                  <input type="password" placeholder="Jecha Iccitii" value={userForm.password} onChange={e => setUserForm({...userForm, password: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                  <select value={userForm.role} onChange={e => setUserForm({...userForm, role: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded">
+                    <option value="Teacher">Barsiisaa</option>
+                    <option value="Admin">Daayirektara (Admin)</option>
+                  </select>
+                  <button type="submit" className="w-full bg-purple-600 p-2 text-white font-bold rounded uppercase">Galmeessi</button>
+                </form>
+              ) : (
+                <div className="p-4 text-center text-red-400 bg-brandNavy border border-red-900/30 rounded-lg">
+                  ⚠️ Akeekkachiisa: Uunka kana fayyadamuuf aangoo Daayirektaraa (Admin) qabaachuu si barbaachisa.
+                </div>
+              )}
             </section>
+            
             <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
               <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 text-xs">Galmee Piroofayilii Hojjattootaa</h3>
               <div className="overflow-x-auto">
@@ -481,7 +490,7 @@ export default function Dashboard() {
             </section>
           </div>
         )}
-     
+  
         {/* VIEW 4: INSTRUCTOR GRADING SHEET MATRIX */}
         {activeTab === 'instructor-roster' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
