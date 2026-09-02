@@ -445,15 +445,43 @@ export default function Dashboard() {
                 </div>
               ) : ( <div className="text-slate-400 text-center p-4 bg-brandNavy border border-slate-800 rounded">🎒 Active assessments load according to grade sections.</div> )}
             </section>
-            
+                        {/* Replace your right-hand testing matrix section with this interactive interface block */}
             <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
               <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 uppercase">Active Testing Matrix Nodes</h3>
-              <div className="space-y-2">
-                {examsLoading && <p className="text-slate-400 animate-pulse">Syncing nodes...</p>}
+              <div className="space-y-3">
+                {examsLoading && <p className="text-slate-400 animate-pulse">// Syncing exam arrays...</p>}
                 {!examsLoading && exams.map((ex, idx) => (
-                  <div key={idx} className="p-3 bg-brandNavy border border-slate-800 rounded flex justify-between items-center">
-                    <div><p className="font-bold text-slate-200">{ex.title}</p><p className="text-[10px] text-slate-500 uppercase">Subject: {ex.subject} // Grade: {ex.grade_section}</p></div>
-                    <button onClick={() => alert('Launching container testing terminal.')} className="px-3 py-1 bg-blue-600 font-bold text-white rounded text-[10px] uppercase">Launch</button>
+                  <div key={idx} className="p-4 bg-brandNavy border border-slate-800 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                    <div>
+                      <p className="font-bold text-slate-200 text-sm">{ex.title}</p>
+                      <p className="text-[10px] text-slate-500 uppercase mt-0.5">Subject: {ex.subject} // Track: {ex.grade_section}</p>
+                    </div>
+                    <button 
+                      onClick={async () => {
+                        const targetStudentId = prompt("Enter Student ID to launch test instance (e.g., STU-001):");
+                        if (!targetStudentId) return;
+
+                        // Fetch questions for this exam dynamically
+                        const res = await fetch(`/api/exams?grade=${encodeURIComponent(ex.grade_section)}`);
+                        alert(`Testing instance initialized for ${targetStudentId}. Launching quiz console...`);
+                        
+                        // Simulation placeholder for student choice mapping
+                        const sampleChoices = {}; 
+                        const submitRes = await fetch('/api/exams/submit', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ studentId: targetStudentId, examId: ex.exam_id, answers: sampleChoices })
+                        });
+                        const submitData = await submitRes.json();
+                        if (submitRes.ok) {
+                          alert(`Test submitted successfully! Automated Grade Output: ${submitData.score}% (${submitData.correct}/${submitData.total} Correct).`);
+                          fetchLiveRosterData();
+                        }
+                      }} 
+                      className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 font-mono font-bold text-white rounded text-[11px] uppercase tracking-wide transition-colors shadow-md"
+                    >
+                      Launch Exam 📝
+                    </button>
                   </div>
                 ))}
               </div>
