@@ -473,8 +473,30 @@ export default function Dashboard() {
                         setQuizQuestions(dbData.exams || []); // Fallback binding array
                       }} 
                       className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 font-mono font-bold text-white rounded text-[11px] uppercase tracking-wide transition-colors shadow-md"
+                                        <button 
+                      onClick={async () => {
+                        try {
+                          // Fetch the raw nested multiple-choice question elements belonging explicitly to this exam item
+                          const response = await fetch(`/api/exams?examId=${ex.exam_id}`);
+                          const dbData = await response.json();
+                          
+                          if (dbData.success && dbData.questions && dbData.questions.length > 0) {
+                            // Map individual variables onto structural modal hooks states arrays
+                            setActiveQuizExam(ex);
+                            setQuizQuestions(dbData.questions); // Binds the specific database entries flawlessly
+                            setStudentAnswers({});
+                            setStudentExId('');
+                          } else {
+                            alert("No interactive multiple-choice question rows are logged inside this examination container node.");
+                          }
+                        } catch (err) {
+                          console.error("Quiz launch failure:", err);
+                        }
+                      }} 
+                      className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 font-mono font-bold text-white rounded text-[11px] uppercase tracking-wide transition-colors shadow-md"
                     >
                       Launch Exam 📝
+                    </button>
                     </button>
                   </div>
                 ))}
