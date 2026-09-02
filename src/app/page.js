@@ -449,7 +449,7 @@ export default function Dashboard() {
                 </div>
               ) : ( <div className="text-slate-400 text-center p-4 bg-brandNavy border border-slate-800 rounded">🎒 Active assessments load according to grade sections.</div> )}
             </section>
-                          {/* Upgraded Active Testing Matrix List Layout Wrapper */}
+                        {/* Upgraded Active Testing Matrix List Layout Wrapper */}
             <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
               <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 uppercase">Active Testing Matrix Nodes</h3>
               <div className="space-y-3">
@@ -462,18 +462,6 @@ export default function Dashboard() {
                       <p className="text-[10px] text-slate-500 uppercase mt-0.5">Subject: {ex.subject} // Track: {ex.grade_section}</p>
                     </div>
                     <button 
-                      onClick={async () => {
-                        // Fetch the raw questions belonging to this specific exam row item
-                        const response = await fetch(`/api/exams?grade=${encodeURIComponent(ex.grade_section)}`);
-                        // For a precise item link, we can fallback or filter matching the exam_id
-                        const dbData = await response.json();
-                        
-                        // Set the modal context parameters state variables live
-                        setActiveQuizExam(ex);
-                        setQuizQuestions(dbData.exams || []); // Fallback binding array
-                      }} 
-                      className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 font-mono font-bold text-white rounded text-[11px] uppercase tracking-wide transition-colors shadow-md"
-                                        <button 
                       onClick={async () => {
                         try {
                           // Fetch the raw nested multiple-choice question elements belonging explicitly to this exam item
@@ -497,13 +485,11 @@ export default function Dashboard() {
                     >
                       Launch Exam 📝
                     </button>
-                    </button>
                   </div>
                 ))}
               </div>
             </section>
-         
-                  
+                
           </div>
         )}
 
