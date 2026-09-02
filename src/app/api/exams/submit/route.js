@@ -1,51 +1,52 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '../../../../lib/db'; // Corrected four-level deep relative import
+import { connectToDatabase } from '../../../../lib/db';
 
 export async function POST(req) {
   try {
-    const { examId, studentId, answers } = await req.json(); // answers: { question_id: 'A', ... }
+    const { studentId, examId, answers } = await req.json(); // 'answers' is an object like { questionId: 'A', ... }
 
-    if (!examId || !studentId || !answers) {
-      return NextResponse.json({ error: "Missing exam submission parameters." }, { status: 400 });
+    if (!studentId || !examId || !answers) {
+      return NextResponse.json({ error: "Missing submission parameters." }, { status: 400 });
     }
 
     const db = await connectToDatabase();
 
-    // 1. Fetch correct answer keys for verification
-    const [questions] = await db.query(
-      'SELECT question_id, correct_option FROM exam_questions WHERE exam_id = ?',
-      [examId]
-    );
-
-    if (questions.length === 0) {
-      return NextResponse.json({ error: "Target exam questions matrix not found." }, { status: 404 });
-    }
-
-    // 2. Automatically compute scoring metrics
-    let scoreObtained = 0;
+    // 1. Fetch the correct answers from the database
+    const [questions] = await db.query('SELECT q_id, correct_option FROM exam_questions WHERE exam_id = ?', [examId]);
+    
+    let correctCount = 0;
     const totalQuestions = questions.length;
 
+    if (totalQuestions === 0) {
+      return NextResponse.json({ error: "No questions found for this exam." }, { status: 400 });
+    }
+
+    // 2. Grade the student's choices
     questions.forEach((q) => {
-      const studentAnswer = answers[q.question_id];
-      if (studentAnswer && studentAnswer.toUpperCase() === q.correct_option.toUpperCase()) {
-        scoreObtained++;
+      if (answers[q.q_id] && answers[q.q_id].toUpperCase() === q.correct_option.toUpperCase()) {
+        correctCount++;
       }
     });
 
-    // 3. Write results to log ledger
+    const finalScore = Math.round((correctCount / totalQuestions) * 100);
+
+    // 3. Automatically push the computed score to the student's finalExam grade column
+    const [examInfo] = await db.query('SELECT subject FROM school_exams WHERE exam_id = ?', [examId]);
+    const subject = examInfo.length > 0 ? examInfo[0].subject : 'ICT';
+
     await db.query(
-      'INSERT INTO student_exam_submissions (exam_id, studentId, score_obtained, total_questions) VALUES (?, ?, ?, ?)',
-      [examId, studentId, scoreObtained, totalQuestions]
+      'UPDATE students SET finalExam = ?, totalScore = (test1 + test2 + assignment + ?) WHERE studentId = ? AND subject = ?',
+      [finalScore, finalScore, studentId, subject]
     );
 
-    return NextResponse.json({
-      success: true,
-      message: "Exam processed successfully!",
-      score: scoreObtained,
-      total: totalQuestions,
-      percentage: ((scoreObtained / totalQuestions) * 100).toFixed(1)
+    return NextResponse.json({ 
+      success: true, 
+      message: "Exam submitted and graded successfully!", 
+      score: finalScore, 
+      correct: correctCount, 
+      total: totalQuestions 
     });
   } catch (error) {
-    return NextResponse.json({ error: "Grading system transaction failure: " + error.message }, { status: 500 });
+    return NextResponse.json({ error: "Grading system failure: " + error.message }, { status: 500 });
   }
 }
