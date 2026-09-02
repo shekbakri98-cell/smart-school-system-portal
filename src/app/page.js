@@ -487,14 +487,80 @@ export default function Dashboard() {
             </section>
           </div>
         )}
-        {/* VIEW 7: STATIC NODE CONFIGURATIONS */}
+               {/* VIEW 7: DATA ANALYTICS & SYSTEM OPERATIONS METRICS */}
         {activeTab === 'system' && (
-          <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 max-w-sm mx-auto text-xs font-mono space-y-2">
-            <h3 className="font-bold border-b border-slate-800 pb-1 text-white uppercase">Node Metrics</h3>
-            <div className="flex justify-between border-b border-slate-900 pb-1"><span>Database Client:</span><span className="text-emerald-400">ONLINE (MySQL / alwaysdata)</span></div>
-            <div className="flex justify-between border-b border-slate-900 pb-1"><span>Deployment Engine:</span><span className="text-blue-400">Render Container</span></div>
-            <div className="flex justify-between"><span>Subject Track:</span><span className="text-amber-400 font-bold">ICT Core System</span></div>
-          </section>
+          <div className="space-y-6 font-mono text-xs max-w-4xl mx-auto">
+            {/* STATS OVERVIEW CARDS */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-surfaceCard p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold">Total Tuition Collected</span>
+                <span className="text-2xl font-black text-emerald-400 mt-2">
+                  ETB {financeLedger.reduce((acc, curr) => acc + Number(curr.amount_paid || 0), 0).toLocaleString()}
+                </span>
+                <span className="text-[9px] text-slate-500 mt-1">// Computed from active live cloud invoices</span>
+              </div>
+              
+              <div className="bg-surfaceCard p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold">ICT Core Class Average</span>
+                <span className="text-2xl font-black text-blue-400 mt-2">
+                  {students.length > 0 
+                    ? (students.reduce((acc, curr) => acc + Number(curr.totalScore || 0), 0) / students.length).toFixed(1) 
+                    : "0.0"}%
+                </span>
+                <span className="text-[9px] text-slate-500 mt-1">// Overall section grade metric mean</span>
+              </div>
+
+              <div className="bg-surfaceCard p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold">Absolute Pass Rate</span>
+                <span className="text-2xl font-black text-amber-400 mt-2">
+                  {students.length > 0 
+                    ? ((students.filter(s => Number(s.totalScore || 0) >= 50).length / students.length) * 100).toFixed(1) 
+                    : "0.0"}%
+                </span>
+                <span className="text-[9px] text-slate-500 mt-1">// Students achieving benchmarks (>= 50)</span>
+              </div>
+            </div>
+
+            {/* VISUAL GRAPH METRICS LAYER */}
+            <div className="bg-surfaceCard p-5 rounded-xl border border-slate-800 space-y-4">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 border-b border-slate-800 pb-2">Institutional Performance Analytics</h3>
+              
+              {/* Dynamic Bar Charts using CSS flex layouts */}
+              <div className="space-y-3 pt-2">
+                <div>
+                  <div className="flex justify-between text-slate-300 mb-1"><span>Tuition Target vs Collected Dues Balance</span><span>Progress Overview</span></div>
+                  <div className="w-full bg-brandNavy h-3 rounded border border-slate-800 overflow-hidden">
+                    <div 
+                      className="bg-emerald-500 h-full transition-all duration-500" 
+                      style={{ 
+                        width: `${Math.min(100, (financeLedger.reduce((acc, curr) => acc + Number(curr.amount_paid || 0), 0) / Math.max(1, financeLedger.reduce((acc, curr) => acc + Number(curr.amount_due || 0), 0))) * 100)}%` 
+                      }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-slate-300 mb-1"><span>Roster Pass Rate Density</span><span>Benchmark Scale</span></div>
+                  <div className="w-full bg-brandNavy h-3 rounded border border-slate-800 overflow-hidden">
+                    <div 
+                      className="bg-blue-500 h-full transition-all duration-500" 
+                      style={{ 
+                        width: `${students.length > 0 ? (students.filter(s => Number(s.totalScore || 0) >= 50).length / students.length) * 100 : 0}%` 
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* STATIC CORE OPERATIONS METRICS CARD */}
+            <section className="bg-surfaceCard p-4 rounded-xl border border-slate-800 space-y-2">
+              <h3 className="font-bold border-b border-slate-800 pb-1 text-white uppercase text-xs">Core Infrastructure Node Metrics</h3>
+              <div className="flex justify-between border-b border-slate-900 pb-1"><span>Database Client Connection:</span><span className="text-emerald-400 font-bold">ONLINE (MySQL / alwaysdata)</span></div>
+              <div className="flex justify-between border-b border-slate-900 pb-1"><span>Deployment Service Status:</span><span className="text-blue-400 font-bold">PRODUCTION LAYER CONTAINER (Render)</span></div>
+              <div className="flex justify-between"><span>Subject Track Assignment:</span><span className="text-amber-400 font-bold">ICT Core Framework Matrix</span></div>
+            </section>
+          </div>
         )}
       </main>
 
