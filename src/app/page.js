@@ -514,7 +514,7 @@ export default function Dashboard() {
             <span className="font-bold text-emerald-400 animate-pulse">● AI System Assistant</span>
             <span className="text-[10px] text-slate-500 uppercase tracking-widest">v3.3 Node</span>
           </div>
-          <div className="h-32 overflow-y-auto bg-brandNavy p-2 rounded text-slate-300 space-y-1.5 text-[11px]" id="aiTerminalChatLog">
+                  <div className="h-32 overflow-y-auto bg-brandNavy p-2 rounded text-slate-300 space-y-1.5 text-[11px]" id="aiTerminalChatLog">
             <p className="text-slate-500">// Terminal line secure.</p>
             <p className="text-emerald-400 font-bold">AI Support:</p>
             <p className="leading-relaxed">Akkam! How can I assist you with your school management procedures today?</p>
@@ -546,3 +546,6 @@ export default function Dashboard() {
     </div>
   );
 }
+
+           
+       
