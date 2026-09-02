@@ -405,6 +405,77 @@ export default function Dashboard() {
             </section>
           </div>
         )}
+        {/* VIEW 2: DAILY ATTENDANCE LEDGER MATRICES (CLEAN & CORRECTED WRAPPER CHECK) */}
+        {activeTab === 'attendance' && (
+          <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 text-xs font-mono w-full">
+            <div className="flex flex-wrap justify-between items-center border-b border-slate-800 pb-2 mb-3 gap-2">
+              <h3 className="font-bold uppercase text-slate-200">Daily Attendance Matrix</h3>
+              <div className="flex gap-2 text-white">
+                <select 
+                  value={selectedGrade} 
+                  onChange={(e) => setSelectedGrade(e.target.value)} 
+                  className="bg-brandNavy border border-slate-800 p-1 rounded outline-none text-xs"
+                >
+                  <option value="12 Natural">12 Natural</option>
+                  <option value="12 Social">12 Social</option>
+                  <option value="Kutaa 10ffaa">Kutaa 10ffaa</option>
+                  <option value="Kutaa 9ffaa">Kutaa 9ffaa</option>
+                </select>
+                <input 
+                  type="date" 
+                  value={attendanceDate} 
+                  onChange={(e) => setAttendanceDate(e.target.value)} 
+                  className="bg-brandNavy border border-slate-800 p-1 rounded outline-none text-xs" 
+                />
+              </div>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full text-left whitespace-nowrap">
+                <thead>
+                  <tr className="border-b border-slate-800 text-slate-400 uppercase text-[10px] tracking-wider">
+                    <th className="pb-2">ID Barataa</th>
+                    <th>Maqaa Guutuu</th>
+                    <th className="text-right">Hordoffii Galmee</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800 text-slate-300">
+                  {attendanceLoading && (
+                    <tr>
+                      <td colSpan="3" className="text-center py-6 text-slate-400 animate-pulse">// Syncing dynamic matrix...</td>
+                    </tr>
+                  )}
+                  {!attendanceLoading && attendanceRecords.length === 0 && (
+                    <tr>
+                      <td colSpan="3" className="text-center py-6 text-slate-500">// No student rows mapped for this grade selection.</td>
+                    </tr>
+                  )}
+                  {!attendanceLoading && attendanceRecords.map((s, idx) => (
+                    <tr key={idx} className="hover:bg-slate-900/20 transition-colors">
+                      <td className="py-2.5 text-blue-400 font-bold">{s.studentId}</td>
+                      <td className="font-semibold text-slate-200">{s.name}</td>
+                      <td className="text-right">
+                        <select 
+                          value={s.status || 'Not Marked'} 
+                          onChange={(e) => handleAttendanceCellChange(s.studentId, e.target.value)} 
+                          className={`bg-brandNavy border rounded p-1 text-[11px] font-bold outline-none ${
+                            s.status === 'Present' ? 'border-emerald-800 text-emerald-400' : 
+                            s.status === 'Absent' ? 'border-red-800 text-red-400' : 'border-slate-800 text-slate-400'
+                          }`}
+                        >
+                          <option value="Not Marked">Not Marked</option>
+                          <option value="Present">Present (Argameera)</option>
+                          <option value="Absent">Absent (Hafee)</option>
+                          <option value="Late">Late (Sifameera)</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
 
         {/* VIEW 5: DIGITAL TEXTBOOK LIBRARY CONSOLE */}
         {activeTab === 'library' && (
