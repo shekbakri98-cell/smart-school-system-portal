@@ -23,6 +23,11 @@ export default function Dashboard() {
   const [examsLoading, setExamsLoading] = useState(false);
   const [examForm, setExamForm] = useState({ title: '', subject: 'ICT', questions: [] });
   const [currentQuestion, setCurrentQuestion] = useState({ text: '', a: '', b: '', c: '', d: '', correct: 'A' });
+  // Live Interactive Student Quiz Panel Modal States
+  const [activeQuizExam, setActiveQuizExam] = useState(null); // Tracks the exam object being taken
+  const [quizQuestions, setQuizQuestions] = useState([]); // Holds array of fetched questions
+  const [studentAnswers, setStudentAnswers] = useState({}); // Stores selected answers { questionId: 'A' }
+  const [studentExId, setStudentExId] = useState(''); // Stores entering student ID
 
   // Finance Section States
   const [financeLedger, setFinanceLedger] = useState([]);
@@ -440,43 +445,32 @@ export default function Dashboard() {
                     </button>
                   </div>
 
-                  
 
                 </div>
               ) : ( <div className="text-slate-400 text-center p-4 bg-brandNavy border border-slate-800 rounded">🎒 Active assessments load according to grade sections.</div> )}
             </section>
-                        {/* Replace your right-hand testing matrix section with this interactive interface block */}
+                          {/* Upgraded Active Testing Matrix List Layout Wrapper */}
             <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
               <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 uppercase">Active Testing Matrix Nodes</h3>
               <div className="space-y-3">
                 {examsLoading && <p className="text-slate-400 animate-pulse">// Syncing exam arrays...</p>}
+                {!examsLoading && exams.length === 0 && <p className="text-slate-500 text-center py-4">// No active exams deployed. Use Option A or B to create one.</p>}
                 {!examsLoading && exams.map((ex, idx) => (
-                  <div key={idx} className="p-4 bg-brandNavy border border-slate-800 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                  <div key={idx} className="p-4 bg-brandNavy border border-slate-800 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3 hover:border-slate-700 transition-colors">
                     <div>
                       <p className="font-bold text-slate-200 text-sm">{ex.title}</p>
                       <p className="text-[10px] text-slate-500 uppercase mt-0.5">Subject: {ex.subject} // Track: {ex.grade_section}</p>
                     </div>
                     <button 
                       onClick={async () => {
-                        const targetStudentId = prompt("Enter Student ID to launch test instance (e.g., STU-001):");
-                        if (!targetStudentId) return;
-
-                        // Fetch questions for this exam dynamically
-                        const res = await fetch(`/api/exams?grade=${encodeURIComponent(ex.grade_section)}`);
-                        alert(`Testing instance initialized for ${targetStudentId}. Launching quiz console...`);
+                        // Fetch the raw questions belonging to this specific exam row item
+                        const response = await fetch(`/api/exams?grade=${encodeURIComponent(ex.grade_section)}`);
+                        // For a precise item link, we can fallback or filter matching the exam_id
+                        const dbData = await response.json();
                         
-                        // Simulation placeholder for student choice mapping
-                        const sampleChoices = {}; 
-                        const submitRes = await fetch('/api/exams/submit', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ studentId: targetStudentId, examId: ex.exam_id, answers: sampleChoices })
-                        });
-                        const submitData = await submitRes.json();
-                        if (submitRes.ok) {
-                          alert(`Test submitted successfully! Automated Grade Output: ${submitData.score}% (${submitData.correct}/${submitData.total} Correct).`);
-                          fetchLiveRosterData();
-                        }
+                        // Set the modal context parameters state variables live
+                        setActiveQuizExam(ex);
+                        setQuizQuestions(dbData.exams || []); // Fallback binding array
                       }} 
                       className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 font-mono font-bold text-white rounded text-[11px] uppercase tracking-wide transition-colors shadow-md"
                     >
@@ -486,6 +480,8 @@ export default function Dashboard() {
                 ))}
               </div>
             </section>
+         
+                  
           </div>
         )}
 
@@ -603,6 +599,97 @@ export default function Dashboard() {
           </div>
         )}
       </main>
+      {/* LIVE INTERACTIVE QUIZ APPLICATION MODAL OVERLAY */}
+      {activeQuizExam && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 overflow-y-auto font-mono text-xs text-slate-100">
+          <div className="bg-[#141b2d] border border-slate-800 rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+              <div>
+                <h3 className="text-base font-bold text-white uppercase">{activeQuizExam.title}</h3>
+                <p className="text-[10px] text-brandGold uppercase mt-0.5">// Subject Track: {activeQuizExam.subject}</p>
+              </div>
+              <button 
+                onClick={() => setActiveQuizExam(null)} 
+                className="bg-slate-800 hover:bg-slate-700 text-slate-400 px-2.5 py-1 rounded"
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            {/* Step A: Request Student ID input credential */}
+            <div className="bg-[#0a0f1d] p-3 rounded border border-slate-800 space-y-2">
+              <label className="text-[10px] uppercase text-slate-400 font-bold block">Enter Student ID to Authorize Submission:</label>
+              <input 
+                type="text" 
+                placeholder="e.g., STU-001" 
+                value={studentExId}
+                onChange={(e) => setStudentExId(e.target.value.toUpperCase())}
+                className="bg-[#141b2d] border border-slate-800 rounded p-2 w-full text-white outline-none focus:border-blue-500 transition-colors"
+              />
+            </div>
+
+            {/* Step B: Render the Question Bank List with select radio options */}
+            <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+              {quizQuestions.map((q, qIdx) => (
+                <div key={q.q_id} className="bg-[#0a0f1d] p-4 rounded-lg border border-slate-800 space-y-2">
+                  <p className="font-bold text-slate-200"><span className="text-blue-400">Q{qIdx + 1}:</span> {q.question_text}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
+                    <label className={`flex items-center gap-2 p-2 rounded border cursor-pointer transition-colors ${studentAnswers[q.q_id] === 'A' ? 'bg-blue-950/40 border-blue-600 text-white' : 'border-slate-800 hover:bg-slate-900/40'}`}>
+                      <input type="radio" name={`q-${q.q_id}`} checked={studentAnswers[q.q_id] === 'A'} onChange={() => setStudentAnswers({...studentAnswers, [q.q_id]: 'A'})} className="accent-blue-500" />
+                      <strong>A:</strong> {q.option_a}
+                    </label>
+                    <label className={`flex items-center gap-2 p-2 rounded border cursor-pointer transition-colors ${studentAnswers[q.q_id] === 'B' ? 'bg-blue-950/40 border-blue-600 text-white' : 'border-slate-800 hover:bg-slate-900/40'}`}>
+                      <input type="radio" name={`q-${q.q_id}`} checked={studentAnswers[q.q_id] === 'B'} onChange={() => setStudentAnswers({...studentAnswers, [q.q_id]: 'B'})} className="accent-blue-500" />
+                      <strong>B:</strong> {q.option_b}
+                    </label>
+                    {q.option_c && (
+                      <label className={`flex items-center gap-2 p-2 rounded border cursor-pointer transition-colors ${studentAnswers[q.q_id] === 'C' ? 'bg-blue-950/40 border-blue-600 text-white' : 'border-slate-800 hover:bg-slate-900/40'}`}>
+                        <input type="radio" name={`q-${q.q_id}`} checked={studentAnswers[q.q_id] === 'C'} onChange={() => setStudentAnswers({...studentAnswers, [q.q_id]: 'C'})} className="accent-blue-500" />
+                        <strong>C:</strong> {q.option_c}
+                      </label>
+                    )}
+                    {q.option_d && (
+                      <label className={`flex items-center gap-2 p-2 rounded border cursor-pointer transition-colors ${studentAnswers[q.q_id] === 'D' ? 'bg-blue-950/40 border-blue-600 text-white' : 'border-slate-800 hover:bg-slate-900/40'}`}>
+                        <input type="radio" name={`q-${q.q_id}`} checked={studentAnswers[q.q_id] === 'D'} onChange={() => setStudentAnswers({...studentAnswers, [q.q_id]: 'D'})} className="accent-blue-500" />
+                        <strong>D:</strong> {q.option_d}
+                      </label>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Step C: Submit Trigger Button */}
+            <button
+              onClick={async () => {
+                if (!studentExId) return alert("Please specify a valid Student ID before submitting.");
+                if (Object.keys(studentAnswers).length < quizQuestions.length) {
+                  if (!confirm("You have left some questions unanswered. Proceed with submission?")) return;
+                }
+
+                const res = await fetch('/api/exams/submit', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ studentId: studentExId, examId: activeQuizExam.exam_id, answers: studentAnswers })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                  alert(`Exam grading complete! Result Output: ${data.score}% (${data.correct}/${data.total} Correct Answers). Grade registered in the system.`);
+                  setActiveQuizExam(null);
+                  setStudentAnswers({});
+                  setStudentExId('');
+                  fetchLiveRosterData();
+                } else {
+                  alert("Error: " + data.error);
+                }
+              }}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 py-2.5 text-white font-bold uppercase rounded tracking-wider transition-colors shadow-md text-xs"
+            >
+              Submit & Grade Examination 🚀
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* FLOATING CONTEXT-AWARE CONVERSATIONAL TERMINAL SIDE ASSISTANT WIDGET */}
       <div className="fixed bottom-6 right-6 z-50">
