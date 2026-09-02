@@ -435,6 +435,99 @@ export default function Dashboard() {
             </section>
           </div>
         )}
+        {/* VIEW F: HUMAN RESOURCES USER CREATION ACCOUNT PRIVILEGES PANEL */}
+        {activeTab === 'users' && userRole === 'Admin' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-xs font-mono">
+            {/* Generate Profile Access Input Form Container */}
+            <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 h-fit space-y-3">
+              <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Generate Profile Access</h2>
+              <form onSubmit={handleUserCreationSubmit} className="space-y-3">
+                <div>
+                  <label className="text-[10px] text-slate-400 block mb-1 uppercase tracking-wider">Username Node Identity</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. chala_teacher" 
+                    value={userForm.username} 
+                    onChange={e => setUserForm({...userForm, username: e.target.value})} 
+                    className="w-full bg-[#0a0f1d] border border-slate-800 p-2 text-white outline-none rounded focus:border-blue-500 transition-colors" 
+                    required 
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-400 block mb-1 uppercase tracking-wider">Secure Email Address Route</label>
+                  <input 
+                    type="email" 
+                    placeholder="e.g. teacher@school.edu" 
+                    value={userForm.email} 
+                    onChange={e => setUserForm({...userForm, email: e.target.value})} 
+                    className="w-full bg-[#0a0f1d] border border-slate-800 p-2 text-white outline-none rounded focus:border-blue-500 transition-colors" 
+                    required 
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-400 block mb-1 uppercase tracking-wider">Initial Account Password Token</label>
+                  <input 
+                    type="password" 
+                    placeholder="••••••••" 
+                    value={userForm.password} 
+                    onChange={e => setUserForm({...userForm, password: e.target.value})} 
+                    className="w-full bg-[#0a0f1d] border border-slate-800 p-2 text-white outline-none rounded focus:border-blue-500 transition-colors" 
+                    required 
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-400 block mb-1 uppercase tracking-wider">Access Authorization Tier</label>
+                  <select 
+                    value={userForm.role} 
+                    onChange={e => setUserForm({...userForm, role: e.target.value})} 
+                    className="w-full bg-[#0a0f1d] border border-slate-800 p-2 text-white outline-none rounded focus:border-blue-500 transition-colors"
+                  >
+                    <option value="Teacher">Teacher / Instructor</option>
+                    <option value="Admin">System Administrator</option>
+                  </select>
+                </div>
+                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 p-2.5 text-white font-bold rounded uppercase tracking-wider shadow-md transition-colors mt-2">
+                  Commit User Profile
+                </button>
+              </form>
+            </section>
+            
+            {/* Network Active Registry Ledger Data Grid Table Panel */}
+            <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
+              <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 uppercase text-xs">Core Infrastructure Registry Ledger</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left font-mono text-xs whitespace-nowrap">
+                  <thead>
+                    <tr className="text-slate-400 border-b border-slate-800 text-[10px] uppercase tracking-wider">
+                      <th className="pb-2">User Node Identity</th>
+                      <th className="pb-2">Email Address Route</th>
+                      <th className="pb-2 text-right">Access Permission Tier</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800 text-slate-300">
+                    {usersLoading && (
+                      <tr>
+                        <td colSpan="3" className="text-center py-6 text-slate-400 animate-pulse font-bold">// Syncing infrastructure ledger arrays...</td>
+                      </tr>
+                    )}
+                    {!usersLoading && systemUsers.length === 0 && (
+                      <tr>
+                        <td colSpan="3" className="text-center py-6 text-slate-500 font-bold">// No extra accounts logged. Use the form panel to commit profiles.</td>
+                      </tr>
+                    )}
+                    {!usersLoading && systemUsers.map((user, idx) => (
+                      <tr key={idx} className="hover:bg-slate-900/40 transition-colors">
+                        <td className="py-2.5 font-semibold text-slate-200">{user.username}</td>
+                        <td className="py-2.5 text-slate-400">{user.email}</td>
+                        <td className="py-2.5 text-right font-bold"><span className={`px-2 py-0.5 rounded text-[10px] ${user.role === 'Admin' ? 'bg-purple-950/60 text-purple-400 border border-purple-900' : 'bg-slate-800 text-slate-300 border border-slate-700'}`}>{user.role}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        )}
 
         {/* VIEW G: DATA ANALYTICS & SYSTEM OPERATIONS METRICS */}
         {activeTab === 'system' && (
