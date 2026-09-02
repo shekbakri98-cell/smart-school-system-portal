@@ -202,7 +202,7 @@ export default function Dashboard() {
       if (res.ok) { alert("Online examination module deployed successfully!"); setExamForm({ title: '', subject: 'ICT', questions: [] }); fetchLiveExams(); }
     } catch (err) { console.error(err); }
   }
-    // 1. DYNAMIC DATA EXCEL/CSV LEDGER EXPORT UTILITY (SEPARATED CLEANLY)
+  // 1. DYNAMIC DATA EXCEL/CSV LEDGER EXPORT UTILITY
   function triggerFinanceCSVExport() {
     if (!financeLedger || financeLedger.length === 0) {
       alert("No active transaction data logs available to compile for local export.");
@@ -289,70 +289,6 @@ export default function Dashboard() {
     pWin.document.close();
   }
 
-      <html>
-        <head>
-          <title>Certificate - \${student.name}</title>
-          <style>
-            body { font-family: 'Courier New', monospace; padding: 30px; text-align: center; color: #000; background: #fff; }
-            .cert-box { border: 4px double #000; padding: 25px; }
-            .title { font-size: 22px; font-weight: bold; margin-bottom: 5px; }
-            .sub { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 25px; }
-            .meta { text-align: left; width: 85%; margin: 15px auto; font-size: 13px; line-height: 1.8; }
-            .tbl { width: 90%; margin: 20px auto; border-collapse: collapse; text-align: left; font-size: 13px; }
-            .tbl th, .tbl td { border: 1px solid #000; padding: 8px; }
-            .sig-row { display: flex; justify-content: space-between; margin-top: 45px; font-size: 11px; padding: 0 20px; }
-          </style>
-        </head>
-        <body>
-          <div class="cert-box">
-            <div class="title">SHEEK BAKRI SECONDARY SCHOOL</div>
-            <div class="sub">Official Academic Achievement Record Certificate</div>
-            <div class="meta">
-              <strong>Student Name:</strong> \${student.name}<br/>
-              <strong>Identifier ID:</strong> \${student.studentId}<br/>
-              <strong>Class Section:</strong> \${selectedGrade}<br/>
-              <strong>Subject Field:</strong> \${student.subject || 'ICT'}
-            </div>
-                       {/* Network Active Registry Ledger Data Grid Table Panel */}
-            <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
-              <div className="flex justify-between items-center border-b border-slate-800 pb-2 mb-3">
-                <h3 className="font-bold uppercase text-slate-200 text-xs">School Revenue Ledger</h3>
-                
-                {/* INTERACTIVE CSV DATA EXTRACTION DOWNLOAD UTILITY */}
-                <button 
-                  onClick={triggerFinanceCSVExport}
-                  className="bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800 text-emerald-400 font-mono text-[10px] font-bold px-2.5 py-1 rounded transition-colors uppercase tracking-wider"
-                >
-                  📥 Export Ledger (CSV)
-                </button>
-              </div>
-              
-              <div className="overflow-x-auto">
-                <table className="w-full text-left font-mono text-xs whitespace-nowrap">
-                  {/* ... rest of your standard finance database table header and row mappings ... */}
-
-            <table class="tbl">
-              <thead><tr><th>Assessment Matrix</th><th>Weight Limit</th><th>Mark Obtained</th></tr></thead>
-              <tbody>
-                <tr><td>Continuous Test 1</td><td>10</td><td>\${student.test1 || 0}</td></tr>
-                <tr><td>Continuous Test 2</td><td>10</td><td>\${student.test2 || 0}</td></tr>
-                <tr><td>Practical Assignment</td><td>20</td><td>\${student.assignment || 0}</td></tr>
-                <tr><td>Final Term Exam</td><td>60</td><td>\${student.finalExam || 0}</td></tr>
-                <tr style="font-weight:bold; background:#f4f4f4;"><td>Waliigala / Cumulative Total</td><td>100</td><td>\${student.totalScore || 0}</td></tr>
-              </tbody>
-            </table>
-            <div class="sig-row">
-              <div>Faculty Advisor: _________________</div>
-              <div>School Director: _________________</div>
-            </div>
-          </div>
-          <script>window.print();</script>
-        </body>
-      </html>
-    `);
-    pWin.document.close();
-  }
-
   function handleLogoutSequence() {
     localStorage.clear();
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -383,7 +319,7 @@ export default function Dashboard() {
 
       {/* CORE DISPLAY ROUTER VIEWPORT */}
       <main className="max-w-6xl mx-auto">
-        {/* VIEW 1: ACTIVE STUDENT ROSTER GRID WITH CERTIFICATE PRINT MECHANICS */}
+        {/* VIEW 1: ACTIVE STUDENT ROSTER GRID */}
         {activeTab === 'students' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 h-fit space-y-3 font-mono text-xs">
@@ -422,67 +358,7 @@ export default function Dashboard() {
             </section>
           </div>
         )}
-        {/* VIEW 2: DAILY ATTENDANCE LEDGER MATRICES */}
-        {activeTab === 'attendance' && (
-          <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 text-xs">
-            <div className="flex justify-between border-b border-slate-800 pb-2 mb-3">
-              <h3 className="font-bold uppercase text-slate-200">Daily Attendance Matrix</h3>
-              <div className="flex gap-2 font-mono">
-                <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-brandNavy border border-slate-800 p-1 text-white rounded"><option value="12 Natural">12 Natural</option><option value="12 Social">12 Social</option><option value="Kutaa 10ffaa">Kutaa 10ffaa</option><option value="Kutaa 9ffaa">Kutaa 9ffaa</option></select>
-                <input type="date" value={attendanceDate} onChange={(e) => setAttendanceDate(e.target.value)} className="bg-brandNavy border border-slate-800 p-1 text-white rounded" />
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left whitespace-nowrap">
-                <thead><tr className="border-b border-slate-800 text-slate-400 uppercase text-[10px]"><th className="pb-2">ID Barataa</th><th>Maqaa Guutuu</th><th className="text-right">Status</th></tr></thead>
-                <tbody className="divide-y divide-slate-800 text-slate-300">
-                  {attendanceLoading && <tr><td colSpan="3" className="text-center py-4 text-slate-400 animate-pulse">Syncing...</td></tr>}
-                  {!attendanceLoading && attendanceRecords.map((s, idx) => (
-                    <tr key={idx}>
-                      <td className="py-2 font-mono text-blue-400 font-bold">{s.studentId}</td><td className="font-semibold text-slate-200">{s.name}</td>
-                      <td className="text-right"><select value={s.status || 'Not Marked'} onChange={(e) => handleAttendanceCellChange(s.studentId, e.target.value)} className={`bg-brandNavy border rounded p-1 text-[11px] font-bold ${s.status === 'Present' ? 'border-emerald-800 text-emerald-400' : s.status === 'Absent' ? 'border-red-800 text-red-400' : 'border-slate-800 text-slate-400'}`}><option value="Not Marked">Not Marked</option><option value="Present">Present</option><option value="Absent">Absent</option><option value="Late">Late</option></select></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        )}
-
-        {/* VIEW 3: ONLINE QUIZ ASSESSMENT MANAGER */}
-        {activeTab === 'exams' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-xs font-mono">
-            <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 space-y-3">
-              <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase">Deploy Examination</h2>
-              {userRole === 'Admin' ? (
-                <div className="space-y-2">
-                  <input type="text" placeholder="Exam Title" value={examForm.title} onChange={e => setExamForm({...examForm, title: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" />
-                  <div className="bg-brandNavy border border-slate-800 p-2 rounded space-y-2">
-                    <textarea placeholder="Question Text" value={currentQuestion.text} onChange={e => setCurrentQuestion({...currentQuestion, text: e.target.value})} className="w-full bg-surfaceCard border border-slate-700 p-1 rounded h-12 text-white text-xs"></textarea>
-                    <input type="text" placeholder="Option A" value={currentQuestion.a} onChange={e => setCurrentQuestion({...currentQuestion, a: e.target.value})} className="w-full bg-surfaceCard border border-slate-700 p-1 text-white text-xs rounded" />
-                    <input type="text" placeholder="Option B" value={currentQuestion.b} onChange={e => setCurrentQuestion({...currentQuestion, b: e.target.value})} className="w-full bg-surfaceCard border border-slate-700 p-1 text-white text-xs rounded" />
-                    <select value={currentQuestion.correct} onChange={e => setCurrentQuestion({...currentQuestion, correct: e.target.value})} className="w-full bg-surfaceCard border border-slate-700 p-1 text-white text-xs rounded"><option value="A">Answer: A</option><option value="B">Answer: B</option></select>
-                    <button type="button" onClick={addQuestionToFormState} className="w-full py-1 bg-slate-800 text-slate-300 font-bold border border-slate-700 rounded text-[10px]">ADD QUESTION ({examForm.questions.length})</button>
-                  </div>
-                  <button onClick={handleExamPublishSubmit} className="w-full bg-emerald-600 p-2 text-white font-bold rounded uppercase">Publish Assessment</button>
-                </div>
-              ) : ( <div className="text-slate-400 text-center p-2 bg-brandNavy border border-slate-800 rounded">🎒 Exams filter automatically.</div> )}
-            </section>
-            <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
-              <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 uppercase">Active Testing Matrix</h3>
-              <div className="space-y-2">
-                {!examsLoading && exams.map((ex, idx) => (
-                  <div key={idx} className="p-2 bg-brandNavy border border-slate-800 rounded flex justify-between items-center">
-                    <div><p className="font-bold text-slate-200">{ex.title}</p><p className="text-[9px] text-slate-500 uppercase">Grade: {ex.grade_section}</p></div>
-                    <button onClick={() => alert('Launching testing container.')} className="px-2 py-0.5 bg-blue-600 text-white rounded text-[10px] uppercase font-bold">Launch</button>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
-        )}
-
-        {/* VIEW 4: TUITION BALANCES FINANCIAL FORMS */}
+        {/* VIEW 4: TUITION BALANCES FINANCIAL FORMS & LEDGER */}
         {activeTab === 'finance' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-xs font-mono">
             <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 space-y-3">
@@ -497,17 +373,30 @@ export default function Dashboard() {
                 </form>
               ) : ( <div className="p-2 text-center text-slate-400 bg-brandNavy border border-slate-800 rounded">⚠️ Financial controls restricted to Admin.</div> )}
             </section>
+            
             <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
-              <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 uppercase">Operational Accounting Registry</h3>
+              <div className="flex justify-between items-center border-b border-slate-800 pb-2 mb-3">
+                <h3 className="font-bold uppercase text-slate-200 text-xs">School Revenue Ledger</h3>
+                <button 
+                  onClick={triggerFinanceCSVExport}
+                  className="bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800 text-emerald-400 font-mono text-[10px] font-bold px-2.5 py-1 rounded transition-colors uppercase tracking-wider"
+                >
+                  📥 Export Ledger (CSV)
+                </button>
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left whitespace-nowrap">
                   <thead><tr className="border-b border-slate-800 text-slate-400 text-[10px] uppercase"><th className="pb-2">Student ID</th><th>Full Name</th><th>Category</th><th>Due</th><th>Paid</th><th className="text-right">Status</th></tr></thead>
                   <tbody className="divide-y divide-slate-800 text-slate-300">
-                    {financeLoading && <tr><td colSpan="6" className="text-center py-4 text-slate-400">Syncing...</td></tr>}
+                    {financeLoading && <tr><td colSpan="6" className="text-center py-4 text-slate-400 font-mono">// Loading logs...</td></tr>}
                     {!financeLoading && financeLedger.map((f, idx) => (
-                      <tr key={idx}>
+                      <tr key={idx} className="hover:bg-slate-900/20">
                         <td className="py-2 font-bold text-blue-400">{f.studentId}</td><td>{f.name}</td><td>{f.fee_type}</td><td>{f.amount_due}</td><td>{f.amount_paid}</td>
-                        <td className="text-right"><span className={`px-2 py-0.5 rounded text-[10px] font-bold ${f.payment_status === 'Paid' ? 'border-emerald-800 text-emerald-400' : 'border-amber-800 text-amber-400'}`}>{f.payment_status}</span></td>
+                        <td className="text-right">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${f.payment_status === 'Paid' ? 'border-emerald-800 text-emerald-400 bg-emerald-950/20' : 'border-amber-800 text-amber-400 bg-amber-950/20'}`}>
+                            {f.payment_status}
+                          </span>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -516,74 +405,30 @@ export default function Dashboard() {
             </section>
           </div>
         )}
+
         {/* VIEW 5: DIGITAL TEXTBOOK LIBRARY CONSOLE */}
         {activeTab === 'library' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-xs font-mono">
-            {/* Textbook Catalog Input Form Side Panel */}
-            <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 h-fit space-y-3">
-              <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Catalog Textbook</h2>
+            <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 space-y-3">
+              <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase">Catalog Textbook</h2>
               <form onSubmit={handleLibrarySubmit} className="space-y-2">
-                <div>
-                  <label className="text-[10px] text-slate-400 block mb-1 uppercase">Resource Title</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. Grade 12 ICT Textbook" 
-                    value={libraryForm.title} 
-                    onChange={e => setLibraryForm({...libraryForm, title: e.target.value})} 
-                    className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded focus:border-blue-500 transition-colors" 
-                    required 
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-400 block mb-1 uppercase">Author / Publisher Name</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. Ministry of Education" 
-                    value={libraryForm.author} 
-                    onChange={e => setLibraryForm({...libraryForm, author: e.target.value})} 
-                    className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded focus:border-blue-500 transition-colors" 
-                    required 
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-400 block mb-1 uppercase">Asset Download URL</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. https://google.com..." 
-                    value={libraryForm.downloadUrl} 
-                    onChange={e => setLibraryForm({...libraryForm, downloadUrl: e.target.value})} 
-                    className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded focus:border-blue-500 transition-colors" 
-                    required 
-                  />
-                </div>
-                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 p-2.5 text-white font-bold rounded uppercase tracking-wider transition-colors shadow-md mt-2">
-                  Commit Media Asset
-                </button>
+                <input type="text" placeholder="Resource Title" value={libraryForm.title} onChange={e => setLibraryForm({...libraryForm, title: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                <input type="text" placeholder="Author Name" value={libraryForm.author} onChange={e => setLibraryForm({...libraryForm, author: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                <input type="text" placeholder="Asset Download URL" value={libraryForm.downloadUrl} onChange={e => setLibraryForm({...libraryForm, downloadUrl: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                <button type="submit" className="w-full bg-emerald-600 p-2 text-white font-bold rounded uppercase">Commit Media Asset</button>
               </form>
             </section>
-            
-            {/* Dynamic Textbook Registry Ledger Data Grid */}
             <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
-              <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 uppercase text-xs">Resource Catalog Ledger</h3>
+              <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 uppercase">Resource Catalog Ledger</h3>
               <div className="overflow-x-auto">
-                <table className="w-full text-left font-mono text-xs whitespace-nowrap">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-slate-400 text-[10px] uppercase tracking-wider">
-                      <th className="pb-2">Title</th>
-                      <th>Author / Route</th>
-                      <th>Section</th>
-                      <th className="text-right">Resource Access</th>
-                    </tr>
-                  </thead>
+                <table className="w-full text-left whitespace-nowrap">
+                  <thead><tr className="border-b border-slate-800 text-slate-400 text-[10px] uppercase"><th className="pb-2">Title</th><th>Author</th><th>Section</th><th className="text-right">Access</th></tr></thead>
                   <tbody className="divide-y divide-slate-800 text-slate-300">
-                    {booksLoading && <tr><td colSpan="4" className="text-center py-4 text-slate-400 animate-pulse">// Querying media catalog assets...</td></tr>}
-                    {!booksLoading && books.length === 0 && <tr><td colSpan="4" className="text-center py-4 text-slate-500">// No active textbooks uploaded for this grade selection.</td></tr>}
+                    {booksLoading && <tr><td colSpan="4" className="text-center py-4 text-slate-400 font-mono">// Syncing library...</td></tr>}
                     {!booksLoading && books.map((b, idx) => (
-                      <tr key={idx} className="hover:bg-slate-900/40 transition-colors">
-                        <td className="py-2.5 font-semibold text-slate-200">{b.title}</td>
-                        <td>{b.author}</td>
-                        <td>{b.grade_section}</td>
-                        <td className="text-right"><a href={b.download_url} target="_blank" rel="noreferrer" className="text-blue-400 hover:text-blue-300 underline font-bold tracking-wide">Download 📥</a></td>
+                      <tr key={idx}>
+                        <td className="py-2 font-semibold text-slate-200">{b.title}</td><td>{b.author}</td><td>{b.grade_section}</td>
+                        <td className="text-right"><a href={b.download_url} target="_blank" rel="noreferrer" className="text-blue-400 underline font-bold">Download 📥</a></td>
                       </tr>
                     ))}
                   </tbody>
@@ -592,7 +437,7 @@ export default function Dashboard() {
             </section>
           </div>
         )}
-{/* VIEW 6: HUMAN RESOURCES USER CREATION ACCOUNT PRIVILEGES PANEL (CORRECTED TARGET MATCH) */}
+{/* VIEW 6: HUMAN RESOURCES USER CREATION CONTROL */}
         {activeTab === 'users' && userRole === 'Admin' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-xs font-mono">
             <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 h-fit space-y-3">
@@ -611,7 +456,7 @@ export default function Dashboard() {
                 <table className="w-full text-left font-mono text-xs whitespace-nowrap">
                   <thead><tr className="text-slate-400 border-b border-slate-800 text-[10px] uppercase"><th className="pb-2">User Node</th><th>Email Route</th><th className="text-right">Access Tier</th></tr></thead>
                   <tbody className="divide-y divide-slate-800 text-slate-300">
-                    {usersLoading && <tr><td colSpan="3" className="text-center py-4">Syncing...</td></tr>}
+                    {usersLoading && <tr><td colSpan="3" className="text-center py-4 font-mono">// Syncing registry...</td></tr>}
                     {!usersLoading && systemUsers.map((user, idx) => (
                       <tr key={idx}>
                         <td className="py-2 font-semibold text-slate-200">{user.username}</td><td>{user.email}</td><td className="text-right font-bold text-purple-400">{user.role}</td>
@@ -630,7 +475,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-surfaceCard p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
                 <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold">Total Tuition Collected</span>
-                <span className="text-2xl font-black text-emerald-400 mt-2">ETB {financeLedger.reduce((acc, curr) => acc + Number(acc.amount_paid || 0), 0).toLocaleString()}</span>
+                <span className="text-2xl font-black text-emerald-400 mt-2">ETB {financeLedger.reduce((acc, curr) => acc + Number(curr.amount_paid || 0), 0).toLocaleString()}</span>
               </div>
               <div className="bg-surfaceCard p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
                 <span className="text-slate-400 text-[10px] uppercase tracking-wider font-bold">ICT Class Average</span>
