@@ -165,13 +165,34 @@ export default function Dashboard() {
     } catch (err) { console.error(err); }
   }
 
-  async function handleUserCreationSubmit(e) {
+    async function handleUserCreationSubmit(e) {
     e.preventDefault();
     try {
-      const res = await fetch('/api/auth', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(userForm) });
-      if (res.ok) { alert("Access identity node profile generated!"); setUserForm({ username: '', email: '', password: '', role: 'Teacher' }); fetchSystemUsers(); }
-    } catch (err) { console.error(err); }
+      const res = await fetch('/api/auth', { 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({
+          username: userForm.username,
+          email: userForm.email,
+          password: userForm.password,
+          role: userForm.role
+        }) 
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok) { 
+        alert("Eenyummaa haaraa milkiin banameera!"); 
+        setUserForm({ username: '', email: '', password: '', role: 'Teacher' }); 
+        fetchSystemUsers(); // Galmee piroofayilii hojjattootaa battalatti refresh gochuu
+      } else {
+        alert("Dogoggora: " + data.error);
+      }
+    } catch (err) { 
+      console.error("Fashalaayeera:", err); 
+    }
   }
+
 
   async function handleCellUpdateSubmit(studentId, subject, fieldName, newScore) {
     const num = Number(newScore);
