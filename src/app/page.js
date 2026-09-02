@@ -319,6 +319,24 @@ export default function Dashboard() {
               <strong>Class Section:</strong> \${selectedGrade}<br/>
               <strong>Subject Field:</strong> \${student.subject || 'ICT'}
             </div>
+                       {/* Network Active Registry Ledger Data Grid Table Panel */}
+            <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-2 mb-3">
+                <h3 className="font-bold uppercase text-slate-200 text-xs">School Revenue Ledger</h3>
+                
+                {/* INTERACTIVE CSV DATA EXTRACTION DOWNLOAD UTILITY */}
+                <button 
+                  onClick={triggerFinanceCSVExport}
+                  className="bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800 text-emerald-400 font-mono text-[10px] font-bold px-2.5 py-1 rounded transition-colors uppercase tracking-wider"
+                >
+                  📥 Export Ledger (CSV)
+                </button>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-left font-mono text-xs whitespace-nowrap">
+                  {/* ... rest of your standard finance database table header and row mappings ... */}
+
             <table class="tbl">
               <thead><tr><th>Assessment Matrix</th><th>Weight Limit</th><th>Mark Obtained</th></tr></thead>
               <tbody>
