@@ -361,7 +361,8 @@ export default function Dashboard() {
             <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800"><h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 text-xs">Faculty Registry</h3><div className="overflow-x-auto"><table className="w-full text-left"><thead><tr className="text-slate-400 text-[10px] uppercase"><th className="pb-2">User Identity</th><th>Email Route</th><th className="text-right">Access Permission</th></tr></thead><tbody className="divide-y divide-slate-800 text-slate-300">{systemUsers.map((user, idx) => (<tr key={idx}><td className="py-2.5 font-semibold text-slate-200">{user.username}</td><td>{user.email}</td><td className="text-right font-bold text-purple-400">{user.role}</td></tr>))}</tbody></table></div></section>
           </div>
         )}
-        {/* VIEW 4: INSTRUCTOR GRADING SHEET MATRIX */}
+
+              {/* VIEW 4: INSTRUCTOR GRADING SHEET MATRIX */}
         {activeTab === 'instructor-roster' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
             <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 h-fit space-y-3">
@@ -485,9 +486,9 @@ export default function Dashboard() {
 Publish Manual Quiz
   )}
 {/* VIEW 7: INSTRUCTOR LIBRARY TEXTBOOK CATALOG */}
-{activeTab === 'instructor-library' && ()
-  }
-         {/* VIEW 8: STUDENT TRANSCRIPT ACCESSIBILITY */}
+{activeTab === 'instructor-library' && (
+)}
+{/* VIEW 8: STUDENT TRANSCRIPT ACCESSIBILITY */}
         {activeTab === 'student-transcript' && (
           <section className="bg-surfaceCard p-5 rounded-xl border border-slate-800 font-mono text-xs max-w-3xl mx-auto space-y-4">
             <div className="flex justify-between items-center border-b border-slate-800 pb-3">
