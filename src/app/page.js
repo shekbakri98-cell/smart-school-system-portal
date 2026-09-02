@@ -301,14 +301,26 @@ export default function Dashboard() {
           <p className="text-[10px] text-brandGold font-mono uppercase tracking-widest">Kansoolii Bulchiinsaa // Nagaan Dhufte: {username}</p>
         </div>
         
-        {/* INTERACTIVE PERSPECTIVE SWITCHER */}
+               {/* INTERACTIVE PERSPECTIVE SWITCHER BUTTON MODULES (SECURED FOR STRICT ROLES) */}
         <div className="flex flex-wrap items-center bg-[#141b2d] border border-slate-800 rounded-lg p-1 text-[11px] font-mono gap-1">
           <span className="text-slate-500 px-2 uppercase text-[9px] font-bold">Daawwannaa:</span>
-          <button onClick={() => { setCurrentRoleView('Director'); setActiveTab('director-overview'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Director' ? 'bg-purple-600 text-white shadow' : 'text-slate-400'}`}>👨‍💼 Daayirektara</button>
-          <button onClick={() => { setCurrentRoleView('Instructor'); setActiveTab('instructor-roster'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Instructor' ? 'bg-blue-600 text-white shadow' : 'text-slate-400'}`}>👩‍🏫 Barsiisaa</button>
+          
+          {/* Daayirektara (Admin) qofatu tabii kana jijjiiree argu danda'a */}
+          {userRole === 'Admin' && (
+            <button onClick={() => { setCurrentRoleView('Director'); setActiveTab('director-overview'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Director' ? 'bg-purple-600 text-white shadow' : 'text-slate-400'}`}>👨‍💼 Daayirektara</button>
+          )}
+          
+          {/* Barsiisaa (Teacher) fi Admin qofatu tabii kana jijjiiree argu danda'a */}
+          {(userRole === 'Teacher' || userRole === 'Admin') && (
+            <button onClick={() => { setCurrentRoleView('Instructor'); setActiveTab('instructor-roster'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Instructor' ? 'bg-blue-600 text-white shadow' : 'text-slate-400'}`}>👩‍🏫 Barsiisaa</button>
+          )}
+          
+          {/* Barattoonni fi Bulchitoonni hundi argu danda'u */}
           <button onClick={() => { setCurrentRoleView('Student'); setActiveTab('student-transcript'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Student' ? 'bg-amber-600 text-black shadow' : 'text-slate-400'}`}>🎒 Barataa</button>
-          <button onClick={handleLogoutSequence} className="ml-2 bg-red-950/40 border border-red-900 text-red-400 text-[10px] px-2 py-1 rounded">Ba’i (Logout)</button>
+          
+          <button onClick={handleLogoutSequence} className="ml-2 bg-red-950/40 border border-red-900 text-red-400 text-[10px] px-2 py-1 rounded">Ba’i</button>
         </div>
+
       </header>
 
       {/* DYNAMIC CONTEXTUAL NAVBAR */}
@@ -383,23 +395,33 @@ export default function Dashboard() {
             </div>
           </div>
         )}
-        {/* ROLE CONSOLE VIEW 2: DIRECTOR REVENUE LEDGER (AFAAAN OROMOO TRANSLATION) */}
+                {/* VIEW 2: DIRECTOR REVENUE LEDGER (SECURED) */}
         {activeTab === 'director-finance' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
             <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 space-y-3">
               <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Kaffaltii Galmeessi</h2>
-              <form onSubmit={handleFinanceSubmit} className="space-y-2">
-                <input type="text" placeholder="ID Barataa" value={financeForm.studentId} onChange={e => setFinanceForm({...financeForm, studentId: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
-                <select value={financeForm.feeType} onChange={e => setFinanceForm({...financeForm, feeType: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded">
-                  <option value="Tuition Q1">Kaffaltii Kurmaana 1ffaa</option>
-                  <option value="Tuition Q2">Kaffaltii Kurmaana 2ffaa</option>
-                  <option value="Registration Dues">Kaffaltii Galmeessaa</option>
-                </select>
-                <input type="number" placeholder="Idaa Waliigalaa (ETB)" value={financeForm.amountDue} onChange={e => setFinanceForm({...financeForm, amountDue: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
-                <input type="number" placeholder="Hamma Kaffalame (ETB)" value={financeForm.amountPaid} onChange={e => setFinanceForm({...financeForm, amountPaid: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
-                <button type="submit" className="w-full bg-purple-600 p-2 text-white font-bold rounded uppercase">Kaffaltii Raggaasisi</button>
-              </form>
+              
+              {/* FINANCE ACCESS GUARD: Admin qofaaf hayyamuu */}
+              {userRole === 'Admin' ? (
+                <form onSubmit={handleFinanceSubmit} className="space-y-2">
+                  <input type="text" placeholder="ID Barataa" value={financeForm.studentId} onChange={e => setFinanceForm({...financeForm, studentId: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                  <select value={financeForm.feeType} onChange={e => setFinanceForm({...financeForm, feeType: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded">
+                    <option value="Tuition Q1">Kaffaltii Kurmaana 1ffaa</option>
+                    <option value="Tuition Q2">Kaffaltii Kurmaana 2ffaa</option>
+                  </select>
+                  <input type="number" placeholder="Total Due" value={financeForm.amountDue} onChange={e => setFinanceForm({...financeForm, amountDue: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                  <input type="number" placeholder="Amount Paid" value={financeForm.amountPaid} onChange={e => setFinanceForm({...financeForm, amountPaid: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
+                  <button type="submit" className="w-full bg-purple-600 p-2 text-white font-bold rounded uppercase">Commit Dues</button>
+                </form>
+              ) : (
+                <div className="p-4 text-center text-red-400 bg-brandNavy border border-red-900/30 rounded-lg">
+                  ⚠️ Akeekkachiisa: Uunka kaffaltii herregaa jijjiiruuf aangoo Daayirektaraa (Admin) qabaachuu si barbaachisa.
+                </div>
+              )}
             </section>
+            
+            {/* ... Rest of the view (table ledger mapping section remains exactly same) ... */}
+
             <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
               <div className="flex justify-between items-center border-b border-slate-800 pb-2 mb-3">
                 <h3 className="font-bold text-slate-200 text-xs">Galmee Herregaa Waliigalaa</h3>
