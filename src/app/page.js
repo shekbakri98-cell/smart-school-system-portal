@@ -487,11 +487,46 @@ Publish Manual Quiz
 {/* VIEW 7: INSTRUCTOR LIBRARY TEXTBOOK CATALOG */}
 {activeTab === 'instructor-library' && ()
   }
- {/* VIEW 8: STUDENT TRANSCRIPT ACCESSIBILITY */}
+         {/* VIEW 8: STUDENT TRANSCRIPT ACCESSIBILITY */}
         {activeTab === 'student-transcript' && (
           <section className="bg-surfaceCard p-5 rounded-xl border border-slate-800 font-mono text-xs max-w-3xl mx-auto space-y-4">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-3"><div><h3 className="text-sm font-bold text-white uppercase">Personal Academic Registry Card</h3></div><select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-brandNavy border border-slate-800 p-1 rounded text-white outline-none"><option value="12 Natural">12 Natural</option><option value="12 Social">12 Social</option></select></div>
-            <div className="overflow-x-auto"><table className="w-full text-left whitespace-nowrap"><thead><tr className="text-slate-400 text-[10px] uppercase border-b border-slate-800"><th className="pb-2">Student ID</th><th>Full Name</th><th>Test 1</th><th>Test 2</th><th>Assignment</th><th>Final Exam</th><th className="text-right">Total Score</th></tr></thead><tbody className="text-slate-200 divide-y divide-slate-800">{students.map((s, idx) => (<tr key={idx}><td className="py-3 font-bold text-amber-400">{s.studentId}</td><td className="font-semibold">{s.name}</td><td>{s.test1 || 0} / 10</td><td>{s.test2 || 0} / 10</td><td>{s.assignment || 0} / 20</td><td>{s.finalExam || 0} / 60</td><td className="text-right font-black text-emerald-400 text-sm">{s.totalScore || 0} / 100</td></tr>))}</tbody></table></div>
+            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-white uppercase">Personal Academic Registry Card</h3>
+              </div>
+              <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-brandNavy border border-slate-800 p-1 rounded text-white outline-none">
+                <option value="12 Natural">12 Natural</option>
+                <option value="12 Social">12 Social</option>
+              </select>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left whitespace-nowrap">
+                <thead>
+                  <tr className="text-slate-400 text-[10px] uppercase border-b border-slate-800">
+                    <th className="pb-2">Student ID</th>
+                    <th>Full Name</th>
+                    <th>Test 1</th>
+                    <th>Test 2</th>
+                    <th>Assignment</th>
+                    <th>Final Exam</th>
+                    <th className="text-right">Total Score</th>
+                  </tr>
+                </thead>
+                <tbody className="text-slate-200 divide-y divide-slate-800">
+                  {students.map((s, idx) => (
+                    <tr key={idx}>
+                      <td className="py-3 font-bold text-amber-400">{s.studentId}</td>
+                      <td className="font-semibold">{s.name}</td>
+                      <td>{s.test1 || 0} / 10</td>
+                      <td>{s.test2 || 0} / 10</td>
+                      <td>{s.assignment || 0} / 20</td>
+                      <td>{s.finalExam || 0} / 60</td>
+                      <td className="text-right font-black text-emerald-400 text-sm">{s.totalScore || 0} / 100</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         )}
 
@@ -503,7 +538,10 @@ Publish Manual Quiz
               {exams.length === 0 && <p className="text-slate-500 text-center py-4">// No exams active currently.</p>}
               {exams.map((ex, idx) => (
                 <div key={idx} className="p-3 bg-brandNavy border border-slate-800 rounded-xl flex justify-between items-center">
-                  <div><p className="font-bold text-slate-200">{ex.title}</p><p className="text-[10px] text-slate-500 uppercase mt-0.5">Track: {ex.subject}</p></div>
+                  <div>
+                    <p className="font-bold text-slate-200">{ex.title}</p>
+                    <p className="text-[10px] text-slate-500 uppercase mt-0.5">Track: {ex.subject}</p>
+                  </div>
                   <button 
                     onClick={async () => {
                       const response = await fetch(`/api/exams?examId=${ex.exam_id}`);
@@ -526,7 +564,26 @@ Publish Manual Quiz
         {activeTab === 'student-library' && (
           <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 max-w-2xl mx-auto font-mono text-xs">
             <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 uppercase text-xs">Digital Textbook Library</h3>
-            <div className="overflow-x-auto"><table className="w-full text-left whitespace-nowrap"><thead><tr className="border-b border-slate-800 text-slate-400 text-[10px] uppercase"><th className="pb-2">Resource Title</th><th>Author Course Route</th><th className="text-right">Action Handle</th></tr></thead><tbody className="divide-y divide-slate-800 text-slate-300">{books.map((b, idx) => (<tr key={idx}><td className="py-2.5 font-semibold text-slate-200">{b.title}</td><td>{b.author}</td><td className="text-right"><a href={b.download_url} target="_blank" rel="noreferrer" className="text-amber-400 font-bold underline">Download Resource 📥</a></td></tr>))}</tbody></table></div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left whitespace-nowrap">
+                <thead>
+                  <tr className="border-b border-slate-800 text-slate-400 text-[10px] uppercase">
+                    <th className="pb-2">Resource Title</th>
+                    <th>Author Course Route</th>
+                    <th className="text-right">Action Handle</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800 text-slate-300">
+                  {books.map((b, idx) => (
+                    <tr key={idx}>
+                      <td className="py-2.5 font-semibold text-slate-200">{b.title}</td>
+                      <td>{b.author}</td>
+                      <td className="text-right"><a href={b.download_url} target="_blank" rel="noreferrer" className="text-amber-400 font-bold underline">Download Resource 📥</a></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         )}
       </main>
@@ -535,8 +592,14 @@ Publish Manual Quiz
       {activeQuizExam && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 overflow-y-auto font-mono text-xs text-slate-100">
           <div className="bg-[#141b2d] border border-slate-800 rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-3"><div><h3 className="text-base font-bold text-white uppercase">{activeQuizExam.title}</h3></div><button onClick={() => setActiveQuizExam(null)} className="bg-slate-800 text-slate-400 px-2.5 py-1 rounded">✕ Close</button></div>
-            <div className="bg-[#0a0f1d] p-3 rounded border border-slate-800"><label className="text-[10px] uppercase text-slate-400 font-bold block mb-1">Enter Student ID:</label><input type="text" placeholder="e.g., STU-001" value={studentExId} onChange={(e) => setStudentExId(e.target.value.toUpperCase())} className="bg-[#141b2d] border border-slate-800 rounded p-2 w-full text-white outline-none" /></div>
+            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+              <div><h3 className="text-base font-bold text-white uppercase">{activeQuizExam.title}</h3></div>
+              <button onClick={() => setActiveQuizExam(null)} className="bg-slate-800 text-slate-400 px-2.5 py-1 rounded">✕ Close</button>
+            </div>
+            <div className="bg-[#0a0f1d] p-3 rounded border border-slate-800">
+              <label className="text-[10px] uppercase text-slate-400 font-bold block mb-1">Enter Student ID:</label>
+              <input type="text" placeholder="e.g., STU-001" value={studentExId} onChange={(e) => setStudentExId(e.target.value.toUpperCase())} className="bg-[#141b2d] border border-slate-800 rounded p-2 w-full text-white outline-none" />
+            </div>
             <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
               {quizQuestions.map((q, qIdx) => (
                 <div key={q.q_id} className="bg-[#0a0f1d] p-4 rounded-lg border border-slate-800 space-y-2">
