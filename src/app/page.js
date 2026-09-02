@@ -205,6 +205,96 @@ export default function Dashboard() {
   function triggerStudentReportCardPrint(student) {
     const pWin = window.open('', '_blank');
     pWin.document.write(`
+      // LOCAL DATA EXCEL/CSV LEDGER EXPORT TOOL UTILITY
+  function triggerFinanceCSVExport() {
+    if (!financeLedger || financeLedger.length === 0) {
+      alert("No active transaction data logs available to compile for local export.");
+      return;
+    }
+
+    // Build standard structured CSV header nodes rows
+    let csvContent = "data:text/csv;charset=utf-8,Student ID,Full Name,Fee Type Category,Amount Due (ETB),Amount Paid (ETB),Payment Matrix Status\n";
+    
+    // Unpack data rows array loops systematically split into columns dividers
+    financeLedger.forEach((row) => {
+      const cleanName = row.name ? row.name.replace(/,/g, " ") : "Unknown Student";
+      const line = `${row.studentId},${cleanName},${row.fee_type},${row.amount_due},${row.amount_paid},${row.payment_status}\n`;
+      csvContent += line;
+    });
+
+    // Fire browser download pipeline using hidden data anchor handles
+    const encodedUri = encodeURI(csvContent);
+    const linkAnchor = document.createElement("a");
+    linkAnchor.setAttribute("href", encodedUri);
+    linkAnchor.setAttribute("download", `sheek_bakri_revenue_ledger_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(linkAnchor);
+    linkAnchor.click();
+    document.body.removeChild(linkAnchor);
+  }
+
+  // PREMIUM STYLED CERTIFICATE GENERATION ENGINE (UPGRADED CSS INTERFACE)
+  function triggerStudentReportCardPrint(student) {
+    const pWin = window.open('', '_blank');
+    pWin.document.write(`
+      <html>
+        <head>
+          <title>Academic Certificate - ${student.name}</title>
+          <style>
+            @import url('https://googleapis.com');
+            body { font-family: 'Share Tech Mono', monospace; padding: 20px; background: #fafafa; color: #1e293b; }
+            .cert-border { border: 6px double #1e3a8a; padding: 30px; background: #ffffff; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); max-width: 800px; margin: auto; position: relative; }
+            .cert-border::before { content: ""; position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; border: 1px solid #1e3a8a; pointer-events: none; }
+            .header-block { font-family: 'Cinzel', serif; font-weight: 700; font-size: 26px; color: #1e3a8a; text-align: center; letter-spacing: 1px; margin-bottom: 2px; }
+            .motto { text-align: center; font-size: 10px; color: #b45309; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; margin-bottom: 25px; }
+            .sub-title { font-size: 14px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 20px; text-align: center; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; color: #475569; }
+            .meta-grid { display: grid; grid-template-cols: 1fr 1fr; gap: 15px; margin: 20px 0; background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 13px; }
+            .meta-item strong { color: #1e3a8a; text-transform: uppercase; font-size: 11px; display: inline-block; width: 140px; }
+            .tbl { width: 100%; border-collapse: collapse; text-align: left; margin: 25px 0; font-size: 13px; }
+            .tbl th { background: #1e3a8a; color: #ffffff; font-weight: bold; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; padding: 10px; border: 1px solid #1e3a8a; }
+            .tbl td { border: 1px solid #cbd5e1; padding: 10px; }
+            .total-row { font-weight: bold; background: #f1f5f9; color: #0f172a; border-top: 2px solid #1e3a8a; }
+            .sig-area { display: flex; justify-content: space-between; margin-top: 60px; font-size: 12px; padding: 0 10px; }
+            .sig-line { border-top: 1px solid #475569; width: 220px; text-align: center; padding-top: 5px; color: #475569; text-transform: uppercase; font-size: 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="cert-border">
+            <div class="header-block">SHEEK BAKRI SECONDARY SCHOOL</div>
+            <div class="motto">Knowledge is the foundation of progress</div>
+            <div class="sub-title">Official Student Performance Certificate</div>
+            
+            <div class="meta-grid">
+              <div class="meta-item"><strong>Student Roster:</strong> ${student.name}</div>
+              <div class="meta-item"><strong>Identifier ID:</strong> ${student.studentId}</div>
+              <div class="meta-item"><strong>Grade Track:</strong> ${selectedGrade}</div>
+              <div class="meta-item"><strong>Subject Branch:</strong> ${student.subject || 'ICT Core Matrix'}</div>
+            </div>
+
+            <table class="tbl">
+              <thead>
+                <tr><th>Assessment Evaluation Category</th><th>Maximum Limit</th><th>Score Achieved</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Continuous Assessment Test 1</td><td>10 Marks</td><td>${student.test1 || 0}</td></tr>
+                <tr><td>Continuous Assessment Test 2</td><td>10 Marks</td><td>${student.test2 || 0}</td></tr>
+                <tr><td>Practical Lab Assignment Work</td><td>20 Marks</td><td>${student.assignment || 0}</td></tr>
+                <tr><td>Final Comprehensive Examination</td><td>60 Marks</td><td>${student.finalExam || 0}</td></tr>
+                <tr class="total-row"><td>Waliigala / Cumulative Achievement Scale</td><td>100 Marks</td><td>${student.totalScore || 0} / 100</td></tr>
+              </tbody>
+            </table>
+
+            <div class="sig-area">
+              <div class="sig-line">Class Instructor Signature</div>
+              <div class="sig-line">Directorate Seal Authorization</div>
+            </div>
+          </div>
+          <script>window.print();</script>
+        </body>
+      </html>
+    `);
+    pWin.document.close();
+  }
+
       <html>
         <head>
           <title>Certificate - \${student.name}</title>
