@@ -9,10 +9,19 @@ export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const grade = searchParams.get('grade');
+    const examId = searchParams.get('examId'); // New precise targeted ID query parameter interceptor
     const db = await connectToDatabase();
     
+    // If an examId parameter is specifically supplied, download the inner questions list
+    if (examId) {
+      const [questions] = await db.query(
+        'SELECT * FROM exam_questions WHERE exam_id = ? ORDER BY q_id ASC',
+        [examId]
+      );
+      return NextResponse.json({ success: true, questions });
+    }
+
     if (grade) {
-      // Isolates exam metadata specific to the selected grade section row
       const [exams] = await db.query(
         'SELECT * FROM school_exams WHERE grade_section = ? ORDER BY created_at DESC', 
         [grade]
@@ -20,16 +29,13 @@ export async function GET(req) {
       return NextResponse.json({ success: true, exams });
     }
     
-    // Default fallback: Return overall active examination nodes
     const [allExams] = await db.query('SELECT * FROM school_exams ORDER BY created_at DESC');
     return NextResponse.json({ success: true, exams: allExams });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed loading examination matrix records: " + error.message }, 
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed loading examination matrix records: " + error.message }, { status: 500 });
   }
 }
+
 
 /**
  * 2. POST METHOD: Handles the "Publish Automated Exam" builder form actions.
