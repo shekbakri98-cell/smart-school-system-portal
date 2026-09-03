@@ -739,7 +739,9 @@ export default function Dashboard() {
               <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-brandNavy border border-slate-800 p-1 rounded text-white outline-none">
                 <option value="12 Natural">12 Natural</option>
                 <option value="12 Social">12 Social</option>
-              </select>
+              <option value="10">10</option>
+          <option value="9"> 9</option>
+          </select>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left whitespace-nowrap">
