@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import BulkExamUpload from '@/components/BulkExamUpload'; 
+import BulkExamUpload from '../components/BulkExamUpload';
 
 export default function Dashboard() {
   // Navigation & Multi-Role Perspective Console States
