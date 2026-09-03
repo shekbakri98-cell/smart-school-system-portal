@@ -23,7 +23,7 @@ export default function Dashboard() {
   const [exams, setExams] = useState([]);
   const [examsLoading, setExamsLoading] = useState(false);
   const [examForm, setExamForm] = useState({ title: '', subject: 'ICT', questions: [] });
-  const [currentQuestion, setCurrentQuestion] = useState({ text: '', a: '', b: '', c: '', d: '', correct: 'A' });
+  const [currentQuestion, setCurrentQuestion] = useState({ text: '', a: '', b: '', correct: 'A' });
 
   // Student Testing Modal States
   const [activeQuizExam, setActiveQuizExam] = useState(null);
@@ -76,6 +76,7 @@ export default function Dashboard() {
     else if (activeTab === 'student-library' || activeTab === 'instructor-library') { fetchLiveLibraryBooks(); } 
     else if (activeTab === 'director-users') { fetchSystemUsers(); }
   }, [selectedGrade, activeTab, attendanceDate, currentRoleView]);
+
   // REST API Pipeline Fetch Handlers
   async function fetchLiveRosterData() {
     setStudentsLoading(true);
@@ -165,7 +166,7 @@ export default function Dashboard() {
     } catch (err) { console.error(err); }
   }
 
-    async function handleUserCreationSubmit(e) {
+  async function handleUserCreationSubmit(e) {
     e.preventDefault();
     try {
       const res = await fetch('/api/auth', { 
@@ -184,7 +185,7 @@ export default function Dashboard() {
       if (res.ok) { 
         alert("Eenyummaa haaraa milkiin banameera!"); 
         setUserForm({ username: '', email: '', password: '', role: 'Teacher' }); 
-        fetchSystemUsers(); // Galmee piroofayilii hojjattootaa battalatti refresh gochuu
+        fetchSystemUsers(); 
       } else {
         alert("Dogoggora: " + data.error);
       }
@@ -192,7 +193,6 @@ export default function Dashboard() {
       console.error("Fashalaayeera:", err); 
     }
   }
-
 
   async function handleCellUpdateSubmit(studentId, subject, fieldName, newScore) {
     const num = Number(newScore);
@@ -217,7 +217,7 @@ export default function Dashboard() {
   function addQuestionToFormState() {
     if (!currentQuestion.text || !currentQuestion.a || !currentQuestion.b) return;
     setExamForm({ ...examForm, questions: [...examForm.questions, currentQuestion] });
-    setCurrentQuestion({ text: '', a: '', b: '', c: '', d: '', correct: 'A' });
+    setCurrentQuestion({ text: '', a: '', b: '', correct: 'A' });
   }
 
   async function handleExamPublishSubmit(e) {
@@ -227,6 +227,7 @@ export default function Dashboard() {
       if (res.ok) { alert("Exam structure deployed!"); setExamForm({ title: '', subject: 'ICT', questions: [] }); fetchLiveExams(); }
     } catch (err) { console.error(err); }
   }
+
   function triggerFinanceCSVExport() {
     if (!financeLedger || financeLedger.length === 0) return alert("No active logs.");
     let csv = "data:text/csv;charset=utf-8,Student ID,Full Name,Category,Due,Paid,Status\n";
@@ -263,9 +264,9 @@ export default function Dashboard() {
             <div class="sub-title">Official Student Performance Certificate</div>
             <div class="meta-grid">
               <div><strong>Student Name:</strong> \${student.name}</div>
-              <div><strong>Student ID:</strong> \text{\${student.studentId}}</div>
-              <div><strong>Grade Track:</strong> \text{\${selectedGrade}}</div>
-              <div><strong>Subject:</strong> \text{\${student.subject || 'ICT'}}</div>
+              <div><strong>Student ID:</strong> \${student.studentId}</div>
+              <div><strong>Grade Track:</strong> \${selectedGrade}</div>
+              <div><strong>Subject:</strong> 	ext{\${student.subject || 'ICT'}}</div>
             </div>
             <table class="tbl">
               <thead><tr><th style="text-align:left;">Assessment Component</th><th>Limit</th><th>Score Achieved</th></tr></thead>
@@ -292,8 +293,8 @@ export default function Dashboard() {
     document.cookie = "userRole=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     window.location.href = '/login';
   }
-    return (
-    // bg-[#0f172a] (Slate-900) fi text-slate-100 fayyadamuun iftoomina bal'isa
+
+  return (
     <div className="min-h-screen bg-[#0f172a] text-slate-100 p-6">
       
       {/* ENTERPRISE VIEW CONTROL PANEL HEADER */}
@@ -307,7 +308,6 @@ export default function Dashboard() {
         <div className="flex flex-wrap items-center bg-[#1e293b] border border-slate-700 rounded-lg p-1 text-[11px] font-mono gap-1">
           <span className="text-slate-400 px-2 uppercase text-[9px] font-bold">Daawwannaa:</span>
           
-          {/* toUpperCase() fayyadamnaan ADMIN fi Admin lamaanuu ni danda'u */}
           {userRole && userRole.toUpperCase() === 'ADMIN' && (
             <button onClick={() => { setCurrentRoleView('Director'); setActiveTab('director-overview'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Director' ? 'bg-purple-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>👨‍💼 Daayirektara</button>
           )}
@@ -349,8 +349,7 @@ export default function Dashboard() {
       </nav>
 
       <main className="max-w-6xl mx-auto">
-      
-        {/* ROLE CONSOLE VIEW 1: EXECUTIVE DIRECTOR OVERVIEW (HIGH-CONTRAST UPDATE) */}
+        {/* ROLE CONSOLE VIEW 1: EXECUTIVE DIRECTOR OVERVIEW */}
         {activeTab === 'director-overview' && (
           <div className="space-y-6 font-mono text-xs">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -360,7 +359,7 @@ export default function Dashboard() {
                   <span className="text-2xl font-black text-emerald-400 mt-2 block">ETB {financeLedger.reduce((acc, curr) => acc + Number(curr.amount_paid || 0), 0).toLocaleString()}</span>
                 </div>
                 <div className="mt-4 pt-2 border-t border-slate-700">
-                  <div className="flex justify-between text-[9px] text-slate-400 mb-1"><span>Milkaa'ina Targetii</span><span>74%</span></div>
+                  <div className="flex justify-between text-[9px] text-slate-400 mb-1"><span>Milkaa&apos;ina Targetii</span><span>74%</span></div>
                   <svg className="w-full h-1.5 bg-[#0f172a] rounded-full overflow-hidden">
                     <rect x="0" y="0" width="74%" height="100%" fill="#10b981" />
                   </svg>
@@ -396,13 +395,12 @@ export default function Dashboard() {
           </div>
         )}
 
-                {/* VIEW 2: DIRECTOR REVENUE LEDGER (SECURED) */}
+        {/* VIEW 2: DIRECTOR REVENUE LEDGER */}
         {activeTab === 'director-finance' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
             <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 space-y-3">
               <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Kaffaltii Galmeessi</h2>
               
-              {/* FINANCE ACCESS GUARD: Admin qofaaf hayyamuu */}
               {userRole === 'Admin' ? (
                 <form onSubmit={handleFinanceSubmit} className="space-y-2">
                   <input type="text" placeholder="ID Barataa" value={financeForm.studentId} onChange={e => setFinanceForm({...financeForm, studentId: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
@@ -421,8 +419,6 @@ export default function Dashboard() {
               )}
             </section>
             
-            {/* ... Rest of the view (table ledger mapping section remains exactly same) ... */}
-
             <section className="lg:col-span-2 bg-surfaceCard p-4 rounded-lg border border-slate-800">
               <div className="flex justify-between items-center border-b border-slate-800 pb-2 mb-3">
                 <h3 className="font-bold text-slate-200 text-xs">Galmee Herregaa Waliigalaa</h3>
@@ -449,7 +445,7 @@ export default function Dashboard() {
                         <td>{f.amount_due}</td>
                         <td>{f.amount_paid}</td>
                         <td className="text-right">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${f.payment_status === 'Paid' ? 'border-emerald-800 text-emerald-400' : 'border-amber-800 text-amber-400'}`}>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold border \${f.payment_status === 'Paid' ? 'border-emerald-800 text-emerald-400' : 'border-amber-800 text-amber-400'}`}>
                             {f.payment_status === 'Paid' ? 'Kaffalameera' : 'Hanga Tokko'}
                           </span>
                         </td>
@@ -461,13 +457,13 @@ export default function Dashboard() {
             </section>
           </div>
         )}
-            {/* ROLE CONSOLE VIEW 3: DIRECTOR FACULTY PROFILES (SECURED FOR ADMIN ONLY) */}
+
+        {/* VIEW 3: DIRECTOR FACULTY PROFILES */}
         {activeTab === 'director-users' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
             <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 h-fit space-y-3">
               <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Eenyummaa Haaraa Banu</h2>
               
-              {/* ADMIN ACCESS GUARD: Daayirektara qofaaf eegumsa uumuu */}
               {userRole === 'Admin' ? (
                 <form onSubmit={handleUserCreationSubmit} className="space-y-2">
                   <input type="text" placeholder="Maqaa Fayyadamaa" value={userForm.username} onChange={e => setUserForm({...userForm, username: e.target.value})} className="w-full bg-brandNavy border border-slate-800 p-2 text-white outline-none rounded" required />
@@ -513,7 +509,8 @@ export default function Dashboard() {
             </section>
           </div>
         )}
-                  {/* VIEW 4: INSTRUCTOR GRADING SHEET MATRIX (HIGH-CONTRAST UPDATE) */}
+
+        {/* VIEW 4: INSTRUCTOR GRADING SHEET MATRIX */}
         {activeTab === 'instructor-roster' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
             <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 h-fit space-y-3 shadow-xl">
@@ -571,7 +568,6 @@ export default function Dashboard() {
           </div>
         )}
 
-
         {/* VIEW 5: INSTRUCTOR SESSION ATTENDANCE MATRIX */}
         {activeTab === 'instructor-attendance' && (
           <section className="bg-surfaceCard p-4 rounded-lg border border-slate-800 text-xs font-mono w-full">
@@ -603,7 +599,7 @@ export default function Dashboard() {
                         <select 
                           value={s.status || 'Not Marked'} 
                           onChange={(e) => handleAttendanceCellChange(s.studentId, e.target.value)} 
-                          className={`bg-brandNavy border rounded p-1 text-[11px] font-bold outline-none ${s.status === 'Present' ? 'border-emerald-800 text-emerald-400' : s.status === 'Absent' ? 'border-red-800 text-red-400' : 'border-slate-800 text-slate-400'}`}
+                          className={`bg-brandNavy border rounded p-1 text-[11px] font-bold outline-none \${s.status === 'Present' ? 'border-emerald-800 text-emerald-400' : s.status === 'Absent' ? 'border-red-800 text-red-400' : 'border-slate-800 text-slate-400'}`}
                         >
                           <option value="Not Marked">Not Marked</option>
                           <option value="Present">Present</option>
@@ -617,6 +613,7 @@ export default function Dashboard() {
             </div>
           </section>
         )}
+
         {/* VIEW 6: INSTRUCTOR EXAMS MODULE */}
         {activeTab === 'instructor-exams' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
@@ -653,42 +650,6 @@ export default function Dashboard() {
             </section>
           </div>
         )}
-      {/* FLOATING CONTEXT-AWARE CONVERSATIONAL ASSISTANT WIDGET (AFAN OROMOO TRANSLATION) */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <div className="bg-surfaceCard border border-slate-800 shadow-2xl rounded-xl p-4 w-72 space-y-3 font-mono text-xs">
-          <div className="flex justify-between items-center border-b border-slate-700 pb-1.5">
-            <span className="font-bold text-emerald-400 animate-pulse">● Gargaaraa AI Dijitaalaa</span>
-            <span className="text-[10px] text-slate-500 uppercase tracking-widest">v3.3 Node</span>
-          </div>
-          <div className="h-32 overflow-y-auto bg-brandNavy p-2 rounded text-slate-300 space-y-1.5 text-[11px]" id="aiTerminalChatLog">
-            <p className="text-slate-500">// Sararri terminal amansiisaa dha.</p>
-            <p className="text-emerald-400 font-bold">Gargaaraa AI:</p>
-            <p className="leading-relaxed">Akkam! Mana barumsaa keessan irratti har'a maal si gargaaruu danda'a?</p>
-          </div>
-          <div className="flex gap-1.5">
-            <input 
-              type="text" 
-              placeholder="Gaaffii kee asitti barreessi..." 
-              onKeyDown={async (e) => {
-                if (e.key === 'Enter' && e.target.value.trim()) {
-                  const txt = e.target.value; e.target.value = '';
-                  const log = document.getElementById('aiTerminalChatLog');
-                  log.innerHTML += `<p class="text-blue-400 font-bold mt-1">Isin:</p><p class="text-slate-200">${txt}</p>`;
-                  
-                  const res = await fetch('/api/ai-chat', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: txt, userRole: 'Admin' })
-                  });
-                  const d = await res.json();
-                  log.innerHTML += `<p class="text-emerald-400 font-bold mt-1">Gargaaraa AI:</p><p class="text-slate-300">${d.reply}</p>`;
-                  log.scrollTop = log.scrollHeight;
-                }
-              }}
-              className="w-full bg-brandNavy border border-slate-800 rounded p-1.5 text-white outline-none text-[11px]" 
-            />
-          </div>
-        </div>
-      </div>
 
         {/* VIEW 7: INSTRUCTOR LIBRARY TEXTBOOK CATALOG */}
         {activeTab === 'instructor-library' && (
@@ -729,7 +690,8 @@ export default function Dashboard() {
             </section>
           </div>
         )}
-{/* VIEW 8: STUDENT TRANSCRIPT ACCESSIBILITY */}
+
+        {/* VIEW 8: STUDENT TRANSCRIPT ACCESSIBILITY */}
         {activeTab === 'student-transcript' && (
           <section className="bg-surfaceCard p-5 rounded-xl border border-slate-800 font-mono text-xs max-w-3xl mx-auto space-y-4">
             <div className="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -739,9 +701,9 @@ export default function Dashboard() {
               <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-brandNavy border border-slate-800 p-1 rounded text-white outline-none">
                 <option value="12 Natural">12 Natural</option>
                 <option value="12 Social">12 Social</option>
-              <option value="10">10</option>
-          <option value="9"> 9</option>
-          </select>
+                <option value="10">10</option>
+                <option value="9">9</option>
+              </select>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left whitespace-nowrap">
@@ -788,7 +750,7 @@ export default function Dashboard() {
                   </div>
                   <button 
                     onClick={async () => {
-                      const response = await fetch(`/api/exams?examId=${ex.exam_id}`);
+                      const response = await fetch(`/api/exams?examId=\${ex.exam_id}`);
                       const dbData = await response.json();
                       if (dbData.success && dbData.questions && dbData.questions.length > 0) {
                         setActiveQuizExam(ex); setQuizQuestions(dbData.questions); setStudentAnswers({}); setStudentExId('');
@@ -832,6 +794,43 @@ export default function Dashboard() {
         )}
       </main>
 
+      {/* FLOATING CONTEXT-AWARE CONVERSATIONAL ASSISTANT WIDGET */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <div className="bg-surfaceCard border border-slate-800 shadow-2xl rounded-xl p-4 w-72 space-y-3 font-mono text-xs">
+          <div className="flex justify-between items-center border-b border-slate-700 pb-1.5">
+            <span className="font-bold text-emerald-400 animate-pulse">● Gargaaraa AI Dijitaalaa</span>
+            <span className="text-[10px] text-slate-500 uppercase tracking-widest">v3.3 Node</span>
+          </div>
+          <div className="h-32 overflow-y-auto bg-brandNavy p-2 rounded text-slate-300 space-y-1.5 text-[11px]" id="aiTerminalChatLog">
+            <p className="text-slate-500">// Sararri terminal amansiisaa dha.</p>
+            <p className="text-emerald-400 font-bold">Gargaaraa AI:</p>
+            <p className="leading-relaxed">Akkam! Mana barumsaa keessan irratti har&apos;a maal si gargaaruu danda&apos;a?</p>
+          </div>
+          <div className="flex gap-1.5">
+            <input 
+              type="text" 
+              placeholder="Gaaffii kee asitti barreessi..." 
+              onKeyDown={async (e) => {
+                if (e.key === 'Enter' && e.target.value.trim()) {
+                  const txt = e.target.value; e.target.value = '';
+                  const log = document.getElementById('aiTerminalChatLog');
+                  log.innerHTML += `<p class="text-blue-400 font-bold mt-1">Isin:</p><p class="text-slate-200">\${txt}</p>`;
+                  
+                  const res = await fetch('/api/ai-chat', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: txt, userRole: 'Admin' })
+                  });
+                  const d = await res.json();
+                  log.innerHTML += `<p class="text-emerald-400 font-bold mt-1">Gargaaraa AI:</p><p class="text-slate-300">\${d.reply}</p>`;
+                  log.scrollTop = log.scrollHeight;
+                }
+              }}
+              className="w-full bg-brandNavy border border-slate-800 rounded p-1.5 text-white outline-none text-[11px]" 
+            />
+          </div>
+        </div>
+      </div>
+
       {/* QUIZ SUBMISSION QUESTIONNAIRE MODAL OVERLAY */}
       {activeQuizExam && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 overflow-y-auto font-mono text-xs text-slate-100">
@@ -849,8 +848,8 @@ export default function Dashboard() {
                 <div key={q.q_id} className="bg-[#0a0f1d] p-4 rounded-lg border border-slate-800 space-y-2">
                   <p className="font-bold text-slate-200">Q{qIdx + 1}: {q.question_text}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 font-mono text-[11px]">
-                    <label className="flex items-center gap-2 p-2 rounded border border-slate-800 cursor-pointer"><input type="radio" name={`q-${q.q_id}`} onChange={() => setStudentAnswers({...studentAnswers, [q.q_id]: 'A'})} /> A: {q.option_a}</label>
-                    <label className="flex items-center gap-2 p-2 rounded border border-slate-800 cursor-pointer"><input type="radio" name={`q-${q.q_id}`} onChange={() => setStudentAnswers({...studentAnswers, [q.q_id]: 'B'})} /> B: {q.option_b}</label>
+                    <label className="flex items-center gap-2 p-2 rounded border border-slate-800 cursor-pointer"><input type="radio" name={`q-\${q.q_id}`} onChange={() => setStudentAnswers({...studentAnswers, [q.q_id]: 'A'})} /> A: {q.option_a}</label>
+                    <label className="flex items-center gap-2 p-2 rounded border border-slate-800 cursor-pointer"><input type="radio" name={`q-\${q.q_id}`} onChange={() => setStudentAnswers({...studentAnswers, [q.q_id]: 'B'})} /> B: {q.option_b}</label>
                   </div>
                 </div>
               ))}
@@ -860,7 +859,7 @@ export default function Dashboard() {
                 if (!studentExId) return alert("Please specify a valid Student ID.");
                 const res = await fetch('/api/exams/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId: studentExId, examId: activeQuizExam.exam_id, answers: studentAnswers }) });
                 const data = await res.json();
-                if (res.ok) { alert(`Exam grading complete! Result Output: ${data.score}%`); setActiveQuizExam(null); setStudentAnswers({}); setStudentExId(''); fetchLiveRosterData(); }
+                if (res.ok) { alert(`Exam grading complete! Result Output: \${data.score}%`); setActiveQuizExam(null); setStudentAnswers({}); setStudentExId(''); fetchLiveRosterData(); }
               }}
               className="w-full bg-emerald-600 py-2.5 text-white font-bold uppercase rounded text-xs"
             >
@@ -872,5 +871,3 @@ export default function Dashboard() {
     </div>
   );
 }
-        
-        
