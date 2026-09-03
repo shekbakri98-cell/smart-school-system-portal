@@ -46,7 +46,7 @@ export default function LoginPage() {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xl">🏛️</span>
-              <span className="text-white font-black tracking-wider uppercase text-sm">Sheek Bakri Secondary</span>
+              <span className="text-white font-black tracking-wider uppercase text-sm">Welcome To Shek Bakri Secondary School Portal</span>
             </div>
             <p className="text-slate-400 leading-relaxed text-[11px] pt-1">
               Welcome to the central information administration hub network interface portal. Secure core nodes monitor student progress parameters live.
