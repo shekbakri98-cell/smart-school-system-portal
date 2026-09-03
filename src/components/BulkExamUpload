@@ -1,0 +1,114 @@
+'use client';
+import { useState } from 'react';
+
+export default function BulkExamUpload({ gradeSection, subject, onUploadSuccess }) {
+  const [csvText, setCsvText] = useState('');
+  const [parsingError, setParsingError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleBulkSubmit = async (e) => {
+    e.preventDefault();
+    setParsingError(null);
+    if (!csvText.trim()) {
+      alert("Please paste some valid CSV rows first.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const lines = csvText.split('\n');
+      const header = lines[0].split(',');
+      
+      // Expected headers: question_text, option_a, option_b, option_c, option_d, correct_answer
+      const questions = [];
+      
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+        
+        // Custom simple CSV splitter that respects basic spacing
+        const row = lines[i].split(',');
+        if (row.length < 6) {
+          throw new Error(`Row ${i + 1} has insufficient columns. Make sure it contains: question, option A, option B, option C, option D, correct answer.`);
+        }
+        
+        questions.push({
+          text: row[0].trim(),
+          a: row[1].trim(),
+          b: row[2].trim(),
+          c: row[3].trim(),
+          d: row[4].trim(),
+          correct: row[5].trim().toUpperCase()
+        });
+      }
+
+      // Payload matching the API route structural format expected by /api/exams
+      const res = await fetch('/api/exams', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: `Bulk Uploaded Exam - ${new Date().toLocaleDateString()}`,
+          gradeSection: gradeSection,
+          subject: subject || 'ICT',
+          questions: questions
+        })
+      });
+
+      if (res.ok) {
+        alert("Bulk exam structure parsed and successfully deployed! 🚀");
+        setCsvText('');
+        if (onUploadSuccess) onUploadSuccess();
+      } else {
+        const errorData = await res.json();
+        setParsingError(errorData.error || "Failed to commit structure to backend repository pipelines.");
+      }
+    } catch (err) {
+      console.error(err);
+      setParsingError(err.message || "An error occurred while handling CSV structural parsing rows.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-[#1e293b] border border-slate-800 rounded-xl p-6 shadow-xl text-white">
+      <div className="mb-4">
+        <h3 className="text-lg font-bold text-purple-400">📥 Bulk CSV Processing Protocol</h3>
+        <p className="text-xs text-slate-400 mt-1">
+          Target Tracking Config Matrix: <span className="text-amber-400 font-mono">{gradeSection}</span> | Subject: <span className="text-emerald-400 font-mono">{subject}</span>
+        </p>
+      </div>
+
+      <div className="bg-[#0f172a] p-3 rounded-lg border border-slate-800 text-[11px] font-mono text-slate-300 mb-4 leading-relaxed">
+        <span className="text-purple-400 font-bold block mb-1">CSV Structural Formatting Rule Matrix:</span>
+        question_text, option_a, option_b, option_c, option_d, correct_answer<br/>
+        <span className="text-slate-500">Example Row:</span> What does HTML stand for?, HyperText Markup Language, High Text Machine Language, Hyper Hyper Text, None, A
+      </div>
+
+      <form onSubmit={handleBulkSubmit} className="space-y-4">
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Paste CSV Data Matrix</label>
+          <textarea
+            value={csvText}
+            onChange={(e) => setCsvText(e.target.value)}
+            placeholder="Question,Option A,Option B,Option C,Option D,CorrectAnswer"
+            className="w-full h-48 bg-[#0f172a] border border-slate-800 rounded-lg p-3 text-sm font-mono text-white outline-none focus:border-purple-600 transition-colors"
+          />
+        </div>
+
+        {parsingError && (
+          <div className="bg-red-950/50 border border-red-800 text-red-300 text-xs p-3 rounded-lg font-mono">
+            ⚠️ {parsingError}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800/40 text-white py-2.5 font-bold uppercase tracking-wide rounded-lg text-xs transition-all shadow-md"
+        >
+          {loading ? "Processing Structural Matrix Pipelines..." : "Ingest Bulk Matrix Layout 🚀"}
+        </button>
+      </form>
+    </div>
+  );
+}
