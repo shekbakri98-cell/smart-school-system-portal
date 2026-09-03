@@ -23,7 +23,7 @@ export default function Dashboard() {
   const [exams, setExams] = useState([]);
   const [examsLoading, setExamsLoading] = useState(false);
   const [examForm, setExamForm] = useState({ title: '', subject: 'ICT', questions: [] });
-  const [currentQuestion, setCurrentQuestion] = useState({ text: '', a: '', b: '', correct: 'A' });
+  const [currentQuestion, setCurrentQuestion] = useState({ text: '', a: '', b: '', c: '', d: '', correct: 'A' });
 
   // Student Testing Modal States
   const [activeQuizExam, setActiveQuizExam] = useState(null);
@@ -81,7 +81,7 @@ export default function Dashboard() {
   async function fetchLiveRosterData() {
     setStudentsLoading(true);
     try {
-      const res = await fetch(`/api/students?grade=${encodeURIComponent(selectedGrade)}`);
+      const res = await fetch(`/api/students?grade=\${encodeURIComponent(selectedGrade)}`);
       const result = await res.json();
       setStudents(result.data || []);
     } catch (err) { console.error(err); } finally { setStudentsLoading(false); }
@@ -90,7 +90,7 @@ export default function Dashboard() {
   async function fetchLiveAttendanceRecords() {
     setAttendanceLoading(true);
     try {
-      const res = await fetch(`/api/attendance?grade=${encodeURIComponent(selectedGrade)}&date=${attendanceDate}`);
+      const res = await fetch(`/api/attendance?grade=\${encodeURIComponent(selectedGrade)}&date=\${attendanceDate}`);
       const result = await res.json();
       setAttendanceRecords(result.data || []);
     } catch (err) { console.error(err); } finally { setAttendanceLoading(false); }
@@ -99,7 +99,7 @@ export default function Dashboard() {
   async function fetchLiveExams() {
     setExamsLoading(true);
     try {
-      const res = await fetch(`/api/exams?grade=${encodeURIComponent(selectedGrade)}`);
+      const res = await fetch(`/api/exams?grade=\${encodeURIComponent(selectedGrade)}`);
       const result = await res.json();
       setExams(result.exams || []);
     } catch (err) { console.error(err); } finally { setExamsLoading(false); }
@@ -117,7 +117,7 @@ export default function Dashboard() {
   async function fetchLiveLibraryBooks() {
     setBooksLoading(true);
     try {
-      const res = await fetch(`/api/library?grade=${encodeURIComponent(selectedGrade)}`);
+      const res = await fetch(`/api/library?grade=\${encodeURIComponent(selectedGrade)}`);
       const result = await res.json();
       setBooks(result.books || []);
     } catch (err) { console.error(err); } finally { setBooksLoading(false); }
@@ -198,7 +198,7 @@ export default function Dashboard() {
     const num = Number(newScore);
     const maxLimits = { test1: 10, test2: 10, assignment: 20, finalExam: 60 };
     if (num > maxLimits[fieldName]) {
-      alert(`⚠️ Validation Rejected! Maximum allowed points score benchmark for ${fieldName} is exactly ${maxLimits[fieldName]} marks.`);
+      alert(`⚠️ Validation Rejected! Maximum allowed points score benchmark for \${fieldName} is exactly \${maxLimits[fieldName]} marks.`);
       return;
     }
     try {
@@ -217,7 +217,7 @@ export default function Dashboard() {
   function addQuestionToFormState() {
     if (!currentQuestion.text || !currentQuestion.a || !currentQuestion.b) return;
     setExamForm({ ...examForm, questions: [...examForm.questions, currentQuestion] });
-    setCurrentQuestion({ text: '', a: '', b: '', correct: 'A' });
+    setCurrentQuestion({ text: '', a: '', b: '', c: '', d: '', correct: 'A' });
   }
 
   async function handleExamPublishSubmit(e) {
@@ -231,7 +231,7 @@ export default function Dashboard() {
   function triggerFinanceCSVExport() {
     if (!financeLedger || financeLedger.length === 0) return alert("No active logs.");
     let csv = "data:text/csv;charset=utf-8,Student ID,Full Name,Category,Due,Paid,Status\n";
-    financeLedger.forEach(r => { csv += `${r.studentId},${r.name ? r.name.replace(/,/g, " ") : "Student"},${r.fee_type},${r.amount_due},${r.amount_paid},${r.payment_status}\n`; });
+    financeLedger.forEach(r => { csv += `\${r.studentId},\${r.name ? r.name.replace(/,/g, " ") : "Student"},\${r.fee_type},\${r.amount_due},\${r.amount_paid},\${r.payment_status}\n`; });
     const encodedUri = encodeURI(csv);
     const a = document.createElement("a"); a.setAttribute("href", encodedUri); a.setAttribute("download", "sheek_bakri_revenue_ledger.csv");
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
@@ -264,8 +264,8 @@ export default function Dashboard() {
             <div class="sub-title">Official Student Performance Certificate</div>
             <div class="meta-grid">
               <div><strong>Student Name:</strong> \${student.name}</div>
-              <div><strong>Student ID:</strong> \${student.studentId}</div>
-              <div><strong>Grade Track:</strong> \${selectedGrade}</div>
+              <div><strong>Student ID:</strong> 	ext{\${student.studentId}}</div>
+              <div><strong>Grade Track:</strong> 	ext{\${selectedGrade}}</div>
               <div><strong>Subject:</strong> 	ext{\${student.subject || 'ICT'}}</div>
             </div>
             <table class="tbl">
@@ -309,14 +309,14 @@ export default function Dashboard() {
           <span className="text-slate-400 px-2 uppercase text-[9px] font-bold">Daawwannaa:</span>
           
           {userRole && userRole.toUpperCase() === 'ADMIN' && (
-            <button onClick={() => { setCurrentRoleView('Director'); setActiveTab('director-overview'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Director' ? 'bg-purple-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>👨‍💼 Daayirektara</button>
+            <button onClick={() => { setCurrentRoleView('Director'); setActiveTab('director-overview'); }} className={`px-2.5 py-1 rounded transition-all font-bold \${currentRoleView === 'Director' ? 'bg-purple-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>👨‍💼 Daayirektara</button>
           )}
           
           {(userRole && (userRole.toUpperCase() === 'TEACHER' || userRole.toUpperCase() === 'ADMIN')) && (
-            <button onClick={() => { setCurrentRoleView('Instructor'); setActiveTab('instructor-roster'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Instructor' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>👩‍🏫 Barsiisaa</button>
+            <button onClick={() => { setCurrentRoleView('Instructor'); setActiveTab('instructor-roster'); }} className={`px-2.5 py-1 rounded transition-all font-bold \${currentRoleView === 'Instructor' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>👩‍🏫 Barsiisaa</button>
           )}
           
-          <button onClick={() => { setCurrentRoleView('Student'); setActiveTab('student-transcript'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Student' ? 'bg-amber-600 text-black shadow' : 'text-slate-400 hover:text-white'}`}>🎒 Barataa</button>
+          <button onClick={() => { setCurrentRoleView('Student'); setActiveTab('student-transcript'); }} className={`px-2.5 py-1 rounded transition-all font-bold \${currentRoleView === 'Student' ? 'bg-amber-600 text-black shadow' : 'text-slate-400 hover:text-white'}`}>🎒 Barataa</button>
           
           <button onClick={handleLogoutSequence} className="ml-2 bg-red-950/40 border border-red-900 text-red-400 text-[10px] px-2 py-1 rounded">Ba’i</button>
         </div>
@@ -326,24 +326,24 @@ export default function Dashboard() {
       <nav className="max-w-6xl mx-auto mb-6 flex flex-wrap bg-[#1e293b] p-1 rounded-lg border border-slate-700 text-xs font-mono gap-1">
         {currentRoleView === 'Director' && (
           <>
-            <button onClick={() => setActiveTab('director-overview')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-overview' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>📊 Fayyaalessa Hojii</button>
-            <button onClick={() => setActiveTab('director-finance')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-finance' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>💳 Galmee Galii</button>
-            <button onClick={() => setActiveTab('director-users')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-users' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>🔒 Galmee Barsiisotaa</button>
+            <button onClick={() => setActiveTab('director-overview')} className={`flex-1 py-2 rounded font-bold uppercase text-center \${activeTab === 'director-overview' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>📊 Fayyaalessa Hojii</button>
+            <button onClick={() => setActiveTab('director-finance')} className={`flex-1 py-2 rounded font-bold uppercase text-center \${activeTab === 'director-finance' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>💳 Galmee Galii</button>
+            <button onClick={() => setActiveTab('director-users')} className={`flex-1 py-2 rounded font-bold uppercase text-center \${activeTab === 'director-users' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>🔒 Galmee Barsiisotaa</button>
           </>
         )}
         {currentRoleView === 'Instructor' && (
           <>
-            <button onClick={() => setActiveTab('instructor-roster')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-roster' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📝 Kuusaa Qabxii</button>
-            <button onClick={() => setActiveTab('instructor-attendance')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-attendance' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📅 Hordoffii Hirmaannaa</button>
-            <button onClick={() => setActiveTab('instructor-exams')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-exams' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📝 Qormaata Baasuu</button>
-            <button onClick={() => setActiveTab('instructor-library')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-library' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📚 Kuusaa Kitaabaa</button>
+            <button onClick={() => setActiveTab('instructor-roster')} className={`flex-1 py-2 rounded font-bold uppercase text-center \${activeTab === 'instructor-roster' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📝 Kuusaa Qabxii</button>
+            <button onClick={() => setActiveTab('instructor-attendance')} className={`flex-1 py-2 rounded font-bold uppercase text-center \${activeTab === 'instructor-attendance' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📅 Hordoffii Hirmaannaa</button>
+            <button onClick={() => setActiveTab('instructor-exams')} className={`flex-1 py-2 rounded font-bold uppercase text-center \${activeTab === 'instructor-exams' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📝 Qormaata Baasuu</button>
+            <button onClick={() => setActiveTab('instructor-library')} className={`flex-1 py-2 rounded font-bold uppercase text-center \${activeTab === 'instructor-library' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📚 Kuusaa Kitaabaa</button>
           </>
         )}
         {currentRoleView === 'Student' && (
           <>
-            <button onClick={() => setActiveTab('student-transcript')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'student-transcript' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>🎓 Teessoo Qabxii Koo</button>
-            <button onClick={() => setActiveTab('student-exams')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'student-exams' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>📝 Wiirtuu Qormaataa</button>
-            <button onClick={() => setActiveTab('student-library')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'student-library' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>📚 Kitaabbati Dijitaalaa</button>
+            <button onClick={() => setActiveTab('student-transcript')} className={`flex-1 py-2 rounded font-bold uppercase text-center \${activeTab === 'student-transcript' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>🎓 Teessoo Qabxii Koo</button>
+            <button onClick={() => setActiveTab('student-exams')} className={`flex-1 py-2 rounded font-bold uppercase text-center \${activeTab === 'student-exams' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>📝 Wiirtuu Qormaataa</button>
+            <button onClick={() => setActiveTab('student-library')} className={`flex-1 py-2 rounded font-bold uppercase text-center \${activeTab === 'student-library' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>📚 Kitaabbati Dijitaalaa</button>
           </>
         )}
       </nav>
@@ -821,7 +821,7 @@ export default function Dashboard() {
                     body: JSON.stringify({ message: txt, userRole: 'Admin' })
                   });
                   const d = await res.json();
-                  log.innerHTML += `<p class="text-emerald-400 font-bold mt-1">Gargaaraa AI:</p><p class="text-slate-300">\${d.reply}</p>`;
+                  log.innerHTML += `<p class="text-emerald-400 font-bold mt-1">Gargaaraa AI:</p><p class="text-slate-300">	ext{\${d.reply}}</p>`;
                   log.scrollTop = log.scrollHeight;
                 }
               }}
