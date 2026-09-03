@@ -299,8 +299,8 @@ export default function Dashboard() {
       {/* ENTERPRISE VIEW CONTROL PANEL HEADER */}
       <header className="max-w-6xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-700 pb-4 gap-4">
         <div>
-          <h1 className="text-xl font-black text-white tracking-tight">MANA BARUMSAA SHEEK BAKRII SECONDARY</h1>
-          <p className="text-[10px] text-brandGold font-mono uppercase tracking-widest">Kansoolii Bulchiinsaa // Nagaan Dhufte: {username}</p>
+          <h1 className="text-xl font-black text-white tracking-tight">SHEK BAKRI SECONDARY SCHOOL PORTAL</h1>
+          <p className="text-[10px] text-brandGold font-mono uppercase tracking-widest">BAGA NAGAAN DHUFTAN // WELCOME: {username}</p>
         </div>
         
         {/* INTERACTIVE PERSPECTIVE SWITCHER WIDGET */}
