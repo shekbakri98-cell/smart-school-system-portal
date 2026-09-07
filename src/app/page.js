@@ -261,19 +261,25 @@ export default function Dashboard() {
   };
 
    
-  const processDocumentText = async (text) => {
+    const processDocumentText = async (text) => {
     try {
       const lines = text.split('\n');
       const parsedQuestions = [];
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line || line.toLowerCase().includes('question_text')) continue;
+        
+        // Safe line separator array split logic
         const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
         if (columns.length >= 6) {
           const cleanStr = (str) => (str || '').replace(/^"|"$/g, '').trim();
           parsedQuestions.push({
-            text: cleanStr(columns[0]), a: cleanStr(columns[1]), b: cleanStr(columns[2]),
-            c: cleanStr(columns[3]), d: cleanStr(columns[4]), correct: cleanStr(columns[5]).toUpperCase()
+            text: cleanStr(columns[0]), 
+            a: cleanStr(columns[1]), 
+            b: cleanStr(columns[2]),
+            c: cleanStr(columns[3]), 
+            d: cleanStr(columns[4]), 
+            correct: cleanStr(columns[5]).toUpperCase()
           });
         }
       }
@@ -286,6 +292,7 @@ export default function Dashboard() {
       else { const data = await res.json(); throw new Error(data.error || 'Failed to submit.'); }
     } catch (err) { setCsvError(err.message || 'Error processing layout.'); } finally { setUploading(false); }
   };
+
   function triggerFinanceCSVExport() {
     if (!financeLedger || financeLedger.length === 0) return alert("No active logs.");
     let csv = "data:text/csv;charset=utf-8,Student ID,Full Name,Category,Due,Paid,Status\n";
