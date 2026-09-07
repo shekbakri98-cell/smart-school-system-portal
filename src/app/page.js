@@ -20,7 +20,7 @@ export default function Dashboard() {
   const [exams, setExams] = useState([]);
   const [examsLoading, setExamsLoading] = useState(false);
   const [examForm, setExamForm] = useState({ title: '', subject: 'ICT', questions: [] });
-  const [currentQuestion, setCurrentQuestion] = useState({ text: '', a: '', b: '', correct: 'A' });
+ const [currentQuestion, setCurrentQuestion] = useState({ text: '', a: '', b: '', c: '', d: '', correct: 'A' });
 
   const [activeQuizExam, setActiveQuizExam] = useState(null);
   const [quizQuestions, setQuizQuestions] = useState([]);
