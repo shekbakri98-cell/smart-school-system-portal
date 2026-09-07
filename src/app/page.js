@@ -217,12 +217,12 @@ export default function Dashboard() {
       if (res.ok) { alert("Exam structure deployed!"); setExamForm({ title: '', subject: 'ICT', questions: [] }); fetchLiveExams(); }
     } catch (err) { console.error(err); }
   }
-  const handleBulkSubmit = async (e) => {
+   const handleBulkSubmit = async (e) => {
     e.preventDefault();
-    if (!csvFile || !csvFile[0]) { setCsvError('Please select a valid file first.'); return; }
+    if (!csvFile) { setCsvError('Please select a valid file first.'); return; }
     setUploading(true); setCsvError('');
 
-    const file = csvFile[0];
+    const file = csvFile;
     const fileExtension = file.name.split('.').pop().toLowerCase();
     let rawText = "";
 
@@ -232,31 +232,17 @@ export default function Dashboard() {
         const arrayBuffer = await file.arrayBuffer();
         const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
         rawText = result.value;
-      }            else if (fileExtension === 'pdf') {
-        // Safe, native stream reader that extracts text strings without external worker scripts
+      } 
+      else if (fileExtension === 'pdf') {
+        // Safe native text stream decoder that bypasses complex worker setups completely
         const arrayBuffer = await file.arrayBuffer();
         const decoder = new TextDecoder('utf-8');
         const decodedText = decoder.decode(arrayBuffer);
-        
-        // Clean up hidden file tags and isolate plain readable lines
         rawText = decodedText.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, "")
                              .split('\n')
                              .filter(line => line.includes(','))
                              .join('\n');
       } 
-
-        
-        const pdf = await loadingTask.promise;
-        let textContent = "";
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const text = await page.getTextContent();
-          textContent += text.items.map(s => s.str).join(' ') + '\n';
-        }
-        rawText = textContent;
-      } 
-
-
       else {
         const reader = new FileReader();
         rawText = await new Promise((resolve) => {
@@ -274,6 +260,7 @@ export default function Dashboard() {
     }
   };
 
+   
   const processDocumentText = async (text) => {
     try {
       const lines = text.split('\n');
