@@ -36,20 +36,23 @@ export default function BulkExamUpload({ onUploadSuccess, selectedGrade }) {
           const line = lines[i].trim();
           if (!line) continue;
 
-         // Simple CSV line splitter (safe against punctuation commas inside quotes)
-const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-if (columns.length >= 6) {
-  parsedQuestions.push({
-    // Remove extra quote marks if they exist
-    text: columns[0].replace(/^"|"$/g, '').trim(), 
-    a: columns[1].replace(/^"|"$/g, '').trim(),
-    b: columns[2].replace(/^"|"$/g, '').trim(),
-    c: columns[3].replace(/^"|"$/g, '').trim(),
-    d: columns[4].replace(/^"|"$/g, '').trim(),
-    correct: columns[5].replace(/^"|"$/g, '').trim().toUpperCase()
-  });
-}
+          // Split line safely by commas, ignoring commas inside quotation marks
+          const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+          
+          if (columns.length >= 6) {
+            // Helper function to remove trailing and leading quotes safely
+            const cleanStr = (str) => (str || '').replace(/^"|"$/g, '').trim();
 
+            parsedQuestions.push({
+              text: cleanStr(columns[0]),
+              a: cleanStr(columns[1]),
+              b: cleanStr(columns[2]),
+              c: cleanStr(columns[3]),
+              d: cleanStr(columns[4]),
+              correct: cleanStr(columns[5]).toUpperCase()
+            });
+          }
+        }
 
         if (parsedQuestions.length === 0) {
           throw new Error('No valid questions parsed from the CSV file structure.');
