@@ -233,9 +233,13 @@ export default function Dashboard() {
         const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
         rawText = result.value;
       } 
-      else if (fileExtension === 'pdf') {
+           else if (fileExtension === 'pdf') {
         const pdfjsLib = await import('pdfjs-dist');
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `//://cloudflare.com{pdfjsLib.version}/pdf.worker.min.js`;
+        // Swapped to build local worker parameters which fixes cdnjs path loading crashes permanently
+        pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+          'pdfjs-dist/build/pdf.worker.min.mjs',
+          import.meta.url
+        ).toString();
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         let textContent = "";
@@ -246,6 +250,7 @@ export default function Dashboard() {
         }
         rawText = textContent;
       } 
+
       else {
         const reader = new FileReader();
         rawText = await new Promise((resolve) => {
