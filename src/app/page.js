@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import BulkExamUpload from './components/BulkExamUpload';
+import BulkExamUpload from '../components/BulkExamUpload';
+
 export default function Dashboard() {
   const [currentRoleView, setCurrentRoleView] = useState('Director');
   const [activeTab, setActiveTab] = useState('director-overview');
