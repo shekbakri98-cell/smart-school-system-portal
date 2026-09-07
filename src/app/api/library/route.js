@@ -3,7 +3,7 @@ import { connectToDatabase } from '../../../lib/db';
 
 /**
  * 1. GET METHOD: Fetches textbook resources from the database catalog.
- * Supports dynamic filtering by grade section to isolate study content.
+ * Aligns perfectly with your live frontend tab tracking states.
  */
 export async function GET(req) {
   try {
@@ -11,7 +11,7 @@ export async function GET(req) {
     const grade = searchParams.get('grade');
     const db = await connectToDatabase();
     
-    let query = 'SELECT * FROM library_books';
+    let query = 'SELECT book_id, title, author, grade_section, download_url FROM library_books';
     let params = [];
     
     if (grade) {
@@ -19,10 +19,12 @@ export async function GET(req) {
       params.push(grade);
     }
     
-    // Returns book entries sorted alphabetically by title
     const [rows] = await db.query(query + ' ORDER BY title ASC', params);
+    
+    // Returns clean data blocks to populate your school textbook list cards
     return NextResponse.json({ success: true, books: rows });
   } catch (error) {
+    console.error("Library Catalog GET Pipeline Failure:", error);
     return NextResponse.json(
       { error: "Library database catalog retrieval failed: " + error.message }, 
       { status: 500 }
@@ -32,13 +34,12 @@ export async function GET(req) {
 
 /**
  * 2. POST METHOD: Processes the "Catalog School Textbook" form submissions.
- * Confirms integrity constraints and appends download file credentials securely.
+ * Securely writes new textbook resource metadata row nodes.
  */
 export async function POST(req) {
   try {
     const { title, author, gradeSection, downloadUrl } = await req.json();
     
-    // Global parameters validation check
     if (!title || !author || !gradeSection || !downloadUrl) {
       return NextResponse.json(
         { error: "Missing required textbook catalog fields." }, 
@@ -48,7 +49,7 @@ export async function POST(req) {
     
     const db = await connectToDatabase();
     
-    // Commit textbook resource metadata cleanly inside the MySQL schema table
+    // Commit row entries cleanly with explicit matching layout params
     await db.query(
       'INSERT INTO library_books (title, author, grade_section, download_url) VALUES (?, ?, ?, ?)',
       [title, author, gradeSection, downloadUrl]
@@ -59,6 +60,7 @@ export async function POST(req) {
       message: "Textbook catalog media asset committed successfully!" 
     });
   } catch (error) {
+    console.error("Library Catalog POST Pipeline Failure:", error);
     return NextResponse.json(
       { error: "Library database transactional write error: " + error.message }, 
       { status: 500 }
