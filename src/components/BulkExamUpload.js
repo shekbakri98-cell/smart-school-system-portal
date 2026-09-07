@@ -1,4 +1,6 @@
-'use client';
+
+
+ 'use client';
 
 import { useState } from 'react';
 
@@ -31,16 +33,14 @@ export default function BulkExamUpload({ onUploadSuccess, selectedGrade }) {
         const lines = text.split('\n');
         const parsedQuestions = [];
 
-        // Skip headers: question_text,option_a,option_b,option_c,option_d,correct_answer
         for (let i = 1; i < lines.length; i++) {
           const line = lines[i].trim();
           if (!line) continue;
 
-          // Split line safely by commas, ignoring commas inside quotation marks
+          // Safe comma separator regex pattern
           const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
           
           if (columns.length >= 6) {
-            // Helper function to remove trailing and leading quotes safely
             const cleanStr = (str) => (str || '').replace(/^"|"$/g, '').trim();
 
             parsedQuestions.push({
@@ -87,8 +87,9 @@ export default function BulkExamUpload({ onUploadSuccess, selectedGrade }) {
 
     reader.readAsText(csvFile);
   };
+ 
 
-  return (
+   return (
     <div className="bg-[#1e293b] border border-slate-800 rounded-xl p-6 shadow-xl text-white">
       <div className="mb-4">
         <h3 className="text-lg font-bold text-purple-400">📥 Bulk CSV Processing Protocol</h3>
@@ -136,3 +137,4 @@ export default function BulkExamUpload({ onUploadSuccess, selectedGrade }) {
     </div>
   );
 }
+
