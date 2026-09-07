@@ -491,35 +491,62 @@ export default function Dashboard() {
           </section>
         )}
 
+                {/* VIEW 6: INSTRUCTOR EXAMS MODULE */}
         {activeTab === 'instructor-exams' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
-            <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-800 space-y-3">
-              <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Deploy Examination</h2>
-              <form onSubmit={handleExamPublishSubmit} className="space-y-2">
-                <input type="text" placeholder="Exam Title" value={examForm.title} onChange={e => setExamForm({...examForm, title: e.target.value})} className="w-full bg-[#0f172a] border border-slate-800 p-2 text-white outline-none rounded" required />
-                <div className="bg-[#0f172a] border border-slate-800 p-2 rounded space-y-2">
-                  <textarea placeholder="Question Text" value={currentQuestion.text} onChange={e => setCurrentQuestion({...currentQuestion, text: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1.5 rounded h-12 text-white outline-none"></textarea>
-                  <input type="text" placeholder="Option A" value={currentQuestion.a} onChange={e => setCurrentQuestion({...currentQuestion, a: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1 text-white rounded outline-none" required />
-                  <input type="text" placeholder="Option B" value={currentQuestion.b} onChange={e => setCurrentQuestion({...currentQuestion, b: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1 text-white rounded outline-none" required />
-                  <select value={currentQuestion.correct} onChange={e => setCurrentQuestion({...currentQuestion, correct: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1 text-white rounded outline-none"><option value="A">Key: A</option><option value="B">Key: B</option></select>
-                  <button type="button" onClick={addQuestionToFormState} className="w-full py-1 bg-slate-800 text-amber-400 font-bold border border-slate-700 rounded text-[10px]">SAVE ENTRY ({examForm.questions.length})</button>
-                </div>
-                <button type="submit" className="w-full bg-blue-600 p-2 text-white font-bold rounded uppercase">Publish Manual Quiz</button>
-              </form>
-            </section>
-            <section className="lg:col-span-2 bg-[#1e293b] p-4 rounded-lg border border-slate-800">
-              <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 text-xs">Active Testing Matrix</h3>
-              <div className="space-y-2">
-                {exams.map((ex, idx) => (
-                  <div key={idx} className="p-3 bg-[#0f172a] border border-slate-800 rounded flex justify-between items-center">
-                    <div><p className="font-bold text-slate-200">{ex.title}</p><p className="text-[10px] text-slate-500 uppercase mt-0.5">Subject: {ex.subject} // Track: {ex.grade_section}</p></div>
-                    <span className="text-[10px] bg-slate-800 border border-slate-700 px-2 py-1 rounded text-slate-400 font-bold uppercase">Active Live</span>
-                  </div>
-                ))}
+          <div className="space-y-6 font-mono text-xs">
+            {/* SUB-NAVBAR MODE SWITCHER */}
+            <div className="flex gap-2 border-b border-slate-800 pb-3">
+              <button 
+                onClick={() => setExamUploadMode('manual')} 
+                className={`px-3 py-1.5 rounded font-bold uppercase transition-all ${examUploadMode === 'manual' ? 'bg-blue-600 text-white shadow' : 'bg-[#1e293b] text-slate-400 hover:text-white'}`}
+              >
+                📝 Single Manual Setup
+              </button>
+              <button 
+                onClick={() => setExamUploadMode('bulk')} 
+                className={`px-3 py-1.5 rounded font-bold uppercase transition-all ${examUploadMode === 'bulk' ? 'bg-purple-600 text-white shadow' : 'bg-[#1e293b] text-slate-400 hover:text-white'}`}
+              >
+                📥 Bulk Excel / CSV Upload
+              </button>
+            </div>
+
+            {/* CONDITIONAL CONTROLLER VIEWS */}
+            {examUploadMode === 'bulk' ? (
+              <div className="max-w-xl mx-auto">
+                <BulkExamUpload selectedGrade={selectedGrade} onUploadSuccess={fetchLiveExams} />
               </div>
-            </section>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-800 space-y-3">
+                  <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Deploy Examination</h2>
+                  <form onSubmit={handleExamPublishSubmit} className="space-y-2">
+                    <input type="text" placeholder="Exam Title" value={examForm.title} onChange={e => setExamForm({...examForm, title: e.target.value})} className="w-full bg-[#0f172a] border border-slate-800 p-2 text-white outline-none rounded" required />
+                    <div className="bg-[#0f172a] border border-slate-800 p-2 rounded space-y-2">
+                      <textarea placeholder="Question Text" value={currentQuestion.text} onChange={e => setCurrentQuestion({...currentQuestion, text: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1.5 rounded h-12 text-white outline-none"></textarea>
+                      <input type="text" placeholder="Option A" value={currentQuestion.a} onChange={e => setCurrentQuestion({...currentQuestion, a: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1 text-white rounded outline-none" required />
+                      <input type="text" placeholder="Option B" value={currentQuestion.b} onChange={e => setCurrentQuestion({...currentQuestion, b: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1 text-white rounded outline-none" required />
+                      <select value={currentQuestion.correct} onChange={e => setCurrentQuestion({...currentQuestion, correct: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1 text-white rounded outline-none"><option value="A">Key: A</option><option value="B">Key: B</option></select>
+                      <button type="button" onClick={addQuestionToFormState} className="w-full py-1 bg-slate-800 text-amber-400 font-bold border border-slate-700 rounded text-[10px]">SAVE ENTRY ({examForm.questions.length})</button>
+                    </div>
+                    <button type="submit" className="w-full bg-blue-600 p-2 text-white font-bold rounded uppercase">Publish Manual Quiz</button>
+                  </form>
+                </section>
+                <section className="lg:col-span-2 bg-[#1e293b] p-4 rounded-lg border border-slate-800">
+                  <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 text-xs">Active Testing Matrix</h3>
+                  <div className="space-y-2">
+                    {exams.map((ex, idx) => (
+                      <div key={idx} className="p-3 bg-[#0f172a] border border-slate-800 rounded flex justify-between items-center">
+                        <div><p className="font-bold text-slate-200">{ex.title}</p><p className="text-[10px] text-slate-500 uppercase mt-0.5">Subject: {ex.subject} // Track: {ex.grade_section}</p></div>
+                        <span className="text-[10px] bg-slate-800 border border-slate-700 px-2 py-1 rounded text-slate-400 font-bold uppercase">Active Live</span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </div>
+            )}
           </div>
         )}
+
         {activeTab === 'instructor-library' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
             <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-800 space-y-3">
