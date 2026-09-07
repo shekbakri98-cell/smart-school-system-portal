@@ -89,15 +89,17 @@ export default function Dashboard() {
     } catch (err) { console.error(err); setStudents([]); } finally { setStudentsLoading(false); }
   }
 
-  async function fetchLiveAttendanceRecords() {
+    async function fetchLiveAttendanceRecords() {
     setAttendanceLoading(true);
     try {
-      const res = await fetch(`/api/attendance?grade=${encodeURIComponent(selectedGrade)}&date=${attendanceDate}`);
+      // Passes the grade parameter cleanly down to populate the primary rows matrix list directly
+      const res = await fetch(`/api/attendance?grade=${encodeURIComponent(selectedGrade)}`);
       if (!res.ok) { setAttendanceRecords([]); return; }
       const result = await res.json();
       setAttendanceRecords(result && result.data ? result.data : []);
-    } catch (err) { console.error(err); setAttendanceRecords([]); } finally { setAttendanceLoading(false); }
+    } catch (err) { console.error("Attendance synchronization error flag:", err); setAttendanceRecords([]); } finally { setAttendanceLoading(false); }
   }
+
   async function fetchLiveExams() {
     setExamsLoading(true);
     try {
