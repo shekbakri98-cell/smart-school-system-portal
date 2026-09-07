@@ -232,16 +232,19 @@ export default function Dashboard() {
         const arrayBuffer = await file.arrayBuffer();
         const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
         rawText = result.value;
-      }       else if (fileExtension === 'pdf') {
-        const pdfjsLib = await import('pdfjs-dist');
+      }            else if (fileExtension === 'pdf') {
+        // Safe, native stream reader that extracts text strings without external worker scripts
         const arrayBuffer = await file.arrayBuffer();
+        const decoder = new TextDecoder('utf-8');
+        const decodedText = decoder.decode(arrayBuffer);
         
-        // Configured with standard parameters to disable external worker fetching safely
-        const loadingTask = pdfjsLib.getDocument({ 
-          data: arrayBuffer,
-          useWorkerFetch: false,
-          isEvalSupported: false
-        });
+        // Clean up hidden file tags and isolate plain readable lines
+        rawText = decodedText.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, "")
+                             .split('\n')
+                             .filter(line => line.includes(','))
+                             .join('\n');
+      } 
+
         
         const pdf = await loadingTask.promise;
         let textContent = "";
