@@ -16,7 +16,7 @@ export default function Dashboard() {
   const [studentsLoading, setStudentsLoading] = useState(false);
 
   // Attendance Tracker States
-  const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().split('T')[0]);
+  const [attendanceDate, setAttendanceDate] = useState(new Date().toLocaleDateString('sv-SE'));
   const [attendanceRecords, setAttendanceRecords] = useState([]);
   const [attendanceLoading, setAttendanceLoading] = useState(false);
 
