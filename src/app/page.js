@@ -232,13 +232,18 @@ export default function Dashboard() {
         const arrayBuffer = await file.arrayBuffer();
         const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
         rawText = result.value;
-      } 
-                else if (fileExtension === 'pdf') {
+      }       else if (fileExtension === 'pdf') {
         const pdfjsLib = await import('pdfjs-dist');
-        // Standard un-nested path string that standard bundlers compile effortlessly
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com';
         const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        
+        // Configured with standard parameters to disable external worker fetching safely
+        const loadingTask = pdfjsLib.getDocument({ 
+          data: arrayBuffer,
+          useWorkerFetch: false,
+          isEvalSupported: false
+        });
+        
+        const pdf = await loadingTask.promise;
         let textContent = "";
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
