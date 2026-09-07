@@ -448,17 +448,79 @@ export default function Dashboard() {
             </section>
           </div>
         )}
-        {activeTab === 'instructor-attendance' && (
-          <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-800 text-xs font-mono w-full">
-            <h3 className="font-bold text-slate-200 mb-2">Daily Attendance Matrix ({attendanceDate})</h3>
-            {attendanceRecords.map((s, idx) => (
-              <div key={idx} className="flex justify-between py-1 items-center border-b border-slate-800">
-                <span>{s.name} ({s.studentId})</span>
-                <select value={s.status || 'Not Marked'} onChange={(e) => handleAttendanceCellChange(s.studentId, e.target.value)} className="bg-[#0f172a] border rounded p-1 text-[11px] font-bold text-white"><option value="Not Marked">Not Marked</option><option value="Present">Present</option><option value="Absent">Absent</option></select>
+                {activeTab === 'instructor-attendance' && (
+          <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-800 text-xs font-mono w-full shadow-xl">
+            {/* CARD TOOLBAR CONTAINER BAR */}
+            <div className="flex justify-between items-center border-b border-slate-700 pb-3 mb-4">
+              <div>
+                <h3 className="font-bold uppercase text-slate-200 text-xs tracking-wide">Daily Attendance Matrix</h3>
+                <p className="text-[10px] text-slate-400 mt-0.5">Hordoffii hirmaannaa barattoota guyyaa har&apos;aa galmeessi.</p>
               </div>
-            ))}
+              <div className="flex gap-2 text-white">
+                {/* GRADE SELECTOR PICKER DROP-DOWN PANEL ADDED RIGHT HERE */}
+                <select 
+                  value={selectedGrade} 
+                  onChange={(e) => setSelectedGrade(e.target.value)} 
+                  className="bg-[#0f172a] border border-slate-700 p-1.5 rounded text-xs text-white outline-none focus:border-blue-500 font-bold"
+                >
+                  <option value="12 Natural">12 Natural</option>
+                  <option value="12 Social">12 Social</option>
+                </select>
+                <input 
+                  type="date" 
+                  value={attendanceDate} 
+                  onChange={(e) => setAttendanceDate(e.target.value)} 
+                  className="bg-[#0f172a] border border-slate-700 p-1.5 rounded text-xs text-white outline-none font-bold" 
+                />
+              </div>
+            </div>
+
+            {/* CONDITIONAL RENDER AREA CONTAINER FOR SYSTEM RECORDS */}
+            {attendanceRecords && attendanceRecords.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left whitespace-nowrap">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-400 text-[10px] uppercase tracking-wider">
+                      <th className="pb-2">ID Barataa</th>
+                      <th>Maqaa Guutuu</th>
+                      <th>Kilaasii</th>
+                      <th className="text-right">Hordoffii Galmee</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800 text-slate-300">
+                    {attendanceRecords.map((s, idx) => (
+                      <tr key={idx} className="hover:bg-slate-900/40 transition-colors">
+                        <td className="py-2.5 text-blue-400 font-bold">{s.studentId}</td>
+                        <td className="font-semibold text-slate-200">{s.name}</td>
+                        <td className="text-slate-400 text-[11px]">{s.grade}</td>
+                        <td className="text-right">
+                          <select 
+                            value={s.status || 'Not Marked'} 
+                            onChange={(e) => handleAttendanceCellChange(s.studentId, e.target.value)} 
+                            className={`bg-[#0f172a] border rounded p-1 text-[11px] font-bold outline-none cursor-pointer transition-all ${
+                              s.status === 'Present' ? 'border-emerald-800 text-emerald-400 bg-emerald-950/20' : 
+                              s.status === 'Absent' ? 'border-red-800 text-red-400 bg-red-950/20' : 
+                              'border-slate-700 text-slate-400'
+                            }`}
+                          >
+                            <option value="Not Marked">Not Marked</option>
+                            <option value="Present">Present</option>
+                            <option value="Absent">Absent</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-slate-500 border border-dashed border-slate-800 rounded-lg">
+                // Hin jiran: No student records found registered inside database for track section &apos;{selectedGrade}&apos;.
+              </div>
+            )}
           </section>
         )}
+
 
         {activeTab === 'instructor-exams' && (
           <div className="space-y-6 font-mono text-xs w-full">
