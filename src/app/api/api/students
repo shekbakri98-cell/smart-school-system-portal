@@ -1,0 +1,48 @@
+import { NextResponse } from 'next/server';
+import fs from 'fs';
+import path from 'path';
+
+const dataFilePath = path.join(process.cwd(), 'data', 'students.json');
+
+export async function PATCH(request) {
+  try {
+    const body = await request.json();
+    const { studentId, fieldName, score } = body;
+
+    // Server-side strict validation ceilings
+    const maxLimits = { test1: 10, test2: 10, assignment: 20, finalExam: 60 };
+    if (score > maxLimits[fieldName]) {
+      return NextResponse.json({ error: `Score exceeds ceiling limit of ${maxLimits[fieldName]}` }, { status: 400 });
+    }
+
+    if (!fs.existsSync(dataFilePath)) {
+      return NextResponse.json({ error: "Database file not found" }, { status: 404 });
+    }
+
+    const fileData = fs.readFileSync(dataFilePath, 'utf8');
+    let students = JSON.parse(fileData);
+
+    // Find and update the targeted student record
+    let studentFound = false;
+    students = students.map(student => {
+      if (student.studentId === studentId) {
+        studentFound = true;
+        student[fieldName] = Number(score);
+        
+        // Recalculate total sum score automatically
+        student.totalScore = (student.test1 || 0) + (student.test2 || 0) + (student.assignment || 0) + (student.finalExam || 0);
+      }
+      return student;
+    });
+
+    if (!studentFound) {
+      return NextResponse.json({ error: "Student record variant not found" }, { status: 404 });
+    }
+
+    fs.writeFileSync(dataFilePath, JSON.stringify(students, null, 2));
+    return NextResponse.json({ success: true, message: "Marks updated successfully!" });
+
+  } catch (error) {
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
