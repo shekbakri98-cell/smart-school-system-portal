@@ -361,47 +361,21 @@ export default function Dashboard() {
             )}
           </div>
         )}
-        {activeTab === 'instructor-library' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-xs font-mono">
-            <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-800 space-y-2">
-              <h2 className="font-bold border-b border-slate-700 pb-1 text-white">Catalog Textbook</h2>
-              <form onSubmit={handleLibrarySubmit} className="space-y-2">
-                <input type="text" placeholder="Resource Title" value={libraryForm.title} onChange={e => setLibraryForm({...libraryForm, title: e.target.value})} className="w-full bg-[#0f172a] p-2 rounded text-white outline-none" required />
-                <input type="text" placeholder="Author" value={libraryForm.author} onChange={e => setLibraryForm({...libraryForm, author: e.target.value})} className="w-full bg-[#0f172a] p-2 rounded text-white outline-none" required />
-                <input type="text" placeholder="Link Download URL" value={libraryForm.downloadUrl} onChange={e => setLibraryForm({...libraryForm, downloadUrl: e.target.value})} className="w-full bg-[#0f172a] p-2 rounded text-white outline-none" required />
-                <button type="submit" className="w-full bg-blue-600 p-2 text-white font-bold rounded uppercase">Commit Asset</button>
-              </form>
-            </section>
-            <section className="lg:col-span-2 bg-[#1e293b] p-4 rounded-lg border border-slate-800">
-              <h3 className="font-bold border-b border-slate-800 pb-1 mb-2 text-slate-200">Library Records</h3>
-              {books.map((b, idx) => (<div key={idx} className="p-1">{b.title} ({b.author})</div>))}
-            </section>
-          </div>
-        )}
-
-        {activeTab === 'student-transcript' && (
-          <section className="bg-[#1e293b] p-5 rounded-xl border border-slate-800 font-mono text-xs max-w-3xl mx-auto">
-            <h3 className="text-sm font-bold text-white mb-3">Academic Registry Card</h3>
-            {students.map((s, idx) => (<div key={idx} className="py-1">{s.name} - Total Score: <strong className="text-emerald-400">{s.totalScore || 0} / 100</strong></div>))}
-          </section>
-        )}
-
-        {activeTab === 'student-exams' && (
-          <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-800 max-w-xl mx-auto font-mono text-xs text-center">
-            <h3 className="font-bold text-slate-200 mb-2">Student Testing Center</h3>
-            <p className="text-slate-500">// Quizzes will be displayed here using relational ID queries.</p>
-          </section>
-        )}
-
-        {activeTab === 'student-library' && (
+         
+              {activeTab === 'student-library' && (
           <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-800 max-w-2xl mx-auto font-mono text-xs">
             <h3 className="font-bold text-slate-200 mb-2">Digital Textbook Index</h3>
-            {books.map((b, idx) => (<div key={idx} className="py-1 flex justify-between"><span>{b.title}</span><a href={b.download_url} target="_blank" className="text-amber-400 underline">Download 📥</a></div>))}
+            {books.map((b, idx) => (
+              <div key={idx} className="py-1 flex justify-between">
+                <span>{b.title}</span>
+                <a href={b.download_url} target="_blank" className="text-amber-400 underline">Download 📥</a>
+              </div>
+            ))}
           </section>
         )}
       </main>
 
-         {/* FLOATING AI CHAT LOGGER BOX */}
+      {/* FLOATING AI CHAT LOGGER BOX PLACE-INNER TO KEEP INSIDE COMPONENT BASES */}
       <div className="fixed bottom-6 right-6 z-50 font-mono text-xs bg-[#1e293b] border border-slate-800 p-3 rounded-xl w-64 shadow-2xl">
         <div className="font-bold text-emerald-400 border-b border-slate-700 pb-1 mb-2">● Gargaaraa AI Dijitaalaa</div>
         <div className="h-20 bg-[#0f172a] rounded p-1.5 overflow-y-auto text-slate-300 text-[11px]" id="aiLog">
