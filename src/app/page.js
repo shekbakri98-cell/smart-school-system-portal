@@ -82,14 +82,30 @@ export default function Dashboard() {
       setAttendanceRecords(result.data || []);
     } catch (err) { console.error(err); } finally { setAttendanceLoading(false); }
   }
-  async function fetchLiveExams() {
+   async function fetchLiveExams() {
     setExamsLoading(true);
     try {
       const res = await fetch(`/api/exams?grade=${encodeURIComponent(selectedGrade)}`);
+      if (!res.ok) {
+        console.warn("API server returned an operational error code status.");
+        setExams([]);
+        return;
+      }
       const result = await res.json();
-      setExams(result.exams || []);
-    } catch (err) { console.error(err); } finally { setExamsLoading(false); }
+      // Added double protection fallback check to avoid crashing if data shape turns up null
+      if (result && result.exams) {
+        setExams(result.exams);
+      } else {
+        setExams([]);
+      }
+    } catch (err) { 
+      console.error("Failed fetching live examination records:", err); 
+      setExams([]); // Safe default baseline array to stop UI page errors
+    } finally { 
+      setExamsLoading(false); 
+    }
   }
+
 
   async function fetchLiveFinanceLedger() {
     setFinanceLoading(true);
