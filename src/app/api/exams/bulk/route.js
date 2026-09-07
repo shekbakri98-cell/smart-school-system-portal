@@ -4,10 +4,11 @@ import { connectToDatabase } from '../../../../lib/db';
 export async function POST(req) {
   let db;
   try {
-    const { title, gradeSection, subject, rawCsvData } = await req.json();
+    // MATCH THE FRONTEND: Extract the parsed questions array directly
+    const { title, gradeSection, subject, questions } = await req.json();
 
-    if (!title || !gradeSection || !rawCsvData) {
-      return NextResponse.json({ error: "Missing required meta parameters or CSV payload content." }, { status: 400 });
+    if (!title || !gradeSection || !questions || !Array.isArray(questions)) {
+      return NextResponse.json({ error: "Missing required parameters or questions payload matrix." }, { status: 400 });
     }
 
     db = await connectToDatabase();
@@ -22,43 +23,29 @@ export async function POST(req) {
     );
     const newExamId = examResult.insertId;
 
-    // Step C: Cleanly parse raw string entries row by row line breaks
-    // Handles both standard unix (\n) and windows server (\r\n) line formatting breaks
-    const rows = rawCsvData.split(/\r?\n/);
     let questionsCommitted = 0;
 
-    for (let i = 0; i < rows.length; i++) {
-      const line = rows[i].trim();
-      if (!line) continue; // Skip blank layout lines
+    // Step C: Loop through the already parsed questions array from the frontend
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
 
-      // ROBUST PARSING PATTERN: Regex correctly isolates columns wrapped in quotes containing commas
-      const columns = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
-      
-      // Clean extracted values by stripping enclosing literal quote marks
-      const parsedCols = columns.map(col => col.trim().replace(/^"|"$/g, ''));
+      // Safe protection fallback checks
+      const questionText = q.text || 'Missing Question Text';
+      const optionA = q.a || '';
+      const optionB = q.b || '';
+      const optionC = q.c || '';
+      const optionD = q.d || '';
+      const correctOption = (q.correct || 'A').toUpperCase();
 
-      // Validate required minimum schema layout bounds (Question text + Option A + Option B + Correct Key)
-      if (parsedCols.length >= 3) {
-        const questionText = parsedCols[0];
-        const optionA = parsedCols[1];
-        const optionB = parsedCols[2];
-        
-        // Handle optional variables with safe defaults based on row bounds index evaluation
-        const optionC = parsedCols.length > 3 ? parsedCols[3] : '';
-        const optionD = parsedCols.length > 4 ? parsedCols[4] : '';
-        
-        // Explicitly extract the absolute key element securely 
-        const correctOption = parsedCols.length > 5 ? parsedCols[5].toUpperCase() : 'A';
-
-        await db.query(
-          'INSERT INTO exam_questions (exam_id, question_text, option_a, option_b, option_c, option_d, correct_option) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          [newExamId, questionText, optionA, optionB, optionC, optionD, correctOption]
-        );
-        questionsCommitted++;
-      }
+      // Insert question node elements
+      await db.query(
+        'INSERT INTO exam_questions (exam_id, question_text, option_a, option_b, option_c, option_d, correct_option) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [newExamId, questionText, optionA, optionB, optionC, optionD, correctOption]
+      );
+      questionsCommitted++;
     }
 
-    // Commit all entries only if no rows failed or corrupted execution parameters
+    // Commit all entries only if no rows failed
     await db.commit();
 
     return NextResponse.json({ 
@@ -68,7 +55,13 @@ export async function POST(req) {
 
   } catch (error) {
     // Roll back open actions completely if any single internal failure occurs
-    if (db) await db.rollback();
+    if (db) {
+      try {
+        await db.rollback();
+      } catch (rbErr) {
+        console.error("Rollback error state encountered:", rbErr);
+      }
+    }
     
     return NextResponse.json({ error: "Bulk data insertion failure: " + error.message }, { status: 500 });
   }
