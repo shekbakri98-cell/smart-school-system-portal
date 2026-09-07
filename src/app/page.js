@@ -401,11 +401,38 @@ export default function Dashboard() {
         )}
       </main>
 
-      {/* FLOATING AI CHAT LOGGER BOX */}
+         {/* FLOATING AI CHAT LOGGER BOX */}
       <div className="fixed bottom-6 right-6 z-50 font-mono text-xs bg-[#1e293b] border border-slate-800 p-3 rounded-xl w-64 shadow-2xl">
         <div className="font-bold text-emerald-400 border-b border-slate-700 pb-1 mb-2">● Gargaaraa AI Dijitaalaa</div>
-        <div className="h-20 bg-[#0f172a] rounded p-1.5 overflow-y-auto text-slate-300 text-[11px]" id="aiLog">Akkam! Mana barumsaa keessan irratti har&apos;a maal si gargaaruu danda&apos;a?</div>
-        <input type="text" placeholder="Gaaffii kee asitti barreessi..." onKeyDown={async (e) => { if (e.key === 'Enter' && e.target.value.trim()) { const val = e.target.value; e.target.value = ''; const log = document.getElementById('aiLog'); log.innerHTML += `<br/><span class="text-blue-400">Isin:</span> \${val}`; const res = await fetch('/api/ai-chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: val, userRole: 'Admin' }) }); const d = await res.json(); log.innerHTML += `<br/><span class="text-emerald-400">AI:</span> \${d.reply || 'Processing Error'}`; log.scrollTop = log.scrollHeight; } }} className="w-full bg-[#0f172a] border border-slate-800 rounded mt-2 p-1 text-[11px] text-white" />
+        <div className="h-20 bg-[#0f172a] rounded p-1.5 overflow-y-auto text-slate-300 text-[11px]" id="aiLog">
+          Akkam! Mana barumsaa keessan irratti har&apos;a maal si gargaaruu danda&apos;a?
+        </div>
+        <input 
+          type="text" 
+          placeholder="Gaaffii kee asitti barreessi..." 
+          onKeyDown={async (e) => { 
+            if (e.key === 'Enter' && e.target.value.trim()) { 
+              const val = e.target.value; 
+              e.target.value = ''; 
+              const log = document.getElementById('aiLog'); 
+              if (log) log.innerHTML += '<br/><span class="text-blue-400">Isin:</span> ' + val; 
+              
+              try {
+                const res = await fetch('/api/ai-chat', { 
+                  method: 'POST', 
+                  headers: { 'Content-Type': 'application/json' }, 
+                  body: JSON.stringify({ message: val, userRole: 'Admin' }) 
+                }); 
+                const d = await res.json(); 
+                if (log) log.innerHTML += '<br/><span class="text-emerald-400">AI:</span> ' + (d.reply || 'Processing Error'); 
+              } catch (err) {
+                if (log) log.innerHTML += '<br/><span class="text-red-400">AI Error</span>';
+              }
+              if (log) log.scrollTop = log.scrollHeight; 
+            } 
+          }} 
+          className="w-full bg-[#0f172a] border border-slate-800 rounded mt-2 p-1 text-[11px] text-white" 
+        />
       </div>
     </div>
   );
