@@ -5,11 +5,24 @@ export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const grade = searchParams.get('grade') || '12 Natural';
-    const date = searchParams.get('date') || new Date().toISOString().split('T')[0];
+    let rawDate = searchParams.get('date');
+
+    // SMART DATE CONVERTER: Always forces date strings to match database YYYY-MM-DD
+    let formattedDate = new Date().toISOString().split('T')[0];
+    if (rawDate) {
+      try {
+        const parsedDate = new Date(rawDate);
+        if (!isNaN(parsedDate.getTime())) {
+          formattedDate = parsedDate.toISOString().split('T')[0];
+        }
+      } catch (dateErr) {
+        console.warn("Date normalization fallback triggered:", dateErr);
+      }
+    }
 
     const db = await connectToDatabase();
 
-    // Safe, multi-column matching query that works regardless of database underscore casing
+    // Secure database query utilizing our clean normalized date parameter string
     const [records] = await db.query(
       `SELECT 
         s.studentId,
@@ -20,7 +33,7 @@ export async function GET(req) {
        LEFT JOIN student_attendance a ON s.studentId = a.student_id AND a.attendance_date = ?
        WHERE s.grade = ? 
        ORDER BY s.name ASC`,
-      [date, grade]
+      [formattedDate, grade]
     );
 
     return NextResponse.json({ success: true, data: records });
@@ -38,23 +51,25 @@ export async function POST(req) {
       return NextResponse.json({ error: "Missing required attendance parameters." }, { status: 400 });
     }
 
+    // Aligns dates safely during saving actions too
+    let formattedDate = new Date(date).toISOString().split('T')[0];
+
     const db = await connectToDatabase();
 
-    // Check if an attendance mark already exists for this specific calendar day
     const [existing] = await db.query(
       'SELECT att_id FROM student_attendance WHERE student_id = ? AND attendance_date = ?',
-      [studentId, date]
+      [studentId, formattedDate]
     );
 
     if (existing.length > 0) {
       await db.query(
         'UPDATE student_attendance SET status = ? WHERE student_id = ? AND attendance_date = ?',
-        [status, studentId, date]
+        [status, studentId, formattedDate]
       );
     } else {
       await db.query(
         'INSERT INTO student_attendance (student_id, attendance_date, status) VALUES (?, ?, ?)',
-        [studentId, date, status]
+        [studentId, formattedDate, status]
       );
     }
 
