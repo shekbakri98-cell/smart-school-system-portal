@@ -36,19 +36,20 @@ export default function BulkExamUpload({ onUploadSuccess, selectedGrade }) {
           const line = lines[i].trim();
           if (!line) continue;
 
-          // Simple CSV line splitter (handles basic comma separations)
-          const columns = line.split(',');
-          if (columns.length >= 6) {
-            parsedQuestions.push({
-              text: columns[0].trim(),
-              a: columns[1].trim(),
-              b: columns[2].trim(),
-              c: columns[3].trim(),
-              d: columns[4].trim(),
-              correct: columns[5].trim().toUpperCase()
-            });
-          }
-        }
+         // Simple CSV line splitter (safe against punctuation commas inside quotes)
+const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+if (columns.length >= 6) {
+  parsedQuestions.push({
+    // Remove extra quote marks if they exist
+    text: columns[0].replace(/^"|"$/g, '').trim(), 
+    a: columns[1].replace(/^"|"$/g, '').trim(),
+    b: columns[2].replace(/^"|"$/g, '').trim(),
+    c: columns[3].replace(/^"|"$/g, '').trim(),
+    d: columns[4].replace(/^"|"$/g, '').trim(),
+    correct: columns[5].replace(/^"|"$/g, '').trim().toUpperCase()
+  });
+}
+
 
         if (parsedQuestions.length === 0) {
           throw new Error('No valid questions parsed from the CSV file structure.');
