@@ -201,6 +201,7 @@ export default function Dashboard() {
       if (res.ok) fetchLiveAttendanceRecords();
     } catch (err) { console.error(err); }
   }
+
   function addQuestionToFormState() {
     if (!currentQuestion.text || !currentQuestion.a || !currentQuestion.b) return;
     setExamForm({ ...examForm, questions: [...examForm.questions, currentQuestion] });
@@ -216,7 +217,7 @@ export default function Dashboard() {
   }
   const handleBulkSubmit = async (e) => {
     e.preventDefault();
-    if (!csvFile || !csvFile[0]) { setCsvError('Please select a valid document file first.'); return; }
+    if (!csvFile || !csvFile[0]) { setCsvError('Please select a valid file first.'); return; }
     setUploading(true); setCsvError('');
 
     const file = csvFile[0];
@@ -224,14 +225,12 @@ export default function Dashboard() {
     let rawText = "";
 
     try {
-      // 1. PROCESS WORD DOCUMENTS (.docx)
       if (fileExtension === 'docx') {
         const mammoth = await import('mammoth');
         const arrayBuffer = await file.arrayBuffer();
         const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
         rawText = result.value;
       } 
-      // 2. PROCESS PDF DOCUMENTS (.pdf)
       else if (fileExtension === 'pdf') {
         const pdfjsLib = await import('pdfjs-dist');
         pdfjsLib.GlobalWorkerOptions.workerSrc = `//://cloudflare.com{pdfjsLib.version}/pdf.worker.min.js`;
@@ -245,7 +244,6 @@ export default function Dashboard() {
         }
         rawText = textContent;
       } 
-      // 3. PROCESS STANDARD CSV TEXT FILES (.csv)
       else {
         const reader = new FileReader();
         rawText = await new Promise((resolve) => {
@@ -254,74 +252,39 @@ export default function Dashboard() {
         });
       }
 
-      // Send the clean text string to our loop parser below
       processDocumentText(rawText);
 
     } catch (err) {
       console.error(err);
-      setCsvError('Error extracting text from document: ' + err.message);
+      setCsvError('Error extracting text: ' + err.message);
       setUploading(false);
     }
   };
+
   const processDocumentText = async (text) => {
     try {
       const lines = text.split('\n');
       const parsedQuestions = [];
-
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
-        // Skip empty lines or header rows
         if (!line || line.toLowerCase().includes('question_text')) continue;
-
-        // Split columns safely by commas, ignoring commas inside quotation marks
         const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-        
         if (columns.length >= 6) {
           const cleanStr = (str) => (str || '').replace(/^"|"$/g, '').trim();
-
           parsedQuestions.push({
-            text: cleanStr(columns[0]),
-            a: cleanStr(columns[1]),
-            b: cleanStr(columns[2]),
-            c: cleanStr(columns[3]),
-            d: cleanStr(columns[4]),
-            correct: cleanStr(columns[5]).toUpperCase()
+            text: cleanStr(columns[0]), a: cleanStr(columns[1]), b: cleanStr(columns[2]),
+            c: cleanStr(columns[3]), d: cleanStr(columns[4]), correct: cleanStr(columns[5]).toUpperCase()
           });
         }
       }
-
-      if (parsedQuestions.length === 0) {
-        throw new Error('No valid questions could be parsed. Check your document template format.');
-      }
-
+      if (parsedQuestions.length === 0) { throw new Error('No valid questions parsed.'); }
       const res = await fetch('/api/exams', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          title: `Document Upload - ${new Date().toLocaleDateString()}`, 
-          gradeSection: selectedGrade, 
-          subject: 'ICT', 
-          questions: parsedQuestions 
-        })
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: `Bulk Upload - ${new Date().toLocaleDateString()}`, gradeSection: selectedGrade, subject: 'ICT', questions: parsedQuestions })
       });
-
-      if (res.ok) {
-        alert('Exam from document deployed successfully!');
-        setCsvFile(null);
-        fetchLiveExams();
-      } else {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to submit exam payload.');
-      }
-    } catch (err) {
-      setCsvError(err.message || 'Error processing spreadsheet format.');
-    } finally {
-      setUploading(false);
-    }
-  };
-
- 
-    reader.readAsText(csvFile[0]);
+      if (res.ok) { alert('Bulk exam deployed successfully!'); setCsvFile(null); fetchLiveExams(); } 
+      else { const data = await res.json(); throw new Error(data.error || 'Failed to submit.'); }
+    } catch (err) { setCsvError(err.message || 'Error processing layout.'); } finally { setUploading(false); }
   };
   function triggerFinanceCSVExport() {
     if (!financeLedger || financeLedger.length === 0) return alert("No active logs.");
@@ -501,29 +464,20 @@ export default function Dashboard() {
           <div className="space-y-6 font-mono text-xs w-full">
             <div className="flex gap-2 border-b border-slate-700 pb-2">
               <button onClick={() => setExamUploadMode('manual')} className={`px-2 py-1 rounded font-bold uppercase ${examUploadMode === 'manual' ? 'bg-blue-600 text-white' : 'bg-[#1e293b] text-slate-400'}`}>📝 Single Manual Setup</button>
-              <button onClick={() => setExamUploadMode('bulk')} className={`px-2 py-1 rounded font-bold uppercase ${examUploadMode === 'bulk' ? 'bg-purple-600 text-white' : 'bg-[#1e293b] text-slate-400'}`}>📥 Bulk Excel / CSV Upload</button>
+              <button onClick={() => setExamUploadMode('bulk')} className={`px-2 py-1 rounded font-bold uppercase ${examUploadMode === 'bulk' ? 'bg-purple-600 text-white' : 'bg-[#1e293b] text-slate-400'}`}>📥 Bulk Documents Upload</button>
             </div>
 
-           {examUploadMode === 'bulk' ? (
-  <div className="max-w-xl mx-auto bg-[#1e293b] border border-slate-800 rounded-xl p-6 shadow-xl text-white">
-    <h3 className="text-sm font-bold text-purple-400 mb-2">📥 Bulk CSV Processing Protocol</h3>
-    <p className="text-[10px] text-slate-400 mb-4">Required Headers: question_text, option_a, option_b, option_c, option_d, correct_answer</p>
-    <form onSubmit={handleBulkSubmit} className="space-y-4">
-      
-      {/* 📍 HERE IS YOUR INPUT FIELD! CHANGE THIS SPECIFIC LINE Below: */}
-      <input 
-        type="file" 
-        accept=".csv, .pdf, .docx" // 👈 Change this line to accept all three formats!
-        onChange={(e) => { if (e.target.files && e.target.files[0]) { setCsvFile(e.target.files[0]); setCsvError(''); } }} 
-        className="w-full bg-[#141b2d] border border-slate-800 rounded p-2 text-xs" 
-      />
-      
-      {csvError && <div className="text-red-400 text-xs font-bold">⚠️ {csvError}</div>}
-      <button type="submit" disabled={uploading} className="w-full py-2 bg-purple-600 hover:bg-purple-700 rounded font-bold uppercase">{uploading ? 'Processing Architecture...' : 'Initialize Bulk Upload Pipeline 🚀'}</button>
-    </form>
-  </div>
-) : (
-
+            {examUploadMode === 'bulk' ? (
+              <div className="max-w-xl mx-auto bg-[#1e293b] border border-slate-800 rounded-xl p-6 shadow-xl text-white">
+                <h3 className="text-sm font-bold text-purple-400 mb-2">📥 Document Processor Protocol</h3>
+                <p className="text-[10px] text-slate-400 mb-4">Supported File Types: .csv, .pdf, .docx</p>
+                <form onSubmit={handleBulkSubmit} className="space-y-4">
+                  <input type="file" accept=".csv, .pdf, .docx" onChange={(e) => { if (e.target.files && e.target.files) { setCsvFile(e.target.files); setCsvError(''); } }} className="w-full bg-[#141b2d] border border-slate-800 rounded p-2 text-xs" />
+                  {csvError && <div className="text-red-400 text-xs font-bold">⚠️ {csvError}</div>}
+                  <button type="submit" disabled={uploading} className="w-full py-2 bg-purple-600 hover:bg-purple-700 rounded font-bold uppercase">{uploading ? 'Processing Architecture...' : 'Initialize Bulk Upload Pipeline 🚀'}</button>
+                </form>
+              </div>
+            ) : (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-800 space-y-2">
                   <h2 className="font-bold border-b border-slate-700 pb-1 text-white">Deploy Examination</h2>
