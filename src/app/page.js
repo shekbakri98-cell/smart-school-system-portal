@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-
+import BulkExamUpload from './components/BulkExamUpload';
 export default function Dashboard() {
   const [currentRoleView, setCurrentRoleView] = useState('Director');
   const [activeTab, setActiveTab] = useState('director-overview');
@@ -506,15 +506,14 @@ export default function Dashboard() {
             </div>
           </section>
         )}
-
-                {/* VIEW 6: INSTRUCTOR EXAMS MODULE */}
+        {/* VIEW 6: INSTRUCTOR EXAMS MODULE */}
         {activeTab === 'instructor-exams' && (
-          <div className="space-y-6 font-mono text-xs">
+          <div className="space-y-6 font-mono text-xs w-full">
             {/* SUB-NAVBAR MODE SWITCHER */}
             <div className="flex gap-2 border-b border-slate-800 pb-3">
               <button 
                 onClick={() => setExamUploadMode('manual')} 
-                className={`px-3 py-1.5 rounded font-bold uppercase transition-all ${examUploadMode === 'manual' ? 'bg-blue-600 text-white shadow' : 'bg-[#1e293b] text-slate-400 hover:text-white'}`}
+                className={`px-3 py-1.5 rounded font-bold uppercase transition-all ${(!examUploadMode || examUploadMode === 'manual') ? 'bg-blue-600 text-white shadow' : 'bg-[#1e293b] text-slate-400 hover:text-white'}`}
               >
                 📝 Single Manual Setup
               </button>
@@ -526,13 +525,14 @@ export default function Dashboard() {
               </button>
             </div>
 
-            {/* CONDITIONAL CONTROLLER VIEWS */}
+            {/* DYNAMIC FORM VIEWS CONDITIONALLY RENDERED */}
             {examUploadMode === 'bulk' ? (
-              <div className="max-w-xl mx-auto">
+              <div className="max-w-xl mx-auto w-full">
                 <BulkExamUpload selectedGrade={selectedGrade} onUploadSuccess={fetchLiveExams} />
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* MANUAL CREATOR PANEL */}
                 <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-800 space-y-3">
                   <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Deploy Examination</h2>
                   <form onSubmit={handleExamPublishSubmit} className="space-y-2">
@@ -547,21 +547,26 @@ export default function Dashboard() {
                     <button type="submit" className="w-full bg-blue-600 p-2 text-white font-bold rounded uppercase">Publish Manual Quiz</button>
                   </form>
                 </section>
+
+                {/* ACTIVE TESTS LOG PANELS */}
                 <section className="lg:col-span-2 bg-[#1e293b] p-4 rounded-lg border border-slate-800">
                   <h3 className="font-bold border-b border-slate-800 pb-2 mb-3 text-slate-200 text-xs">Active Testing Matrix</h3>
                   <div className="space-y-2">
-                    {exams.map((ex, idx) => (
+                    {exams && exams.length > 0 ? exams.map((ex, idx) => (
                       <div key={idx} className="p-3 bg-[#0f172a] border border-slate-800 rounded flex justify-between items-center">
                         <div><p className="font-bold text-slate-200">{ex.title}</p><p className="text-[10px] text-slate-500 uppercase mt-0.5">Subject: {ex.subject} // Track: {ex.grade_section}</p></div>
                         <span className="text-[10px] bg-slate-800 border border-slate-700 px-2 py-1 rounded text-slate-400 font-bold uppercase">Active Live</span>
                       </div>
-                    ))}
+                    )) : (
+                      <p className="text-slate-500 text-center py-4">// No exams loaded from the current server cluster dataset.</p>
+                    )}
                   </div>
                 </section>
               </div>
             )}
           </div>
         )}
+ 
 
         {activeTab === 'instructor-library' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
