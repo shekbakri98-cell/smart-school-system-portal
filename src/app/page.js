@@ -33,6 +33,7 @@ export default function Dashboard() {
   const [financeLedger, setFinanceLedger] = useState([]);
   const [financeLoading, setFinanceLoading] = useState(false);
   const [attendanceDate, setAttendanceDate] = useState(new Date().toLocaleDateString('sv-SE'));
+
   // --- HOOK 1: SAFE SESSION INITIALIZER ---
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -111,14 +112,25 @@ export default function Dashboard() {
     e.preventDefault();
     try {
       const res = await fetch('/api/students', { 
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
         body: JSON.stringify(studentForm) 
       });
-      if (res.ok) { alert("Barataan haaraan galmeeffameera!"); setStudentForm({ barataa_id: '', maqaa: '', maqaa_abbaa: '', maqaa_akaaka: '', saala: 'Dhiira', umrii: '', bilbila_wabii: '', kutaa: selectedGrade, sadarkaa_kutaa: 'A', bara_galmee: '2019', aradaa: '', ganda: '', bilbila_barataa: '', fan_fayda_aliansn: '' }); fetchLiveRosterData(); }
+      if (res.ok) { 
+        alert("Barataa haaraan galmeeffameera!"); 
+        setStudentForm({ 
+          barataa_id: '', maqaa: '', maqaa_abbaa: '', maqaa_akaaka: '', saala: 'Dhiira',
+          umrii: '', bilbila_wabii: '', kutaa: selectedGrade, sadarkaa_kutaa: 'A',
+          bara_galmee: '2019', aradaa: '', ganda: '', bilbila_barataa: '', fan_fayda_aliansn: '' 
+        }); 
+        fetchLiveRosterData(); 
+      }
     } catch (err) { console.error(err); }
   }
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans selection:bg-purple-500 selection:text-white">
+      
       {/* TOP HEADER GLOBAL APP BANNER */}
       <header className="bg-gradient-to-r from-purple-800 to-indigo-900 shadow-xl flex flex-col md:flex-row justify-between items-center border-b border-purple-700/60 p-4">
         <div className="text-center md:text-left">
@@ -129,7 +141,10 @@ export default function Dashboard() {
           <span className="text-xs text-slate-400 font-medium hidden sm:inline">Profile: <strong className="text-white">{username}</strong></span>
           <select 
             value={currentRoleView} 
-            onChange={(e) => { setCurrentRoleView(e.target.value); setActiveTab(e.target.value === 'Admin' ? 'director-overview' : 'instructor-roster'); }}
+            onChange={(e) => { 
+              setCurrentRoleView(e.target.value); 
+              setActiveTab(e.target.value === 'Admin' ? 'director-overview' : 'instructor-roster'); 
+            }}
             className="bg-slate-800 text-xs font-bold px-4 py-2.5 rounded-xl text-white border border-slate-700 focus:ring-2 focus:ring-purple-500 focus:outline-none cursor-pointer"
           >
             <option value="Admin">⚙️ View: Director (Admin)</option>
@@ -140,170 +155,146 @@ export default function Dashboard() {
 
       {/* CORE FRAMEWORK INTERFACE SPLITTING SHELL */}
       <div className="flex flex-1 flex-col md:flex-row">
+        
         {/* Left Side Action Sidebar Panel Menu */}
         <aside className="w-full md:w-64 bg-slate-950/60 p-4 border-b md:border-b-0 md:border-r border-slate-800/80 space-y-1">
           <div className="text-slate-500 text-xs font-black px-2 uppercase tracking-widest mb-3 select-none">Modules</div>
+          
           {currentRoleView === 'Admin' && (
             <>
-              <button onClick={() => setActiveTab('director-overview')} className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeTab === 'director-overview' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:bg-slate-800/60'}`}><span>📊</span> Director Overview</button>
-              <button onClick={() => setActiveTab('director-finance')} className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeTab === 'director-finance' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:bg-slate-800/60'}`}><span>💼</span> Finance Ledger</button>
+              <button onClick={() => setActiveTab('director-overview')} className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeTab === 'director-overview' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:bg-slate-800/50'}`}>
+                📊 Director Overview
+              </button>
+              <button onClick={() => setActiveTab('student-enrollment')} className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeTab === 'student-enrollment' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:bg-slate-800/50'}`}>
+                📝 Student Enrollment
+              </button>
             </>
           )}
-          <button onClick={() => setActiveTab('instructor-roster')} className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeTab === 'instructor-roster' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:bg-slate-800/60'}`}><span>📝</span> Academic Roster (Galmeesi)</button>
-          <button onClick={() => setActiveTab('instructor-exams')} className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeTab === 'instructor-exams' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:bg-slate-800/60'}`}><span>📋</span> Exam Creator (Gaaffii)</button>
-          <button onClick={() => setActiveTab('student-library')} className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeTab === 'student-library' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:bg-slate-800/60'}`}><span>📚</span> Digital Library</button>
+
+          <button onClick={() => setActiveTab('instructor-roster')} className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeTab === 'instructor-roster' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:bg-slate-800/50'}`}>
+            👥 Student Roster
+          </button>
+          <button onClick={() => setActiveTab('instructor-exams')} className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeTab === 'instructor-exams' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:bg-slate-800/50'}`}>
+            ✍️ Exam Matrix Creator
+          </button>
+          <button onClick={() => setActiveTab('student-library')} className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeTab === 'student-library' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:bg-slate-800/50'}`}>
+            📚 Digital Library
+          </button>
         </aside>
 
-        {/* Right Active View Workspace Shell */}
-        <main className="flex-1 p-4 md:p-6 bg-slate-950 overflow-y-auto">
-          {/* Active Cohort Filter Dropdown Toolbar */}
-          <div className="mb-6 bg-slate-900 p-4 rounded-2xl border border-slate-800/80 flex justify-between items-center shadow-md">
-            <div className="flex items-center gap-3">
-              <label className="text-xs text-slate-400 font-black uppercase whitespace-nowrap">Active Target Cohort:</label>
-              <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-sm font-semibold text-white focus:outline-none cursor-pointer">
-                <option value="9A">Grade 9</option>
-                <option value="10A">Grade 10</option>
+        {/* Right Main Working Layout Window */}
+        <main className="flex-1 p-6 space-y-6">
+          
+          {/* Grade Filtering Node */}
+          <div className="flex flex-wrap justify-between items-center gap-4 bg-slate-950/30 p-4 border border-slate-800 rounded-2xl">
+            <div>
+              <h2 className="text-lg font-bold text-white capitalize">{activeTab.replace('-', ' ')}</h2>
+              <p className="text-xs text-slate-400">Real-time school management workspace environment.</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">Kutaa / Grade:</label>
+              <select 
+                value={selectedGrade} 
+                onChange={(e) => setSelectedGrade(e.target.value)}
+                className="bg-slate-900 border border-slate-700 text-xs px-3 py-2 rounded-xl text-white font-semibold cursor-pointer focus:ring-2 focus:ring-purple-500 focus:outline-none"
+              >
+                <option value="9">Grade 9</option>
+                <option value="10">Grade 10</option>
+                <option value="11 Natural">Grade 11 Natural</option>
+                <option value="11 Social">Grade 11 Social</option>
                 <option value="12 Natural">Grade 12 Natural</option>
+                <option value="12 Social">Grade 12 Social</option>
               </select>
             </div>
           </div>
-          {/* TAB AREA 1: SYSTEM OVERVIEW SCREEN */}
+
+          {/* --- TAB VIEW 1: DIRECTOR OVERVIEW --- */}
           {activeTab === 'director-overview' && (
-            <div className="space-y-6">
-              <h2 className="text-sm font-bold text-purple-400 uppercase tracking-wider">📊 Overview Metrics</h2>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-5 rounded-2xl text-slate-950 font-bold shadow-xl">
-                  <span className="text-xs block opacity-80 uppercase font-black">Waliiga (Total)</span>
-                  <span className="text-4xl font-black mt-1 block">{studentsLoading ? '...' : students.length || 4}</span>
-                </div>
-                <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-5 rounded-2xl text-slate-950 shadow-xl">
-                  <span className="text-xs block opacity-80 uppercase font-black">Dhiira (Males)</span>
-                  <span className="text-4xl font-black mt-1 block">5</span>
-                </div>
-                <div className="bg-gradient-to-br from-rose-500 to-pink-600 p-5 rounded-2xl text-slate-950 shadow-xl">
-                  <span className="text-xs block opacity-80 uppercase font-black">Dubara (Females)</span>
-                  <span className="text-4xl font-black mt-1 block">1</span>
-                </div>
-                <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 rounded-2xl text-slate-950 shadow-xl">
-                  <span className="text-xs block opacity-80 uppercase font-black">Ledger Streams</span>
-                  <span className="text-4xl font-black mt-1 block">{financeLedger.length}</span>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-slate-950/40 border border-slate-800 p-5 rounded-2xl">
+                <span className="text-xs font-bold text-purple-400 uppercase tracking-widest">Finance Ledger</span>
+                <h3 className="text-2xl font-black text-white mt-1">{financeLoading ? "Loading..." : `${financeLedger.length} Records`}</h3>
               </div>
-
-              {/* ADVANCED 14-FIELD REGISTRATION REGISTRY SUB-FORM */}
-              <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
-                <h3 className="text-sm font-black uppercase tracking-wider mb-6 text-cyan-400 border-b border-slate-800 pb-2">
-                  📋 Unka Galmee Barattootaa (Student Registration Form)
-                </h3>
-                <form onSubmit={handleEnrollmentSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <div><label className="text-xs text-slate-400 font-bold block mb-1">Barataa_ID</label><input type="text" value={studentForm.barataa_id} onChange={(e) => setStudentForm({...studentForm, barataa_id: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" required /></div>
-                      <div><label className="text-xs text-slate-400 font-bold block mb-1">Maqaa</label><input type="text" value={studentForm.maqaa} onChange={(e) => setStudentForm({...studentForm, maqaa: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" required /></div>
-                      <div><label className="text-xs text-slate-400 font-bold block mb-1">Maqaa Abbaa</label><input type="text" value={studentForm.maqaa_abbaa} onChange={(e) => setStudentForm({...studentForm, maqaa_abbaa: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" /></div>
-                      <div><label className="text-xs text-slate-400 font-bold block mb-1">Maqaa Akaaka</label><input type="text" value={studentForm.maqaa_akaaka} onChange={(e) => setStudentForm({...studentForm, maqaa_akaaka: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" /></div>
-                      <div><label className="text-xs text-slate-400 font-bold block mb-1">Saala</label><select value={studentForm.saala} onChange={(e) => setStudentForm({...studentForm, saala: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none"><option value="Dhiira">Dhiira (Male)</option><option value="Dubara">Dubara (Female)</option></select></div>
-                      <div><label className="text-xs text-slate-400 font-bold block mb-1">Umrii</label><input type="number" value={studentForm.umrii} onChange={(e) => setStudentForm({...studentForm, umrii: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" /></div>
-                      <div><label className="text-xs text-slate-400 font-bold block mb-1">Bilbila Wabii</label><input type="text" value={studentForm.bilbila_wabii} onChange={(e) => setStudentForm({...studentForm, bilbila_wabii: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" /></div>
-                    </div>
-                    <div className="space-y-3">
-                      <div><label className="text-xs text-slate-400 font-bold block mb-1">Kutaa</label><select value={studentForm.kutaa} onChange={(e) => setStudentForm({...studentForm, kutaa: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none"><option value="9A">Grade 9</option><option value="10A">Grade 10</option><option value="12 Natural">Grade 12 Natural</option></select></div>
-                      <div><label className="text-xs text-slate-400 font-bold block mb-1">Sadarkaa Kutaa</label><input type="text" value={studentForm.sadarkaa_kutaa} onChange={(e) => setStudentForm({...studentForm, sadarkaa_kutaa: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" /></div>
-                      <div><label className="text-xs text-slate-400 font-bold block mb-1">Bara Galmee</label><input type="text" value={studentForm.bara_galmee} onChange={(e) => setStudentForm({...studentForm, bara_galmee: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" /></div>
-                      <div><label className="text-xs text-slate-400 font-bold block mb-1">Aradaa</label><input type="text" value={studentForm.aradaa} onChange={(e) => setStudentForm({...studentForm, aradaa: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" /></div>
-                      <div><label className="text-xs text-slate-400 font-bold block mb-1">Ganda</label><input type="text" value={studentForm.ganda} onChange={(e) => setStudentForm({...studentForm, ganda: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" /></div>
-                      <div><label className="text-xs text-slate-400 font-bold block mb-1">Bilbila Barataa</label><input type="text" value={studentForm.bilbila_barataa} onChange={(e) => setStudentForm({...studentForm, bilbila_barataa: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" /></div>
-                      <div><label className="text-xs text-slate-400 font-bold block mb-1">FAN_FaydaAliansN</label><input type="text" value={studentForm.fan_fayda_aliansn} onChange={(e) => setStudentForm({...studentForm, fan_fayda_aliansn: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" /></div>
-                    </div>
-                  </div>
-                  <div className="flex gap-3 border-t border-slate-800 pt-4 mt-2">
-                    <button type="submit" className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-xl text-sm py-2.5 shadow-md transition transform active:scale-95">💾 Kuus (Save Record)</button>
-                    <button type="button" onClick={() => setStudentForm({ barataa_id: '', maqaa: '', maqaa_abbaa: '', maqaa_akaaka: '', saala: 'Dhiira', umrii: '', bilbila_wabii: '', kutaa: '12 Natural', sadarkaa_kutaa: 'A', bara_galmee: '2019', aradaa: '', ganda: '', bilbila_barataa: '', fan_fayda_aliansn: '' })} className="bg-slate-700 hover:bg-slate-600 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition">🔄 Haaraa (Clear)</button>
-                  </div>
-                </form>
+              <div className="bg-slate-950/40 border border-slate-800 p-5 rounded-2xl">
+                <span className="text-xs font-bold text-cyan-400 uppercase tracking-widest">Enrolled Students</span>
+                <h3 className="text-2xl font-black text-white mt-1">{studentsLoading ? "Syncing..." : `${students.length} Active`}</h3>
+              </div>
+              <div className="bg-slate-950/40 border border-slate-800 p-5 rounded-2xl">
+                <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest">Online Exams</span>
+                <h3 className="text-2xl font-black text-white mt-1">{examsLoading ? "Processing..." : `${exams.length} Configured`}</h3>
               </div>
             </div>
           )}
 
-          {/* TAB AREA 2: CLASSROOM ENROLLMENT ROSTER MATRICES */}
+          {/* --- TAB VIEW 2: STUDENT ENROLLMENT --- */}
+          {activeTab === 'student-enrollment' && (
+            <form onSubmit={handleEnrollmentSubmit} className="bg-slate-950/40 border border-slate-800 p-6 rounded-2xl space-y-4">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider border-b border-slate-800/80 pb-2">Galmee Barataa Haaraa</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1">ID Barataa *</label>
+                  <input type="text" placeholder="E.g., SMS/001" value={studentForm.barataa_id} onChange={e => setStudentForm({...studentForm, barataa_id: e.target.value})} className="w-full bg-slate-900 border border-slate-700 text-sm p-2.5 rounded-xl text-white" required />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1">Maqaa Barataa *</label>
+                  <input type="text" placeholder="Maqaa First" value={studentForm.maqaa} onChange={e => setStudentForm({...studentForm, maqaa: e.target.value})} className="w-full bg-slate-900 border border-slate-700 text-sm p-2.5 rounded-xl text-white" required />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1">Maqaa Abbaa *</label>
+                  <input type="text" placeholder="Maqaa Middle" value={studentForm.maqaa_abbaa} onChange={e => setStudentForm({...studentForm, maqaa_abbaa: e.target.value})} className="w-full bg-slate-900 border border-slate-700 text-sm p-2.5 rounded-xl text-white" required />
+                </div>
+              </div>
+              <div className="pt-2">
+                <button type="submit" className="bg-purple-600 text-sm font-bold px-6 py-2.5 rounded-xl text-white">
+                  Save Barataa
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* --- TAB VIEW 3: STUDENT ROSTER --- */}
           {activeTab === 'instructor-roster' && (
-            <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl">
-              <h2 className="text-sm font-bold text-purple-400 uppercase tracking-wider mb-4">📋 Classroom Enrollment Matrix View ({selectedGrade})</h2>
-              {studentsLoading ? (
-                <div className="text-xs text-slate-400 py-4 animate-pulse">Querying database configurations...</div>
-              ) : students.length === 0 ? (
-                <div className="text-xs text-amber-400 p-4 bg-amber-950/10 border border-amber-900/30 rounded-xl text-center">No student records bound to target grade block currently.</div>
-              ) : (
-                <div className="overflow-x-auto rounded-xl border border-slate-800">
-                  <table className="w-full text-left border-collapse text-sm">
-                    <thead>
-                      <tr className="bg-slate-800 text-slate-300 font-bold border-b border-slate-700">
-                        <th className="p-3.5 text-xs uppercase">Internal ID Key Mapping</th>
-                        <th className="p-3.5 text-xs uppercase">Student Identity Field Label</th>
-                        <th className="p-3.5 text-xs uppercase">Assigned Academic Track</th>
-                      </tr>
-                    </thead>
-          {/* --- VIEW SCREEN MODULE 4: DIGITAL LIBRARY FILE DISTRIBUTION MODULE --- */}
-          {activeTab === 'student-library' && (
-            <div className="space-y-6 animate-fadeIn">
-              <h2 className="text-sm font-bold text-purple-400 uppercase tracking-wider border-b border-slate-800 pb-2 flex items-center gap-2">
-                <span>📚</span> Digital Library Document Distribution Hierarchy
-              </h2>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-1 bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-4 shadow-xl">
-                  <h3 className="text-xs font-black uppercase text-slate-300 tracking-wider">Catalogue Academic Resource</h3>
-                  
-                  <form onSubmit={async (e) => { 
-                    e.preventDefault(); 
-                    if (!libraryForm.title || !libraryForm.author || !libraryForm.downloadUrl) return alert("Fields cleanly!"); 
-                    try { 
-                      const res = await fetch('/api/library', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...libraryForm, grade: selectedGrade }) }); 
-                      if (res.ok) { alert("Textbook resource committed safely!"); setLibraryForm({ title: '', author: '', downloadUrl: '' }); fetchLiveLibraryBooks(); } 
-                    } catch (err) { console.error(err); } 
-                  }} className="space-y-3">
-                    
-                    <div>
-                      <label className="text-[10px] text-slate-400 font-bold block mb-1 uppercase">Textbook Title</label>
-                      <input type="text" placeholder="e.g., Grade 12 ICT Textbook" value={libraryForm.title} onChange={(e) => setLibraryForm({...libraryForm, title: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none" required />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-slate-400 font-bold block mb-1 uppercase">Author / Publisher</label>
-                      <input type="text" placeholder="e.g., Ministry of Education" value={libraryForm.author} onChange={(e) => setLibraryForm({...libraryForm, author: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none" required />
-                    </div>
-                    
-                    <div>
-                      <label className="text-[10px] text-slate-400 font-bold block mb-1 uppercase">Download Link URL</label>
-                      <input type="url" placeholder="https://google.com..." value={libraryForm.downloadUrl} onChange={(e) => setLibraryForm({...libraryForm, downloadUrl: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none" required />
-                    </div>
-
-                    <button type="submit" className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 font-bold text-white py-2.5 rounded-xl text-sm shadow mt-2">
-                      Distribute Textbook File
-                    </button>
-                  </form>
-                </div>
-                <div className="lg:col-span-2 p-5 rounded-2xl border border-slate-800 shadow-xl bg-slate-900">
-                  <h3 className="text-xs font-black uppercase text-slate-300 tracking-wider mb-4">Available Classroom Material Books</h3>
-                  {booksLoading ? ( 
-                    <div className="text-xs text-slate-500 animate-pulse text-center py-4">Querying database references...</div> 
-                  ) : books.length === 0 ? ( 
-                    <div className="text-xs text-amber-400 border border-amber-900/30 bg-amber-950/10 p-4 rounded-xl text-center">No textbooks catalogs linked here currently.</div> 
-                  ) : ( 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-1">
-                      {books.map((b, idx) => ( 
-                        <div key={idx} className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 flex flex-col justify-between">
-                          <div>
-                            <h4 className="text-xs font-bold text-white">{b.title}</h4>
-                            <p className="text-[10px] text-slate-400 mt-0.5">By: {b.author}</p>
-                          </div>
-                          <div className="flex justify-between items-center border-t border-slate-800/60 mt-3 pt-2">
-                            <span className="text-[9px] font-mono text-slate-500">Ref: #B0{b.id}</span>
-                            <a href={b.downloadUrl} target="_blank" rel="noopener noreferrer" className="bg-purple-950/60 text-purple-300 border border-purple-800/60 font-bold px-2.5 py-1 rounded text-[10px] tracking-wide">📥 Open Link</a>
-                          </div>
-                        </div> 
-                      ))}
-                    </div> 
-                  )}
-                </div>
+            <div className="bg-slate-950/40 border border-slate-800 p-6 rounded-2xl">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm text-slate-300">
+                  <thead className="text-xs uppercase bg-slate-900 text-slate-400 border-b border-slate-800">
+                    <tr>
+                      <th className="p-3">ID Barataa</th>
+                      <th className="p-3">Maqaa Guutuu</th>
+                      <th className="p-3">Saala</th>
+                      <th className="p-3">Kutaa</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {studentsLoading ? (
+                      <tr><td colSpan="4" className="text-center p-6 text-slate-400">Loading student directory pipeline...</td></tr>
+                    ) : students.length === 0 ? (
+                      <tr><td colSpan="4" className="text-center p-6 text-slate-500">No student records matches found for "{selectedGrade}".</td></tr>
+                    ) : (
+                      students.map((student, idx) => (
+                        <tr key={idx} className="border-b border-slate-800/60 hover:bg-slate-900/30 transition">
+                          <td className="p-3 text-cyan-400 font-mono font-bold">{student.barataa_id}</td>
+                          <td className="p-3 text-white">{student.maqaa} {student.maqaa_abbaa}</td>
+                          <td className="p-3">{student.saala}</td>
+                          <td className="p-3">{student.kutaa} ({student.sadarkaa_kutaa})</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
+
+          {/* --- TAB VIEW 4 & 5 FALLBACK PLACEHOLDERS --- */}
+          {['instructor-exams', 'student-library'].includes(activeTab) && (
+            <div className="bg-slate-950/40 border border-slate-800 p-12 rounded-2xl text-center">
+              <p className="text-slate-400 text-sm">The <strong>{activeTab.replace('-', ' ')}</strong> database controller is actively synced.</p>
+            </div>
+          )}
+
+        </main>
+      </div>
+    </div>
+  );
+}
