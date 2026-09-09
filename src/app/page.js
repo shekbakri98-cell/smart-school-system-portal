@@ -2,30 +2,29 @@
 import { useEffect, useState } from 'react';
 
 export default function Dashboard() {
-  // --- MODULE 1: CONSOLE NAVIGATION & ROLE STATES ---
+  // Global View Mode and Authentication State Containers
   const [currentRoleView, setCurrentRoleView] = useState('Director');
   const [activeTab, setActiveTab] = useState('director-overview');
   const [userRole, setUserRole] = useState('Admin'); 
   const [username, setUsername] = useState('Admin User');
 
-  // --- MODULE 2: ACADEMIC ROSTER STATES ---
+  // Student Demographic and Enrollment Array Records
   const [selectedGrade, setSelectedGrade] = useState('12 Natural');
   const [students, setStudents] = useState([]);
   const [studentForm, setStudentForm] = useState({ studentId: '', name: '' });
   const [studentsLoading, setStudentsLoading] = useState(false);
 
-  // --- MODULE 3: TESTING MATRIX STATES (EXAM CREATOR) ---
+  // Testing Matrix and Exam Question Structure Parameters
   const [exams, setExams] = useState([]);
   const [examsLoading, setExamsLoading] = useState(false);
   const [examForm, setExamForm] = useState({ title: '', subject: 'ICT', questions: [] });
   const [currentQuestion, setCurrentQuestion] = useState({ text: '', a: '', b: '', c: '', d: '', correct: 'A' });
 
-  // --- MODULE 4: FINANCE & DYNAMIC ATTENDANCE STUBS ---
+  // Fallback Arrays for Auxiliary Finance and Calendar State Management
   const [attendanceDate, setAttendanceDate] = useState(new Date().toLocaleDateString('sv-SE'));
   const [financeLedger, setFinanceLedger] = useState([]);
   const [financeLoading, setFinanceLoading] = useState(false);
-
-  // --- HOOK 1: SAFE ON-MOUNT SESSION INITIALIZER ---
+  // Operational Hook 1: Local Cookie Tracker (Fires once on mounting)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const getCookieValue = (name) => {
@@ -45,7 +44,7 @@ export default function Dashboard() {
     }
   }, []);
 
-  // --- HOOK 2: CIRCUIT-BREAKER CONCURRENCY TUNNEL (Clears 503 Errors) ---
+  // Operational Hook 2: Concurrency Blocker Sync Layer (Eliminates Render 503 Crashes)
   useEffect(() => {
     if (activeTab === 'instructor-roster' && !studentsLoading) {
       fetchLiveRosterData();
@@ -56,7 +55,7 @@ export default function Dashboard() {
     }
   }, [activeTab, selectedGrade, attendanceDate]); 
 
-  // --- ASYNC API CONTROLLERS ROUTING ENGINES ---
+  // Database Connection Fetch 1: Roster Lists
   async function fetchLiveRosterData() {
     setStudentsLoading(true);
     try {
@@ -67,6 +66,7 @@ export default function Dashboard() {
     } catch (err) { console.error(err); setStudents([]); } finally { setStudentsLoading(false); }
   }
 
+  // Database Connection Fetch 2: Exam Payload Data
   async function fetchLiveExams() {
     setExamsLoading(true);
     try {
@@ -77,6 +77,7 @@ export default function Dashboard() {
     } catch (err) { console.error(err); setExams([]); } finally { setExamsLoading(false); }
   }
 
+  // Database Connection Fetch 3: Financial Records Ledger
   async function fetchLiveFinanceLedger() {
     setFinanceLoading(true);
     try {
@@ -87,23 +88,30 @@ export default function Dashboard() {
     } catch (err) { console.error(err); setFinanceLedger([]); } finally { setFinanceLoading(false); }
   }
 
+  // API Write Sequence: Commits Student Input Rows to PostgreSQL Database
   async function handleEnrollmentSubmit(e) {
     e.preventDefault();
     try {
       const res = await fetch('/api/students', { 
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
         body: JSON.stringify({ studentId: studentForm.studentId, name: studentForm.name, grade: selectedGrade }) 
       });
-      if (res.ok) { alert("Barataan haaraan galmeeffameera!"); setStudentForm({ studentId: '', name: '' }); fetchLiveRosterData(); }
+      if (res.ok) { 
+        alert("Barataan haaraan galmeeffameera!"); 
+        setStudentForm({ studentId: '', name: '' }); 
+        fetchLiveRosterData(); 
+      }
     } catch (err) { console.error(err); }
   }
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans selection:bg-purple-500 selection:text-white">
-      {/* GLOBAL APPLICATION MAIN BANNER */}
+      
+      {/* 1. Global Application Banner Header Section */}
       <header className="bg-gradient-to-r from-purple-800 to-indigo-900 shadow-xl flex flex-col md:flex-row justify-between items-center border-b border-purple-700/60 p-4">
         <div className="text-center md:text-left">
           <h1 className="text-xl md:text-2xl font-black tracking-wide text-cyan-400">Mana Barnoota Sheek Bakrii Saphaloo Sad.2ffaa</h1>
-          <p className="text-xs md:text-sm text-yellow-400 font-bold italic tracking-wider mt-0.5">Shek Bekri Sapalo Secondary School Portal</p>
+          <p className="text-xs md:text-sm text-yellow-400 font-bold italic tracking-wider mt-0.5">Shek Bakri Sapalo Secondary School Portal</p>
         </div>
         <div className="flex items-center gap-4 mt-3 md:mt-0">
           <span className="text-xs text-slate-400 font-medium hidden sm:inline">Profile: <strong className="text-white">{username}</strong></span>
@@ -118,9 +126,10 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* HORIZONTAL COMPONENT MANAGEMENT CONTAINER LAYOUT */}
+      {/* 2. Primary Layout Flex Column Splitting Module */}
       <div className="flex flex-1 flex-col md:flex-row">
-        {/* REUSABLE ACTION NAVIGATION BUTTONS MODULE SIDEBAR */}
+        
+        {/* Left Action Menu Sidebar Wrapper */}
         <aside className="w-full md:w-64 bg-slate-950/60 p-4 border-b md:border-b-0 md:border-r border-slate-800/80 space-y-1">
           <div className="text-slate-500 text-xs font-black px-2 uppercase tracking-widest mb-3 select-none">Modules</div>
           {currentRoleView === 'Admin' && (
@@ -134,23 +143,26 @@ export default function Dashboard() {
           <button onClick={() => setActiveTab('student-library')} className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeTab === 'student-library' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:bg-slate-800/60'}`}><span>📚</span> Digital Library</button>
         </aside>
 
-        {/* WORKSPACE MIDDLEWARE PANEL TARGET CONTAINER */}
+        {/* Right Active Functional View Workspace */}
         <main className="flex-1 p-4 md:p-6 bg-slate-950 overflow-y-auto">
-          {/* COHORT CONFIGURATION PARAMETERS CONFIG TOOLBAR */}
+          
+          {/* Active Configuration Cohort Filter Toolbar */}
           <div className="mb-6 bg-slate-900 p-4 rounded-2xl border border-slate-800/80 flex justify-between items-center shadow-md">
             <div className="flex items-center gap-3">
               <label className="text-xs text-slate-400 font-black uppercase whitespace-nowrap">Active Target Cohort:</label>
-              <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-sm font-semibold text-white focus:outline-none">
-                <option value="9A">Grade 9</option>
-                <option value="10A">Grade 10</option>
-                <option value="12 Natural">Grade 12 Natural</option>
+              <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-sm font-semibold text-white focus:outline-none cursor-pointer">
+                <option value="9A">Kutaa 9 (Grade 9)</option>
+                <option value="10A">Kutaa 10 (Grade 10)</option>
+                <option value="12 Natural">Kutaa 12 Natural (Grade 12)</option>
               </select>
             </div>
           </div>
-          {/* --- VIEW SCREEN 1: SYSTEM PARAMETERS OVERVIEW --- */}
+          {/* --- VIEW SCREEN MODULE 1: DIRECTOR PARAMETERS OVERVIEW PANEL --- */}
           {activeTab === 'director-overview' && (
             <div className="space-y-6">
               <h2 className="text-sm font-bold text-purple-400 uppercase tracking-wider">📊 Overview Metrics</h2>
+              
+              {/* Access App Metric Blocks UI Translation Row */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-5 rounded-2xl text-slate-950 font-bold shadow-xl">
                   <span className="text-xs block opacity-80 uppercase font-black">Waliiga (Total)</span>
@@ -170,24 +182,24 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* ACTIVE REGISTRATION FORMS SUB-WIDGET */}
+              {/* Student Onboarding Manual Input Component */}
               <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl">
                 <h3 className="text-xs font-black uppercase tracking-wider mb-4 text-slate-300">📥 Quick Student Enrollment Block (Galmeesi)</h3>
                 <form onSubmit={handleEnrollmentSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                   <input type="text" placeholder="Internal School ID" value={studentForm.studentId} onChange={(e) => setStudentForm({...studentForm, studentId: e.target.value})} className="bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" required />
                    setStudentForm({...studentForm, name: e.target.value})} className="bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" required />
-                  <button type="submit" className="bg-gradient-to-r from-emerald-600 to-teal-600 font-bold text-white text-sm py-2.5 rounded-xl shadow-md transition">Commit Register Record</button>
+                  <button type="submit" className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 font-bold text-white text-sm py-2.5 rounded-xl shadow-md transition">Commit Register Record</button>
                 </form>
               </div>
             </div>
           )}
 
-          {/* --- VIEW SCREEN 2: ACADEMIC MATRIX ROSTER TABLES --- */}
+          {/* --- VIEW SCREEN MODULE 2: ACADEMIC ACTIVE ROSTER TABLE LAYOUT --- */}
           {activeTab === 'instructor-roster' && (
             <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl">
               <h2 className="text-sm font-bold text-purple-400 uppercase tracking-wider mb-4">📋 Classroom Enrollment Matrix View ({selectedGrade})</h2>
               {studentsLoading ? (
-                <div className="text-xs text-slate-400 py-4 animate-pulse">Querying production schema databases...</div>
+                <div className="text-xs text-slate-400 py-4 animate-pulse">Querying production database configurations...</div>
               ) : students.length === 0 ? (
                 <div className="text-xs text-amber-400 p-4 bg-amber-950/10 border border-amber-900/30 rounded-xl text-center">No student records bound to target grade block currently.</div>
               ) : (
@@ -200,7 +212,7 @@ export default function Dashboard() {
                         <th className="p-3.5 text-xs uppercase">Assigned Academic Track</th>
                       </tr>
                     </thead>
-                                        <tbody className="divide-y divide-slate-800/60 bg-slate-900/40">
+                    <tbody className="divide-y divide-slate-800/60 bg-slate-900/40">
                       {students.map((student, idx) => (
                         <tr key={idx} className="hover:bg-slate-800/30 transition">
                           <td className="p-3.5 text-cyan-400 font-mono font-bold">{student.studentId}</td>
@@ -214,8 +226,7 @@ export default function Dashboard() {
               )}
             </div>
           )}
-
-          {/* --- VIEW SCREEN 3: EXAM PORTAL CREATOR (GALMEESSA GAAFFII) --- */}
+          {/* --- VIEW SCREEN MODULE 3: EXAM PORTAL CREATOR (GALMEESSA GAAFFII) --- */}
           {activeTab === 'instructor-exams' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fadeIn">
               <div className="lg:col-span-1 bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-4 shadow-xl">
@@ -269,9 +280,12 @@ export default function Dashboard() {
                     <div className="text-xs text-amber-400 border border-amber-900/30 bg-amber-950/10 p-3 rounded-xl">No active examination entities map here.</div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-52 overflow-y-auto pr-1">
-                      {exams.map((ex, i) => (
-                        <div key={i} className="bg-slate-800/40 p-3 rounded-xl border border-slate-700/50 flex flex-col justify-between">
-                          <div><span className="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded-full font-bold uppercase">{ex.subject}</span><h4 className="text-sm font-bold text-white mt-1">{ex.title}</h4></div>
+                      {exams.map((ex, idx) => (
+                        <div key={idx} className="bg-slate-800/40 p-3 rounded-xl border border-slate-700/50 flex flex-col justify-between">
+                          <div>
+                            <span className="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded-full font-bold uppercase">{ex.subject}</span>
+                            <h4 className="text-sm font-bold text-white mt-1">{ex.title}</h4>
+                          </div>
                           <span className="text-[10px] text-cyan-400 font-mono text-right mt-2 block">ID Mapping Ref: #00{ex.id}</span>
                         </div>
                       ))}
@@ -282,7 +296,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* SECURE SHUTTER PANEL FALLBACK PANEL FOR UNBUILT MODULES */}
+          {/* Secure Fallback View Panel Configuration Framework */}
           {activeTab !== 'director-overview' && activeTab !== 'instructor-roster' && activeTab !== 'instructor-exams' && (
             <div className="bg-slate-900/70 p-8 rounded-2xl border border-slate-800 text-center text-slate-400 text-sm max-w-xl mx-auto mt-12 shadow-xl">
               <div className="text-2xl mb-2">🔒</div>
