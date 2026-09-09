@@ -200,7 +200,7 @@ export default function Dashboard() {
                         <th className="p-3.5 text-xs uppercase">Assigned Academic Track</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/60 bg-slate-900/40">
+                                        <tbody className="divide-y divide-slate-800/60 bg-slate-900/40">
                       {students.map((student, idx) => (
                         <tr key={idx} className="hover:bg-slate-800/30 transition">
                           <td className="p-3.5 text-cyan-400 font-mono font-bold">{student.studentId}</td>
@@ -269,12 +269,9 @@ export default function Dashboard() {
                     <div className="text-xs text-amber-400 border border-amber-900/30 bg-amber-950/10 p-3 rounded-xl">No active examination entities map here.</div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-52 overflow-y-auto pr-1">
-                      {exams.map((ex, idx) => (
-                        <div key={idx} className="bg-slate-800/40 p-3 rounded-xl border border-slate-700/50 flex flex-col justify-between">
-                          <div>
-                            <span className="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded-full font-bold uppercase">{ex.subject}</span>
-                            <h4 className="text-sm font-bold text-white mt-1">{ex.title}</h4>
-                          </div>
+                      {exams.map((ex, i) => (
+                        <div key={i} className="bg-slate-800/40 p-3 rounded-xl border border-slate-700/50 flex flex-col justify-between">
+                          <div><span className="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded-full font-bold uppercase">{ex.subject}</span><h4 className="text-sm font-bold text-white mt-1">{ex.title}</h4></div>
                           <span className="text-[10px] text-cyan-400 font-mono text-right mt-2 block">ID Mapping Ref: #00{ex.id}</span>
                         </div>
                       ))}
@@ -293,3 +290,8 @@ export default function Dashboard() {
               The backend route listener functions for <span className="text-purple-400 font-mono">"{activeTab}"</span> are secure. Open the editor to append additional layout tracking containers here.
             </div>
           )}
+        </main>
+      </div>
+    </div>
+  );
+}
