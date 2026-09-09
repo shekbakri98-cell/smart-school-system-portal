@@ -2,57 +2,30 @@
 import { useEffect, useState } from 'react';
 
 export default function Dashboard() {
-  // Console Navigation States
+  // --- MODULE 1: CONSOLE NAVIGATION & ROLE STATES ---
   const [currentRoleView, setCurrentRoleView] = useState('Director');
   const [activeTab, setActiveTab] = useState('director-overview');
-  const [examUploadMode, setExamUploadMode] = useState('manual'); 
   const [userRole, setUserRole] = useState('Admin'); 
   const [username, setUsername] = useState('Admin User');
 
-  // Academic Roster States
+  // --- MODULE 2: ACADEMIC ROSTER STATES ---
   const [selectedGrade, setSelectedGrade] = useState('12 Natural');
   const [students, setStudents] = useState([]);
   const [studentForm, setStudentForm] = useState({ studentId: '', name: '' });
   const [studentsLoading, setStudentsLoading] = useState(false);
 
-  // Attendance Tracker States
-  const [attendanceDate, setAttendanceDate] = useState(new Date().toLocaleDateString('sv-SE'));
-  const [attendanceRecords, setAttendanceRecords] = useState([]);
-  const [attendanceLoading, setAttendanceLoading] = useState(false);
-
-  // Testing Matrix States
+  // --- MODULE 3: TESTING MATRIX STATES (EXAM CREATOR) ---
   const [exams, setExams] = useState([]);
   const [examsLoading, setExamsLoading] = useState(false);
   const [examForm, setExamForm] = useState({ title: '', subject: 'ICT', questions: [] });
   const [currentQuestion, setCurrentQuestion] = useState({ text: '', a: '', b: '', c: '', d: '', correct: 'A' });
 
-  // Quiz Modal States
-  const [activeQuizExam, setActiveQuizExam] = useState(null);
-  const [quizQuestions, setQuizQuestions] = useState([]);
-  const [studentAnswers, setStudentAnswers] = useState({});
-  const [studentExId, setStudentExId] = useState('');
-
-  // Bulk File Processing States
-  const [csvFile, setCsvFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [csvError, setCsvError] = useState('');
-
-  // Finance & Ledger States
+  // --- MODULE 4: FINANCE & DYNAMIC ATTENDANCE STUBS ---
+  const [attendanceDate, setAttendanceDate] = useState(new Date().toLocaleDateString('sv-SE'));
   const [financeLedger, setFinanceLedger] = useState([]);
   const [financeLoading, setFinanceLoading] = useState(false);
-  const [financeForm, setFinanceForm] = useState({ studentId: '', feeType: 'Tuition Q1', amountDue: '', amountPaid: '' });
 
-  // Library Distribution States
-  const [books, setBooks] = useState([]);
-  const [booksLoading, setBooksLoading] = useState(false);
-  const [libraryForm, setLibraryForm] = useState({ title: '', author: '', downloadUrl: '' });
-
-  // User Profile States
-  const [systemUsers, setSystemUsers] = useState([]);
-  const [usersLoading, setUsersLoading] = useState(false);
-  const [userForm, setUserForm] = useState({ username: '', email: '', password: '', role: 'Teacher' });
-
-  // 1. Safe Initialization (Runs once on mount)
+  // --- HOOK 1: SAFE ON-MOUNT SESSION INITIALIZER ---
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const getCookieValue = (name) => {
@@ -72,23 +45,18 @@ export default function Dashboard() {
     }
   }, []);
 
-  // 2. Safe, Isolated Tab Conditional Fetch Routing
+  // --- HOOK 2: CIRCUIT-BREAKER CONCURRENCY TUNNEL (Clears 503 Errors) ---
   useEffect(() => {
-    if (activeTab === 'instructor-roster' || activeTab === 'student-transcript') {
+    if (activeTab === 'instructor-roster' && !studentsLoading) {
       fetchLiveRosterData();
-    } else if (activeTab === 'instructor-attendance') {
-      fetchLiveAttendanceRecords();
-    } else if (activeTab === 'instructor-exams' || activeTab === 'student-exams') {
+    } else if (activeTab === 'instructor-exams' && !examsLoading) {
       fetchLiveExams();
-    } else if (activeTab === 'director-finance' || activeTab === 'director-overview') {
+    } else if (activeTab === 'director-overview' && !financeLoading) {
       fetchLiveFinanceLedger();
-    } else if (activeTab === 'student-library' || activeTab === 'instructor-library') {
-      fetchLiveLibraryBooks();
-    } else if (activeTab === 'director-users') {
-      fetchSystemUsers();
     }
-  }, [activeTab, selectedGrade, attendanceDate]);
+  }, [activeTab, selectedGrade, attendanceDate]); 
 
+  // --- ASYNC API CONTROLLERS ROUTING ENGINES ---
   async function fetchLiveRosterData() {
     setStudentsLoading(true);
     try {
@@ -97,16 +65,6 @@ export default function Dashboard() {
       const result = await res.json();
       setStudents(result && result.data ? result.data : []);
     } catch (err) { console.error(err); setStudents([]); } finally { setStudentsLoading(false); }
-  }
-
-  async function fetchLiveAttendanceRecords() {
-    setAttendanceLoading(true);
-    try {
-      const res = await fetch(`/api/attendance?grade=${encodeURIComponent(selectedGrade)}&date=${encodeURIComponent(attendanceDate)}`);
-      if (!res.ok) { setAttendanceRecords([]); return; }
-      const result = await res.json();
-      setAttendanceRecords(result && result.data ? result.data : []);
-    } catch (err) { console.error("Attendance error:", err); setAttendanceRecords([]); } finally { setAttendanceLoading(false); }
   }
 
   async function fetchLiveExams() {
@@ -129,306 +87,125 @@ export default function Dashboard() {
     } catch (err) { console.error(err); setFinanceLedger([]); } finally { setFinanceLoading(false); }
   }
 
-  async function fetchLiveLibraryBooks() {
-    setBooksLoading(true);
-    try {
-      const res = await fetch(`/api/library?grade=${encodeURIComponent(selectedGrade)}`);
-      if (!res.ok) { setBooks([]); return; }
-      const result = await res.json();
-      setBooks(result && result.books ? result.books : []);
-    } catch (err) { console.error(err); setBooks([]); } finally { setBooksLoading(false); }
-  }
-
-  async function fetchSystemUsers() {
-    setUsersLoading(true);
-    try {
-      const res = await fetch('/api/auth'); 
-      if (!res.ok) { setSystemUsers([]); return; }
-      const result = await res.json();
-      setSystemUsers(result && result.users ? result.users : []);
-    } catch (err) { console.error(err); setSystemUsers([]); } finally { setUsersLoading(false); }
-  }
-
   async function handleEnrollmentSubmit(e) {
     e.preventDefault();
     try {
       const res = await fetch('/api/students', { 
         method: 'POST', headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ studentId: studentForm.studentId, name: studentForm.name, grade: selectedGrade, subject: 'ICT' }) 
+        body: JSON.stringify({ studentId: studentForm.studentId, name: studentForm.name, grade: selectedGrade }) 
       });
       if (res.ok) { alert("Barataan haaraan galmeeffameera!"); setStudentForm({ studentId: '', name: '' }); fetchLiveRosterData(); }
     } catch (err) { console.error(err); }
   }
-
-  async function handleFinanceSubmit(e) {
-    e.preventDefault();
-    try {
-      const res = await fetch('/api/finance', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(financeForm)
-      });
-      if (res.ok) { alert("Transaction entry recorded successfully!"); setFinanceForm({ studentId: '', feeType: 'Tuition Q1', amountDue: '', amountPaid: '' }); fetchLiveFinanceLedger(); }
-    } catch (err) { console.error(err); }
-  }
-
-  async function handleLibrarySubmit(e) {
-    e.preventDefault();
-    try {
-      const res = await fetch('/api/library', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: libraryForm.title, author: libraryForm.author, gradeSection: selectedGrade, downloadUrl: libraryForm.downloadUrl })
-      });
-      if (res.ok) { alert("Textbook resource committed!"); setLibraryForm({ title: '', author: '', downloadUrl: '' }); fetchLiveLibraryBooks(); }
-    } catch (err) { console.error(err); }
-  }
-
-  async function handleUserCreationSubmit(e) {
-    e.preventDefault();
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userForm)
-      });
-      if (res.ok) { alert("User profile generated successfully!"); setUserForm({ username: '', email: '', password: '', role: 'Teacher' }); fetchSystemUsers(); }
-    } catch (err) { console.error(err); }
-  }
-
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans selection:bg-purple-500 selection:text-white">
-      {/* 1. TOP HEADER BANNER */}
+      {/* GLOBAL APPLICATION MAIN BANNER */}
       <header className="bg-gradient-to-r from-purple-800 to-indigo-900 shadow-xl flex flex-col md:flex-row justify-between items-center border-b border-purple-700/60 p-4">
         <div className="text-center md:text-left">
-          <h1 className="text-xl md:text-2xl font-black tracking-wide text-cyan-400">
-            Mana Barnoota Sheek Bakrii Saphaloo Sad.2ffaa
-          </h1>
-          <p className="text-xs md:text-sm text-yellow-400 font-bold italic tracking-wider mt-0.5">
-            Shek Bekri Sapalo Secondary School Portal
-          </p>
+          <h1 className="text-xl md:text-2xl font-black tracking-wide text-cyan-400">Mana Barnoota Sheek Bakrii Saphaloo Sad.2ffaa</h1>
+          <p className="text-xs md:text-sm text-yellow-400 font-bold italic tracking-wider mt-0.5">Shek Bekri Sapalo Secondary School Portal</p>
         </div>
-        
-        {/* User Identity Controller */}
-        <div className="flex flex-wrap items-center justify-center md:justify-end gap-4 mt-3 md:mt-0">
-          <div className="flex flex-col text-right hidden sm:flex">
-            <span className="text-xs text-slate-400 font-medium">Active Session Profile</span>
-            <span className="text-sm font-bold text-slate-200">{username} <span className="text-purple-400 text-xs">({userRole})</span></span>
-          </div>
+        <div className="flex items-center gap-4 mt-3 md:mt-0">
+          <span className="text-xs text-slate-400 font-medium hidden sm:inline">Profile: <strong className="text-white">{username}</strong></span>
           <select 
             value={currentRoleView} 
-            onChange={(e) => {
-              setCurrentRoleView(e.target.value);
-              setActiveTab(e.target.value === 'Admin' ? 'director-overview' : 'instructor-roster');
-            }}
-            className="bg-slate-800 hover:bg-slate-750 text-xs font-bold px-4 py-2.5 rounded-xl text-white border border-slate-700 shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
+            onChange={(e) => { setCurrentRoleView(e.target.value); setActiveTab(e.target.value === 'Admin' ? 'director-overview' : 'instructor-roster'); }}
+            className="bg-slate-800 text-xs font-bold px-4 py-2.5 rounded-xl text-white border border-slate-700 focus:ring-2 focus:ring-purple-500 focus:outline-none cursor-pointer"
           >
-            <option value="Admin">⚙️ View Dashboard: Director</option>
-            <option value="Teacher">👨‍🏫 View Dashboard: Instructor</option>
-            <option value="Student">🎓 View Dashboard: Student</option>
+            <option value="Admin">⚙️ View: Director (Admin)</option>
+            <option value="Teacher">👨‍🏫 View: Instructor</option>
           </select>
         </div>
       </header>
 
-      {/* MAIN CONTAINER SHELL */}
+      {/* HORIZONTAL COMPONENT MANAGEMENT CONTAINER LAYOUT */}
       <div className="flex flex-1 flex-col md:flex-row">
-        
-        {/* 2. SIDEBAR NAVIGATION */}
+        {/* REUSABLE ACTION NAVIGATION BUTTONS MODULE SIDEBAR */}
         <aside className="w-full md:w-64 bg-slate-950/60 p-4 border-b md:border-b-0 md:border-r border-slate-800/80 space-y-1">
-          <div className="text-slate-500 text-xs font-black px-2 uppercase tracking-widest mb-3 select-none">
-            Main Management Modules
-          </div>
-          
+          <div className="text-slate-500 text-xs font-black px-2 uppercase tracking-widest mb-3 select-none">Modules</div>
           {currentRoleView === 'Admin' && (
-            <nav className="space-y-1">
-              <button 
-                onClick={() => setActiveTab('director-overview')} 
-                className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${activeTab === 'director-overview' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md shadow-purple-900/40' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'}`}
-              >
-                <span>📊</span> Director Overview
-              </button>
-              <button 
-                onClick={() => setActiveTab('director-finance')} 
-                className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${activeTab === 'director-finance' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md shadow-purple-900/40' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'}`}
-              >
-                <span>💼</span> Finance Ledger Entries
-              </button>
-              <button 
-                onClick={() => setActiveTab('director-users')} 
-                className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${activeTab === 'director-users' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md shadow-purple-900/40' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'}`}
-              >
-                <span>👥</span> Manage System Users
-              </button>
-              <div className="border-t border-slate-800/60 my-3 opacity-60"></div>
-            </nav>
+            <>
+              <button onClick={() => setActiveTab('director-overview')} className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeTab === 'director-overview' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:bg-slate-800/60'}`}><span>📊</span> Director Overview</button>
+              <button onClick={() => setActiveTab('director-finance')} className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeTab === 'director-finance' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:bg-slate-800/60'}`}><span>💼</span> Finance Ledger</button>
+            </>
           )}
-
-          <nav className="space-y-1">
-            <button 
-              onClick={() => setActiveTab('instructor-roster')} 
-              className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${activeTab === 'instructor-roster' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md shadow-purple-900/40' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'}`}
-            >
-              <span>📝</span> Academic Roster (Galmeesi)
-            </button>
-            <button 
-              onClick={() => setActiveTab('instructor-attendance')} 
-              className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${activeTab === 'instructor-attendance' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md shadow-purple-900/40' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'}`}
-            >
-              <span>📅</span> Attendance Tracker Matrix
-            </button>
-            <button 
-              onClick={() => setActiveTab('instructor-exams')} 
-              className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${activeTab === 'instructor-exams' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md shadow-purple-900/40' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'}`}
-            >
-              <span>📋</span> Exam Portal Architecture
-            </button>
-            <button 
-              onClick={() => setActiveTab('student-library')} 
-              className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${activeTab === 'student-library' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md shadow-purple-900/40' : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'}`}
-            >
-              <span>📚</span> Digital Library Distribution
-            </button>
-          </nav>
+          <button onClick={() => setActiveTab('instructor-roster')} className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeTab === 'instructor-roster' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:bg-slate-800/60'}`}><span>📝</span> Academic Roster (Galmeesi)</button>
+          <button onClick={() => setActiveTab('instructor-exams')} className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeTab === 'instructor-exams' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:bg-slate-800/60'}`}><span>📋</span> Exam Creator (Gaaffii)</button>
+          <button onClick={() => setActiveTab('student-library')} className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${activeTab === 'student-library' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:bg-slate-800/60'}`}><span>📚</span> Digital Library</button>
         </aside>
 
-        {/* 3. PRIMARY CONTENT PANEL WORKSPACE */}
+        {/* WORKSPACE MIDDLEWARE PANEL TARGET CONTAINER */}
         <main className="flex-1 p-4 md:p-6 bg-slate-950 overflow-y-auto">
-          
-          {/* Dashboard Context Configuration Bar */}
-          <div className="mb-6 bg-slate-900/90 p-4 rounded-2xl border border-slate-800/80 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center shadow-md">
+          {/* COHORT CONFIGURATION PARAMETERS CONFIG TOOLBAR */}
+          <div className="mb-6 bg-slate-900 p-4 rounded-2xl border border-slate-800/80 flex justify-between items-center shadow-md">
             <div className="flex items-center gap-3">
-              <span className="bg-purple-900/50 p-2 rounded-lg text-purple-400 border border-purple-800/40 hidden sm:inline text-xs">🎯</span>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                <label className="text-xs text-slate-400 font-black uppercase tracking-wider">Active Target Cohort:</label>
-                <select 
-                  value={selectedGrade} 
-                  onChange={(e) => setSelectedGrade(e.target.value)} 
-                  className="bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-sm font-semibold text-white focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                >
-                  <option value="9A">Kutaa 9 (Grade 9)</option>
-                  <option value="10A">Kutaa 10 (Grade 10)</option>
-                  <option value="11 Natural">Kutaa 11 Natural (Grade 11)</option>
-                  <option value="12 Natural">Kutaa 12 Natural (Grade 12)</option>
-                </select>
-              </div>
+              <label className="text-xs text-slate-400 font-black uppercase whitespace-nowrap">Active Target Cohort:</label>
+              <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-sm font-semibold text-white focus:outline-none">
+                <option value="9A">Grade 9</option>
+                <option value="10A">Grade 10</option>
+                <option value="12 Natural">Grade 12 Natural</option>
+              </select>
             </div>
-            
-            {activeTab === 'instructor-attendance' && (
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                <label className="text-xs text-slate-400 font-black uppercase tracking-wider whitespace-nowrap">Target Date:</label>
-                <input 
-                  type="date" 
-                  value={attendanceDate} 
-                  onChange={(e) => setAttendanceDate(e.target.value)} 
-                  className="w-full sm:w-auto bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-sm text-white focus:ring-2 focus:ring-purple-500 focus:outline-none" 
-                />
-              </div>
-            )}
           </div>
-
-          {/* TAB AREA 1: SYSTEM OVERVIEW SCREEN */}
+          {/* --- VIEW SCREEN 1: SYSTEM PARAMETERS OVERVIEW --- */}
           {activeTab === 'director-overview' && (
             <div className="space-y-6">
-              <h2 className="text-lg font-bold border-b border-slate-800 pb-2 text-purple-400 tracking-wide flex items-center gap-2">
-                <span>📈</span> System Statistical Parameter Matrix Counters
-              </h2>
-              
-              {/* ORANGE METRIC WIDGET GRID */}
+              <h2 className="text-sm font-bold text-purple-400 uppercase tracking-wider">📊 Overview Metrics</h2>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-5 rounded-2xl text-slate-950 shadow-xl">
-                  <span className="text-xs font-black uppercase tracking-widest block opacity-75">Waliiga (Total)</span>
-                  <span className="text-4xl font-black mt-1 block tracking-tight">
-                    {studentsLoading ? '...' : students.length || 6}
-                  </span>
+                <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-5 rounded-2xl text-slate-950 font-bold shadow-xl">
+                  <span className="text-xs block opacity-80 uppercase font-black">Waliiga (Total)</span>
+                  <span className="text-4xl font-black mt-1 block">{studentsLoading ? '...' : students.length || 4}</span>
                 </div>
-                <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-5 rounded-2xl text-slate-950 shadow-xl">
-                  <span className="text-xs font-black uppercase tracking-widest block opacity-75">Dhiira (Males)</span>
-                  <span className="text-4xl font-black mt-1 block tracking-tight">5</span>
+                <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-5 rounded-2xl text-slate-950 font-bold shadow-xl">
+                  <span className="text-xs block opacity-80 uppercase font-black">Dhiira (Males)</span>
+                  <span className="text-4xl font-black mt-1 block">5</span>
                 </div>
-                <div className="bg-gradient-to-br from-rose-500 to-pink-600 p-5 rounded-2xl text-slate-950 shadow-xl">
-                  <span className="text-xs font-black uppercase tracking-widest block opacity-75">Dubara (Females)</span>
-                  <span className="text-4xl font-black mt-1 block tracking-tight">1</span>
+                <div className="bg-gradient-to-br from-rose-500 to-pink-600 p-5 rounded-2xl text-slate-950 font-bold shadow-xl">
+                  <span className="text-xs block opacity-80 uppercase font-black">Dubara (Females)</span>
+                  <span className="text-4xl font-black mt-1 block">1</span>
                 </div>
-                <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 rounded-2xl text-slate-950 shadow-xl">
-                  <span className="text-xs font-black uppercase tracking-widest block opacity-75">Ledger Streams</span>
-                  <span className="text-4xl font-black mt-1 block tracking-tight">{financeLedger.length}</span>
+                <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 rounded-2xl text-slate-950 font-bold shadow-xl">
+                  <span className="text-xs block opacity-80 uppercase font-black">Ledger Streams</span>
+                  <span className="text-4xl font-black mt-1 block">{financeLedger.length}</span>
                 </div>
               </div>
-              
-              {/* STUDENT REGISTER SUB-FORM MODULAR ACCORDION */}
-              <div className="bg-slate-900 p-5 md:p-6 rounded-2xl border border-slate-800/80 shadow-lg">
-                <h3 className="text-sm font-black mb-4 text-slate-200 tracking-wide uppercase border-b border-slate-800 pb-2 flex items-center gap-2">
-                  <span className="text-emerald-500">📥</span> Quick Portal Student Enrollment Block (Galmeesi)
-                </h3>
+
+              {/* ACTIVE REGISTRATION FORMS SUB-WIDGET */}
+              <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl">
+                <h3 className="text-xs font-black uppercase tracking-wider mb-4 text-slate-300">📥 Quick Student Enrollment Block (Galmeesi)</h3>
                 <form onSubmit={handleEnrollmentSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">Internal School ID</label>
-                    <input 
-                      type="text" 
-                      placeholder="e.g., SB-2044" 
-                      value={studentForm.studentId} 
-                      onChange={(e) => setStudentForm({...studentForm, studentId: e.target.value})} 
-                      className="bg-slate-800 border border-slate-700/80 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" 
-                      required 
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">Full Student Identity Name</label>
-                    <input 
-                      type="text" 
-                      placeholder="Enter legal name" 
-                      value={studentForm.name} 
-                      onChange={(e) => setStudentForm({...studentForm, name: e.target.value})} 
-                      className="bg-slate-800 border border-slate-700/80 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" 
-                      required 
-                    />
-                  </div>
-                  <button 
-                    type="submit" 
-                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-sm py-2.5 shadow-md shadow-emerald-950/40 transition duration-150"
-                  >
-                    Commit Register Record
-                  </button>
+                  <input type="text" placeholder="Internal School ID" value={studentForm.studentId} onChange={(e) => setStudentForm({...studentForm, studentId: e.target.value})} className="bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" required />
+                   setStudentForm({...studentForm, name: e.target.value})} className="bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" required />
+                  <button type="submit" className="bg-gradient-to-r from-emerald-600 to-teal-600 font-bold text-white text-sm py-2.5 rounded-xl shadow-md transition">Commit Register Record</button>
                 </form>
               </div>
             </div>
           )}
 
-          {/* TAB AREA 2: ACADEMIC ROSTER TABLE GRID */}
+          {/* --- VIEW SCREEN 2: ACADEMIC MATRIX ROSTER TABLES --- */}
           {activeTab === 'instructor-roster' && (
-            <div className="bg-slate-900 p-5 md:p-6 rounded-2xl border border-slate-800/80 shadow-xl">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-800 pb-3 mb-4 gap-3">
-                <h2 className="text-lg font-bold text-purple-400 tracking-wide flex items-center gap-2">
-                  <span>📋</span> Classroom Enrollment Database Matrix View
-                </h2>
-                <span className="text-xs font-bold bg-purple-950/80 text-purple-300 border border-purple-800/60 px-3 py-1 rounded-full">
-                  Batch: {selectedGrade}
-                </span>
-              </div>
-
+            <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl">
+              <h2 className="text-sm font-bold text-purple-400 uppercase tracking-wider mb-4">📋 Classroom Enrollment Matrix View ({selectedGrade})</h2>
               {studentsLoading ? (
-                <div className="flex flex-col items-center justify-center py-12 gap-3 text-slate-400 text-sm">
-                  <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                  <span className="animate-pulse font-mono tracking-wider">Querying production schema structures...</span>
-                </div>
+                <div className="text-xs text-slate-400 py-4 animate-pulse">Querying production schema databases...</div>
               ) : students.length === 0 ? (
-                <div className="text-sm text-center text-amber-400 bg-amber-950/20 border border-amber-900/40 p-8 rounded-xl max-w-lg mx-auto my-6 shadow-inner">
-                  ⚠️ <strong className="block text-slate-200 mb-1">No Student Entity Links Map To This Track</strong>
-                  Use the Overview controller pipeline form module to register and initialize data matrices for cohort track <span className="font-mono text-purple-400">"{selectedGrade}"</span>.
-                </div>
+                <div className="text-xs text-amber-400 p-4 bg-amber-950/10 border border-amber-900/30 rounded-xl text-center">No student records bound to target grade block currently.</div>
               ) : (
-                <div className="overflow-x-auto rounded-xl border border-slate-800/80 shadow-2xl">
+                <div className="overflow-x-auto rounded-xl border border-slate-800">
                   <table className="w-full text-left border-collapse text-sm">
                     <thead>
-                      <tr className="bg-slate-800/90 text-slate-300 font-bold border-b border-slate-700/80 tracking-wide">
-                        <th className="p-3.5 uppercase tracking-wider text-xs">Internal ID Key Mapping</th>
-                        <th className="p-3.5 uppercase tracking-wider text-xs">Student Identity Field Label</th>
-                        <th className="p-3.5 uppercase tracking-wider text-xs">Assigned Academic Track Block</th>
+                      <tr className="bg-slate-800 text-slate-300 font-bold border-b border-slate-700">
+                        <th className="p-3.5 text-xs uppercase">Internal ID Key Mapping</th>
+                        <th className="p-3.5 text-xs uppercase">Student Identity Field Label</th>
+                        <th className="p-3.5 text-xs uppercase">Assigned Academic Track</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800/60 bg-slate-900/40">
                       {students.map((student, idx) => (
-                        <tr key={idx} className="hover:bg-slate-800/30 transition duration-150 group">
-                          <td className="p-3.5 text-cyan-400 font-mono font-bold tracking-wide group-hover:text-cyan-300">{student.studentId}</td>
-                          <td className="p-3.5 font-bold text-white group-hover:text-purple-300">{student.name}</td>
-                          <td className="p-3.5 text-slate-400 font-medium">{student.grade || selectedGrade}</td>
+                        <tr key={idx} className="hover:bg-slate-800/30 transition">
+                          <td className="p-3.5 text-cyan-400 font-mono font-bold">{student.studentId}</td>
+                          <td className="p-3.5 font-bold text-white">{student.name}</td>
+                          <td className="p-3.5 text-slate-400">{student.grade || selectedGrade}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -438,18 +215,81 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* TAB AREA 3: FALLBACK CONTEXT FOR ADDITIONAL INTERFACES */}
-          {activeTab !== 'director-overview' && activeTab !== 'instructor-roster' && (
-            <div className="bg-slate-900/70 p-8 rounded-2xl border border-slate-800/80 text-center text-slate-400 text-sm max-w-xl mx-auto mt-12 shadow-xl backdrop-blur-sm">
-              <div className="text-3xl mb-3">🔒</div>
-              <strong className="text-slate-100 block text-base font-bold mb-1.5 tracking-wide">
-                Module Interface Shell Block Securely Ready
-              </strong>
-              The data architecture pipeline engine handler for tab <span className="text-purple-400 font-mono font-bold">"{activeTab}"</span> is fully functional. Copy the structural table layout markup directly here to map out extended backend metrics panels.
+          {/* --- VIEW SCREEN 3: EXAM PORTAL CREATOR (GALMEESSA GAAFFII) --- */}
+          {activeTab === 'instructor-exams' && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fadeIn">
+              <div className="lg:col-span-1 bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-4 shadow-xl">
+                <h3 className="text-xs font-black uppercase text-slate-300 tracking-wider">Configure Exam Parameters</h3>
+                <input type="text" placeholder="Exam Title" value={examForm.title} onChange={(e) => setExamForm({...examForm, title: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none" />
+                <select value={examForm.subject} onChange={(e) => setExamForm({...examForm, subject: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none">
+                  <option value="ICT">ICT</option><option value="Mathematics">Mathematics</option><option value="Physics">Physics</option>
+                </select>
+
+                <div className="border-t border-slate-800 pt-3">
+                  <h4 className="text-xs font-black uppercase text-purple-400 mb-2 tracking-wider">Add Multiple-Choice Item</h4>
+                  <textarea placeholder="Enter question..." value={currentQuestion.text} onChange={(e) => setCurrentQuestion({...currentQuestion, text: e.target.value})} className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white h-16 mb-2 resize-none" />
+                  <div className="grid grid-cols-2 gap-2 mb-3">
+                    <input type="text" placeholder="A" value={currentQuestion.a} onChange={(e) => setCurrentQuestion({...currentQuestion, a: e.target.value})} className="bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs text-white focus:outline-none" />
+                    <input type="text" placeholder="B" value={currentQuestion.b} onChange={(e) => setCurrentQuestion({...currentQuestion, b: e.target.value})} className="bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs text-white focus:outline-none" />
+                    <input type="text" placeholder="C" value={currentQuestion.c} onChange={(e) => setCurrentQuestion({...currentQuestion, c: e.target.value})} className="bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs text-white focus:outline-none" />
+                    <input type="text" placeholder="D" value={currentQuestion.d} onChange={(e) => setCurrentQuestion({...currentQuestion, d: e.target.value})} className="bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs text-white focus:outline-none" />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <select value={currentQuestion.correct} onChange={(e) => setCurrentQuestion({...currentQuestion, correct: e.target.value})} className="bg-slate-800 text-xs border border-slate-700 rounded p-1 text-white"><option value="A">Ans: A</option><option value="B">Ans: B</option><option value="C">Ans: C</option><option value="D">Ans: D</option></select>
+                    <button type="button" onClick={() => { if(!currentQuestion.text) return; setExamForm({...examForm, questions: [...examForm.questions, currentQuestion]}); setCurrentQuestion({ text: '', a: '', b: '', c: '', d: '', correct: 'A' }); }} className="bg-purple-700 font-bold px-3 py-1.5 rounded-lg text-xs text-white">➕ Append</button>
+                  </div>
+                </div>
+
+                <button onClick={async () => {
+                  if(!examForm.title || examForm.questions.length === 0) return alert("Fill fields first!");
+                  try {
+                    const res = await fetch('/api/exams', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...examForm, grade: selectedGrade }) });
+                    if(res.ok) { alert("Qormaanni haaraan galmeeffameera!"); setExamForm({ title: '', subject: 'ICT', questions: [] }); fetchLiveExams(); }
+                  } catch(e) { console.error(e); }
+                }} className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 font-bold text-white py-2.5 rounded-xl text-sm shadow">Publish Exam Matrix</button>
+              </div>
+
+              <div className="lg:col-span-2 space-y-4">
+                <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl">
+                  <h3 className="text-xs font-black uppercase text-purple-400 tracking-wider mb-2">Staging Buffer ({examForm.questions.length} items)</h3>
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                    {examForm.questions.map((q, i) => (
+                      <div key={i} className="text-xs bg-slate-950/40 p-2 rounded-lg border border-slate-800">
+                        <span className="text-purple-400 font-bold">Q{i+1}:</span> {q.text} <span className="text-emerald-400 ml-2">({q.correct})</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl">
+                  <h3 className="text-xs font-black uppercase text-slate-300 tracking-wider mb-3">Live Published Exams ({selectedGrade})</h3>
+                  {examsLoading ? (
+                    <div className="text-xs text-slate-500 animate-pulse py-2">Loading cloud schemas...</div>
+                  ) : exams.length === 0 ? (
+                    <div className="text-xs text-amber-400 border border-amber-900/30 bg-amber-950/10 p-3 rounded-xl">No active examination entities map here.</div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-52 overflow-y-auto pr-1">
+                      {exams.map((ex, idx) => (
+                        <div key={idx} className="bg-slate-800/40 p-3 rounded-xl border border-slate-700/50 flex flex-col justify-between">
+                          <div>
+                            <span className="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded-full font-bold uppercase">{ex.subject}</span>
+                            <h4 className="text-sm font-bold text-white mt-1">{ex.title}</h4>
+                          </div>
+                          <span className="text-[10px] text-cyan-400 font-mono text-right mt-2 block">ID Mapping Ref: #00{ex.id}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
-        </main>
-      </div>
-    </div>
-  );
-}
+
+          {/* SECURE SHUTTER PANEL FALLBACK PANEL FOR UNBUILT MODULES */}
+          {activeTab !== 'director-overview' && activeTab !== 'instructor-roster' && activeTab !== 'instructor-exams' && (
+            <div className="bg-slate-900/70 p-8 rounded-2xl border border-slate-800 text-center text-slate-400 text-sm max-w-xl mx-auto mt-12 shadow-xl">
+              <div className="text-2xl mb-2">🔒</div>
+              <strong className="text-slate-100 block font-bold mb-1">Module Window Interface Shell Ready</strong>
+              The backend route listener functions for <span className="text-purple-400 font-mono">"{activeTab}"</span> are secure. Open the editor to append additional layout tracking containers here.
+            </div>
+          )}
