@@ -156,7 +156,7 @@ export default function Dashboard() {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, 
         body: JSON.stringify({ studentId: studentForm.studentId, name: studentForm.name, grade: selectedGrade, subject: 'ICT' }) 
       });
-      if (res.ok) { alert("Barataan haaraan galmeeffameera!"); setStudentForm({ studentId: '', name: '' }); fetchLiveRosterData(); }
+      if (res.ok) { alert("Barataa haaraan galmeeffameera!"); setStudentForm({ studentId: '', name: '' }); fetchLiveRosterData(); }
     } catch (err) { console.error(err); }
   }
 
@@ -243,6 +243,7 @@ export default function Dashboard() {
     const a = document.createElement("a"); a.setAttribute("href", encodedUri); a.setAttribute("download", "sheek_bakri_revenue_ledger.csv");
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   }
+
   function triggerStudentReportCardPrint(student) {
     const pWin = window.open('', '_blank');
     pWin.document.write(`
@@ -278,7 +279,7 @@ export default function Dashboard() {
               <thead><tr><th style="text-align:left;">Assessment Component</th><th>Limit</th><th>Score Achieved</th></tr></thead>
               <tbody>
                 <tr><td>Continuous Assessment Test 1</td><td>10 Marks</td><td style="text-align:center;">\${student.test1 || 0}</td></tr>
-                <tr><td>Continuous Assessment Test 2</td><td>10 Marks</td><td style="text-align:center;">\ flats{student.test2 || 0}</td></tr>
+                <tr><td>Continuous Assessment Test 2</td><td>10 Marks</td><td style="text-align:center;">\${student.test2 || 0}</td></tr>
                 <tr><td>Practical Lab Assignment Work</td><td>20 Marks</td><td style="text-align:center;">\${student.assignment || 0}</td></tr>
                 <tr><td>Final Comprehensive Examination</td><td>60 Marks</td><td style="text-align:center;">\${student.finalExam || 0}</td></tr>
                 <tr class="total-row"><td>Cumulative Achievement Scale</td><td>100 Marks</td><td style="text-align:center; color:#10b981;">\${student.totalScore || 0} / 100</td></tr>
@@ -299,40 +300,44 @@ export default function Dashboard() {
     document.cookie = "userRole=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     window.location.href = '/login';
   }
-
   return (
     <div className="min-h-screen bg-[#0f172a] text-slate-100 p-6">
+      
+      {/* ENTERPRISE VIEW CONTROL PANEL HEADER */}
       <header className="max-w-6xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-700 pb-4 gap-4">
         <div>
           <h1 className="text-xl font-black text-white tracking-tight">SHEK BAKRI SECONDARY SCHOOL PORTAL</h1>
           <p className="text-[10px] text-brandGold font-mono uppercase tracking-widest">BAGA NAGAAN DHUFTAN // WELCOME: {username}</p>
         </div>
         
+        {/* INTERACTIVE PERSPECTIVE SWITCHER WIDGET */}
         <div className="flex flex-wrap items-center bg-[#1e293b] border border-slate-700 rounded-lg p-1 text-[11px] font-mono gap-1">
           <span className="text-slate-400 px-2 uppercase text-[9px] font-bold">Daawwannaa:</span>
+          
           {userRole && userRole.toUpperCase() === 'ADMIN' && (
             <button onClick={() => { setCurrentRoleView('Director'); setActiveTab('director-overview'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Director' ? 'bg-purple-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>👨‍💼 Daayirektara</button>
           )}
+          
           {(userRole && (userRole.toUpperCase() === 'TEACHER' || userRole.toUpperCase() === 'ADMIN')) && (
             <button onClick={() => { setCurrentRoleView('Instructor'); setActiveTab('instructor-roster'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Instructor' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>👩‍🏫 Barsiisaa</button>
           )}
+          
           <button onClick={() => { setCurrentRoleView('Student'); setActiveTab('student-transcript'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Student' ? 'bg-amber-600 text-black shadow' : 'text-slate-400 hover:text-white'}`}>🎒 Barataa</button>
+          
           <button onClick={handleLogoutSequence} className="ml-2 bg-red-950/40 border border-red-900 text-red-400 text-[10px] px-2 py-1 rounded">Ba’i</button>
         </div>
       </header>
+
       {/* DYNAMIC CONTEXTUAL NAVBAR */}
-      <nav className="max-w-6xl mx-auto mb-8 flex flex-wrap bg-slate-900/80 p-2 rounded-2xl border border-slate-800/60 gap-2 shadow-2xl backdrop-blur-md">
+      <nav className="max-w-6xl mx-auto mb-6 flex flex-wrap bg-[#1e293b] p-1 rounded-lg border border-slate-700 text-xs font-mono gap-1">
         {currentRoleView === 'Director' && (
           <>
-            <button onClick={() => setActiveTab('director-overview')} className={`flex-1 py-3 px-4 rounded-xl font-bold uppercase text-center text-xs transition-all duration-300 transform hover:scale-[1.02] ${activeTab === 'director-overview' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-900/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>📊 Fayyaalessa Hojii</button>
-            <button onClick={() => setActiveTab('director-finance')} className={`flex-1 py-3 px-4 rounded-xl font-bold uppercase text-center text-xs transition-all duration-300 transform hover:scale-[1.02] ${activeTab === 'director-finance' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-900/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>💳 Galmee Galii</button>
-            <button onClick={() => setActiveTab('director-users')} className={`flex-1 py-3 px-4 rounded-xl font-bold uppercase text-center text-xs transition-all duration-300 transform hover:scale-[1.02] ${activeTab === 'director-users' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-900/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>🔒 Galmee Barsiisotaa</button>
-            <button onClick={() => setActiveTab('system-settings')} className={`flex-1 py-3 px-4 rounded-xl font-bold uppercase text-center text-xs transition-all duration-300 transform hover:scale-[1.02] ${activeTab === 'system-settings' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-900/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>⚙️ Sirreeffama</button>
+            <button onClick={() => setActiveTab('director-overview')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-overview' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>📊 Fayyaalessa Hojii</button>
+            <button onClick={() => setActiveTab('director-finance')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-finance' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>💳 Galmee Galii</button>
+            <button onClick={() => setActiveTab('director-users')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-users' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>🔒 Galmee Barsiisotaa</button>
+            <button onClick={() => setActiveTab('system-settings')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'system-settings' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>⚙️ Sirreeffama</button>
           </>
         )}
-      </nav>
-
-      
         {currentRoleView === 'Instructor' && (
           <>
             <button onClick={() => setActiveTab('instructor-roster')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-roster' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📝 Kuusaa Qabxii</button>
@@ -353,6 +358,10 @@ export default function Dashboard() {
       </nav>
 
       <main className="max-w-6xl mx-auto">
+
+      
+        
+         
         {/* ROLE CONSOLE VIEW 1: EXECUTIVE DIRECTOR OVERVIEW */}
         {activeTab === 'director-overview' && (
           <div className="space-y-6 font-mono text-xs">
