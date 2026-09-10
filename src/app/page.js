@@ -3,10 +3,28 @@ import { useEffect, useState } from 'react';
 
 export default function Dashboard() {
   // Navigation & Multi-Role Perspective Console States
-  const [currentRoleView, setCurrentRoleView] = useState('Director'); // Options: 'Director', 'Instructor', 'Student'
-  const [activeTab, setActiveTab] = useState('director-overview'); // Maps contextual layout views
+  const [currentRoleView, setCurrentRoleView] = useState('Director'); 
+  const [activeTab, setActiveTab] = useState('director-overview'); 
   const [userRole, setUserRole] = useState('Admin'); 
   const [username, setUsername] = useState('Admin User');
+
+  // SYSTEM SETTINGS STATES (Haaraa)
+  const [systemSettings, setSystemSettings] = useState({
+    academicYear: '2019',
+    semester: 'Kurmaana 1ffaa',
+    maintenanceMode: false,
+    allowStudentLogin: true
+  });
+
+  // PROOFAYILII STATES (Haaraa)
+  const [activeProfile, setActiveProfile] = useState({
+    fullName: 'Sheek Bakri',
+    email: 'admin@school.edu',
+    phone: '+251 emergency services 000 000',
+    address: 'Saphaloo, Ciroo',
+    joinedDate: '2015-09-11',
+    bio: 'Mana Barnoota Sadarkaa 2ffaa Sheek Bakri Saphaloo.'
+  });
 
   // Student Section States
   const [selectedGrade, setSelectedGrade] = useState('12 Natural');
@@ -170,12 +188,7 @@ export default function Dashboard() {
       const res = await fetch('/api/auth', { 
         method: 'PUT', 
         headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({
-          username: userForm.username,
-          email: userForm.email,
-          password: userForm.password,
-          role: userForm.role
-        }) 
+        body: JSON.stringify({ username: userForm.username, email: userForm.email, password: userForm.password, role: userForm.role }) 
       });
       const data = await res.json();
       if (res.ok) { 
@@ -230,7 +243,6 @@ export default function Dashboard() {
     const a = document.createElement("a"); a.setAttribute("href", encodedUri); a.setAttribute("download", "sheek_bakri_revenue_ledger.csv");
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   }
-
   function triggerStudentReportCardPrint(student) {
     const pWin = window.open('', '_blank');
     pWin.document.write(`
@@ -266,7 +278,7 @@ export default function Dashboard() {
               <thead><tr><th style="text-align:left;">Assessment Component</th><th>Limit</th><th>Score Achieved</th></tr></thead>
               <tbody>
                 <tr><td>Continuous Assessment Test 1</td><td>10 Marks</td><td style="text-align:center;">\${student.test1 || 0}</td></tr>
-                <tr><td>Continuous Assessment Test 2</td><td>10 Marks</td><td style="text-align:center;">\${student.test2 || 0}</td></tr>
+                <tr><td>Continuous Assessment Test 2</td><td>10 Marks</td><td style="text-align:center;">\ flats{student.test2 || 0}</td></tr>
                 <tr><td>Practical Lab Assignment Work</td><td>20 Marks</td><td style="text-align:center;">\${student.assignment || 0}</td></tr>
                 <tr><td>Final Comprehensive Examination</td><td>60 Marks</td><td style="text-align:center;">\${student.finalExam || 0}</td></tr>
                 <tr class="total-row"><td>Cumulative Achievement Scale</td><td>100 Marks</td><td style="text-align:center; color:#10b981;">\${student.totalScore || 0} / 100</td></tr>
@@ -287,22 +299,21 @@ export default function Dashboard() {
     document.cookie = "userRole=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     window.location.href = '/login';
   }
+
   return (
     <div className="min-h-screen bg-[#0f172a] text-slate-100 p-6">
-      {/* ENTERPRISE VIEW CONTROL PANEL HEADER */}
       <header className="max-w-6xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-700 pb-4 gap-4">
         <div>
           <h1 className="text-xl font-black text-white tracking-tight">SHEK BAKRI SECONDARY SCHOOL PORTAL</h1>
           <p className="text-[10px] text-brandGold font-mono uppercase tracking-widest">BAGA NAGAAN DHUFTAN // WELCOME: {username}</p>
         </div>
         
-        {/* INTERACTIVE PERSPECTIVE SWITCHER WIDGET */}
         <div className="flex flex-wrap items-center bg-[#1e293b] border border-slate-700 rounded-lg p-1 text-[11px] font-mono gap-1">
           <span className="text-slate-400 px-2 uppercase text-[9px] font-bold">Daawwannaa:</span>
           {userRole && userRole.toUpperCase() === 'ADMIN' && (
             <button onClick={() => { setCurrentRoleView('Director'); setActiveTab('director-overview'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Director' ? 'bg-purple-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>👨‍💼 Daayirektara</button>
           )}
-          {userRole && (userRole.toUpperCase() === 'TEACHER' || userRole.toUpperCase() === 'ADMIN') && (
+          {(userRole && (userRole.toUpperCase() === 'TEACHER' || userRole.toUpperCase() === 'ADMIN')) && (
             <button onClick={() => { setCurrentRoleView('Instructor'); setActiveTab('instructor-roster'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Instructor' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>👩‍🏫 Barsiisaa</button>
           )}
           <button onClick={() => { setCurrentRoleView('Student'); setActiveTab('student-transcript'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Student' ? 'bg-amber-600 text-black shadow' : 'text-slate-400 hover:text-white'}`}>🎒 Barataa</button>
@@ -310,13 +321,13 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* DYNAMIC CONTEXTUAL NAVBAR */}
       <nav className="max-w-6xl mx-auto mb-6 flex flex-wrap bg-[#1e293b] p-1 rounded-lg border border-slate-700 text-xs font-mono gap-1">
         {currentRoleView === 'Director' && (
           <>
             <button onClick={() => setActiveTab('director-overview')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-overview' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>📊 Fayyaalessa Hojii</button>
             <button onClick={() => setActiveTab('director-finance')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-finance' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>💳 Galmee Galii</button>
             <button onClick={() => setActiveTab('director-users')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-users' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>🔒 Galmee Barsiisotaa</button>
+            <button onClick={() => setActiveTab('system-settings')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'system-settings' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>⚙️ Sirreeffama</button>
           </>
         )}
         {currentRoleView === 'Instructor' && (
@@ -325,6 +336,7 @@ export default function Dashboard() {
             <button onClick={() => setActiveTab('instructor-attendance')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-attendance' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📅 Hordoffii Hirmaannaa</button>
             <button onClick={() => setActiveTab('instructor-exams')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-exams' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📝 Qormaata Baasuu</button>
             <button onClick={() => setActiveTab('instructor-library')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-library' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📚 Kuusaa Kitaabaa</button>
+            <button onClick={() => setActiveTab('teacher-profile')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'teacher-profile' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>👤 Piroofayilii</button>
           </>
         )}
         {currentRoleView === 'Student' && (
@@ -332,11 +344,13 @@ export default function Dashboard() {
             <button onClick={() => setActiveTab('student-transcript')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'student-transcript' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>🎓 Teessoo Qabxii Koo</button>
             <button onClick={() => setActiveTab('student-exams')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'student-exams' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>📝 Wiirtuu Qormaataa</button>
             <button onClick={() => setActiveTab('student-library')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'student-library' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>📚 Kitaabbati Dijitaalaa</button>
+            <button onClick={() => setActiveTab('student-profile')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'student-profile' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>👤 Piroofayilii</button>
           </>
         )}
       </nav>
 
       <main className="max-w-6xl mx-auto">
+        {/* ROLE CONSOLE VIEW 1: EXECUTIVE DIRECTOR OVERVIEW */}
         {activeTab === 'director-overview' && (
           <div className="space-y-6 font-mono text-xs">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -352,6 +366,7 @@ export default function Dashboard() {
                   </svg>
                 </div>
               </div>
+
               <div className="bg-[#1e293b] p-5 rounded-xl border border-slate-700 flex flex-col justify-between shadow-xl">
                 <div>
                   <span className="text-slate-300 text-[10px] uppercase font-bold tracking-wider">Giddu-galeessa Qabxii ICT</span>
@@ -364,6 +379,7 @@ export default function Dashboard() {
                   </svg>
                 </div>
               </div>
+
               <div className="bg-[#1e293b] p-5 rounded-xl border border-slate-700 flex flex-col justify-between shadow-xl">
                 <div>
                   <span className="text-slate-300 text-[10px] uppercase font-bold tracking-wider">Reetii Darbiinsa Waliigalaa</span>
@@ -379,20 +395,35 @@ export default function Dashboard() {
             </div>
           </div>
         )}
+
+        {/* VIEW 2: DIRECTOR REVENUE LEDGER */}
         {activeTab === 'director-finance' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
-            <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 space-y-3">
+            <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 space-y-3 shadow-xl">
               <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Kaffaltii Galmeessi</h2>
+              
               {userRole === 'Admin' ? (
-                <form onSubmit={handleFinanceSubmit} className="space-y-2">
-                  <input type="text" placeholder="ID Barataa" value={financeForm.studentId} onChange={e => setFinanceForm({...financeForm, studentId: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded" required />
-                  <select value={financeForm.feeType} onChange={e => setFinanceForm({...financeForm, feeType: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded">
-                    <option value="Tuition Q1">Kaffaltii Kurmaana 1ffaa</option>
-                    <option value="Tuition Q2">Kaffaltii Kurmaana 2ffaa</option>
-                  </select>
-                  <input type="number" placeholder="Total Due" value={financeForm.amountDue} onChange={e => setFinanceForm({...financeForm, amountDue: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded" required />
-                  <input type="number" placeholder="Amount Paid" value={financeForm.amountPaid} onChange={e => setFinanceForm({...financeForm, amountPaid: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded" required />
-                  <button type="submit" className="w-full bg-purple-600 p-2 text-white font-bold rounded uppercase">Commit Dues</button>
+                <form onSubmit={handleFinanceSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1">ID Barataa</label>
+                    <input type="text" placeholder="e.g., SMS/001" value={financeForm.studentId} onChange={e => setFinanceForm({...financeForm, studentId: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-purple-500" required />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1">Ramaddii Kaffaltii</label>
+                    <select value={financeForm.feeType} onChange={e => setFinanceForm({...financeForm, feeType: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded cursor-pointer">
+                      <option value="Tuition Q1">Kaffaltii Kurmaana 1ffaa</option>
+                      <option value="Tuition Q2">Kaffaltii Kurmaana 2ffaa</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1">Idaa Waliigalaa</label>
+                    <input type="number" placeholder="Total Due" value={financeForm.amountDue} onChange={e => setFinanceForm({...financeForm, amountDue: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-purple-500" required />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1">Hanga Kaffalame</label>
+                    <input type="number" placeholder="Amount Paid" value={financeForm.amountPaid} onChange={e => setFinanceForm({...financeForm, amountPaid: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-purple-500" required />
+                  </div>
+                  <button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-2 rounded uppercase transition-colors">Commit Dues</button>
                 </form>
               ) : (
                 <div className="p-4 text-center text-red-400 bg-[#0f172a] border border-red-900/30 rounded-lg">
@@ -407,7 +438,7 @@ export default function Dashboard() {
                 <button onClick={triggerFinanceCSVExport} className="bg-purple-950/60 text-purple-400 px-2 py-1 rounded border border-purple-800 text-[10px] font-bold uppercase hover:bg-purple-900 transition-colors">📥 Sanada Baasi</button>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left">
+                <table className="w-full text-left whitespace-nowrap">
                   <thead>
                     <tr className="text-slate-400 text-[10px] uppercase border-b border-slate-700">
                       <th className="pb-2">ID Barataa</th>
@@ -439,6 +470,7 @@ export default function Dashboard() {
             </section>
           </div>
         )}
+        {/* VIEW 3: DIRECTOR FACULTY PROFILES */}
         {activeTab === 'director-users' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
             <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 h-fit space-y-3 shadow-xl">
@@ -488,6 +520,28 @@ export default function Dashboard() {
             </section>
           </div>
         )}
+
+        {/* SYSTEM CONFIGURATION CONTROL RADAR PANEL */}
+        {activeTab === 'system-settings' && (
+          <section className="bg-[#1e293b] border border-slate-700 rounded-2xl max-w-xl mx-auto p-6 font-mono text-xs space-y-4 shadow-2xl">
+            <h3 className="text-sm font-black text-purple-400 border-b border-slate-700 pb-2 uppercase tracking-wide">⚙️ Sirreeffama Sirnaa Waliigalaa</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[10px] text-slate-400 uppercase font-bold mb-1">Bara Barnootaa:</label>
+                <input type="text" value={systemSettings.academicYear} onChange={e => setSystemSettings({...systemSettings, academicYear: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 rounded p-2 text-white outline-none focus:border-purple-500 font-mono" />
+              </div>
+              <div>
+                <label className="block text-[10px] text-slate-400 uppercase font-bold mb-1">Kurmaana Barnootaa:</label>
+                <select value={systemSettings.semester} onChange={e => setSystemSettings({...systemSettings, semester: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 rounded p-2 text-white outline-none cursor-pointer">
+                  <option value="Semester 1">Kurmaana 1ffaa</option>
+                  <option value="Semester 2">Kurmaana 2ffaa</option>
+                </select>
+              </div>
+              <button onClick={() => alert("Settings saved successfully!")} className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded uppercase font-sans tracking-wide transition-colors">Save Settings</button>
+            </div>
+          </section>
+        )}
+        {/* VIEW 4: INSTRUCTOR GRADING SHEET MATRIX */}
         {activeTab === 'instructor-roster' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
             <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 h-fit space-y-3 shadow-xl">
@@ -502,6 +556,7 @@ export default function Dashboard() {
                 <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 p-2 text-white font-bold rounded uppercase transition-colors">Kuusi Galmeessi</button>
               </form>
             </section>
+
             <section className="lg:col-span-2 bg-[#1e293b] p-4 rounded-lg border border-slate-700 overflow-hidden shadow-xl">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-bold text-slate-200 text-xs">Galmee Qabxii Barattootaa</h3>
@@ -543,6 +598,8 @@ export default function Dashboard() {
             </section>
           </div>
         )}
+
+        {/* VIEW 5: INSTRUCTOR SESSION ATTENDANCE MATRIX */}
         {activeTab === 'instructor-attendance' && (
           <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 text-xs font-mono w-full shadow-xl">
             <div className="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
@@ -587,6 +644,7 @@ export default function Dashboard() {
             </div>
           </section>
         )}
+        {/* VIEW 6: INSTRUCTOR EXAMS MODULE */}
         {activeTab === 'instructor-exams' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
             <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 space-y-3 shadow-xl">
@@ -622,6 +680,8 @@ export default function Dashboard() {
             </section>
           </div>
         )}
+
+        {/* VIEW 7: INSTRUCTOR LIBRARY TEXTBOOK CATALOG */}
         {activeTab === 'instructor-library' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
             <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 space-y-3 shadow-xl">
@@ -660,6 +720,28 @@ export default function Dashboard() {
             </section>
           </div>
         )}
+        {/* 👤 TEACHER / BARSIISAA PROFILE VIEW */}
+        {activeTab === 'teacher-profile' && (
+          <section className="bg-[#1e293b] border border-slate-700 rounded-2xl max-w-xl mx-auto p-6 font-mono text-xs space-y-4 shadow-2xl">
+            <div className="flex items-center gap-4 border-b border-slate-700 pb-4">
+              <div className="text-3xl bg-[#0f172a] p-3 rounded-full border border-slate-700">👨‍🏫</div>
+              <div>
+                <h3 className="text-sm font-black text-white uppercase tracking-wide">{activeProfile.fullName}</h3>
+                <p className="text-[10px] text-purple-400 font-bold uppercase tracking-wider mt-0.5">Ramaddii: Barsiisaa Senior ICT</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-300">
+              <div className="bg-[#0f172a] p-3 rounded border border-slate-800"><strong>Imeelii:</strong> {activeProfile.email}</div>
+              <div className="bg-[#0f172a] p-3 rounded border border-slate-800"><strong>Bilbila:</strong> {activeProfile.phone}</div>
+              <div className="bg-[#0f172a] p-3 rounded border border-slate-800"><strong>Teessoo:</strong> {activeProfile.address}</div>
+              <div className="bg-[#0f172a] p-3 rounded border border-slate-800"><strong>Guyyaa Itti Seene:</strong> {activeProfile.joinedDate}</div>
+            </div>
+            <div className="bg-[#0f172a] p-3 rounded border border-slate-800 text-slate-400 leading-relaxed">
+              <strong>Waa&apos;ee Koo:</strong> {activeProfile.bio}
+            </div>
+          </section>
+        )}
+        {/* VIEW 8: STUDENT TRANSCRIPT ACCESSIBILITY */}
         {activeTab === 'student-transcript' && (
           <section className="bg-[#1e293b] p-5 rounded-xl border border-slate-700 font-mono text-xs max-w-3xl mx-auto space-y-4 shadow-xl">
             <div className="flex justify-between items-center border-b border-slate-700 pb-3">
@@ -703,6 +785,8 @@ export default function Dashboard() {
             </div>
           </section>
         )}
+
+        {/* VIEW 9: STUDENT EXAM TESTING PORTAL */}
         {activeTab === 'student-exams' && (
           <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 max-w-xl mx-auto font-mono text-xs shadow-xl">
             <h3 className="font-bold border-b border-slate-700 pb-2 mb-3 text-slate-200 uppercase text-xs">Interactive Testing Center</h3>
@@ -731,6 +815,7 @@ export default function Dashboard() {
             </div>
           </section>
         )}
+        {/* VIEW 10: STUDENT DIGITAL LIBRARY TEXTBOOKS INDEX */}
         {activeTab === 'student-library' && (
           <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 max-w-2xl mx-auto font-mono text-xs shadow-xl">
             <h3 className="font-bold border-b border-slate-700 pb-2 mb-3 text-slate-200 uppercase text-xs">Digital Textbook Library</h3>
@@ -753,6 +838,23 @@ export default function Dashboard() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </section>
+        )}
+
+        {/* 👤 STUDENT / BARATAA PROFILE VIEW */}
+        {activeTab === 'student-profile' && (
+          <section className="bg-[#1e293b] border border-slate-700 rounded-2xl max-w-xl mx-auto p-6 font-mono text-xs space-y-4 shadow-2xl">
+            <div className="flex items-center gap-4 border-b border-slate-700 pb-4">
+              <div className="text-3xl bg-[#0f172a] p-3 rounded-full border border-slate-700">🎓</div>
+              <div>
+                <h3 className="text-sm font-black text-white uppercase tracking-wide">{username}</h3>
+                <p className="text-[10px] text-amber-400 font-bold uppercase tracking-wider mt-0.5">Track: {selectedGrade} Student</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-300">
+              <div className="bg-[#0f172a] p-3 rounded border border-slate-800"><strong>Student Authorization ID:</strong> STU-ALPHA-01</div>
+              <div className="bg-[#0f172a] p-3 rounded border border-slate-800"><strong>Academic Track Status:</strong> Active Enrolled</div>
             </div>
           </section>
         )}
@@ -793,7 +895,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-
       {/* QUIZ SUBMISSION QUESTIONNAIRE MODAL OVERLAY */}
       {activeQuizExam && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 overflow-y-auto font-mono text-xs text-slate-100">
