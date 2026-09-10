@@ -320,16 +320,19 @@ export default function Dashboard() {
           <button onClick={handleLogoutSequence} className="ml-2 bg-red-950/40 border border-red-900 text-red-400 text-[10px] px-2 py-1 rounded">Ba’i</button>
         </div>
       </header>
-
-      <nav className="max-w-6xl mx-auto mb-6 flex flex-wrap bg-[#1e293b] p-1 rounded-lg border border-slate-700 text-xs font-mono gap-1">
+      {/* DYNAMIC CONTEXTUAL NAVBAR */}
+      <nav className="max-w-6xl mx-auto mb-8 flex flex-wrap bg-slate-900/80 p-2 rounded-2xl border border-slate-800/60 gap-2 shadow-2xl backdrop-blur-md">
         {currentRoleView === 'Director' && (
           <>
-            <button onClick={() => setActiveTab('director-overview')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-overview' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>📊 Fayyaalessa Hojii</button>
-            <button onClick={() => setActiveTab('director-finance')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-finance' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>💳 Galmee Galii</button>
-            <button onClick={() => setActiveTab('director-users')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-users' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>🔒 Galmee Barsiisotaa</button>
-            <button onClick={() => setActiveTab('system-settings')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'system-settings' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>⚙️ Sirreeffama</button>
+            <button onClick={() => setActiveTab('director-overview')} className={`flex-1 py-3 px-4 rounded-xl font-bold uppercase text-center text-xs transition-all duration-300 transform hover:scale-[1.02] ${activeTab === 'director-overview' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-900/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>📊 Fayyaalessa Hojii</button>
+            <button onClick={() => setActiveTab('director-finance')} className={`flex-1 py-3 px-4 rounded-xl font-bold uppercase text-center text-xs transition-all duration-300 transform hover:scale-[1.02] ${activeTab === 'director-finance' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-900/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>💳 Galmee Galii</button>
+            <button onClick={() => setActiveTab('director-users')} className={`flex-1 py-3 px-4 rounded-xl font-bold uppercase text-center text-xs transition-all duration-300 transform hover:scale-[1.02] ${activeTab === 'director-users' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-900/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>🔒 Galmee Barsiisotaa</button>
+            <button onClick={() => setActiveTab('system-settings')} className={`flex-1 py-3 px-4 rounded-xl font-bold uppercase text-center text-xs transition-all duration-300 transform hover:scale-[1.02] ${activeTab === 'system-settings' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-900/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>⚙️ Sirreeffama</button>
           </>
         )}
+      </nav>
+
+      
         {currentRoleView === 'Instructor' && (
           <>
             <button onClick={() => setActiveTab('instructor-roster')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-roster' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📝 Kuusaa Qabxii</button>
@@ -473,22 +476,35 @@ export default function Dashboard() {
         {/* VIEW 3: DIRECTOR FACULTY PROFILES */}
         {activeTab === 'director-users' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
-            <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 h-fit space-y-3 shadow-xl">
-              <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Eenyummaa Haaraa Banu</h2>
+                     <section className="bg-[#1e293b]/90 p-6 rounded-2xl border border-slate-800/80 space-y-4 shadow-2xl backdrop-blur-sm">
+              <h2 className="font-bold border-b border-slate-700/60 pb-2 text-white uppercase text-xs tracking-wider">Kaffaltii Galmeessi</h2>
+              
               {userRole === 'Admin' ? (
-                <form onSubmit={handleUserCreationSubmit} className="space-y-2">
-                  <input type="text" placeholder="Maqaa Fayyadamaa" value={userForm.username} onChange={e => setUserForm({...userForm, username: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-purple-500" required />
-                  <input type="email" placeholder="Imeelii" value={userForm.email} onChange={e => setUserForm({...userForm, email: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-purple-500" required />
-                  <input type="password" placeholder="Jecha Iccitii" value={userForm.password} onChange={e => setUserForm({...userForm, password: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-purple-500" required />
-                  <select value={userForm.role} onChange={e => setUserForm({...userForm, role: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded cursor-pointer">
-                    <option value="Teacher">Barsiisaa</option>
-                    <option value="Admin">Daayirektara (Admin)</option>
-                  </select>
-                  <button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-2 rounded uppercase transition-colors">Galmeessi</button>
+                <form onSubmit={handleFinanceSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1.5 tracking-wider">ID Barataa</label>
+                    <input type="text" placeholder="e.g., SMS/001" value={financeForm.studentId} onChange={e => setFinanceForm({...financeForm, studentId: e.target.value})} className="w-full bg-[#0a0f1d] border border-slate-700 p-2.5 text-white outline-none rounded-xl focus:border-purple-500 font-mono transition-all" required />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1.5 tracking-wider">Ramaddii Kaffaltii</label>
+                    <select value={financeForm.feeType} onChange={e => setFinanceForm({...financeForm, feeType: e.target.value})} className="w-full bg-[#0a0f1d] border border-slate-700 p-2.5 text-white outline-none rounded-xl cursor-pointer focus:border-purple-500 transition-all">
+                      <option value="Tuition Q1">Kaffaltii Kurmaana 1ffaa</option>
+                      <option value="Tuition Q2">Kaffaltii Kurmaana 2ffaa</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1.5 tracking-wider">Idaa Waliigalaa</label>
+                    <input type="number" placeholder="Total Due" value={financeForm.amountDue} onChange={e => setFinanceForm({...financeForm, amountDue: e.target.value})} className="w-full bg-[#0a0f1d] border border-slate-700 p-2.5 text-white outline-none rounded-xl focus:border-purple-500 transition-all" required />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1.5 tracking-wider">Hanga Kaffalame</label>
+                    <input type="number" placeholder="Amount Paid" value={financeForm.amountPaid} onChange={e => setFinanceForm({...financeForm, amountPaid: e.target.value})} className="w-full bg-[#0a0f1d] border border-slate-700 p-2.5 text-white outline-none rounded-xl focus:border-purple-500 transition-all" required />
+                  </div>
+                  <button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold p-3 rounded-xl uppercase tracking-wider transition-all duration-300 shadow-lg shadow-purple-900/20 transform hover:-translate-y-0.5">Commit Dues</button>
                 </form>
               ) : (
-                <div className="p-4 text-center text-red-400 bg-[#0f172a] border border-red-900/30 rounded-lg">
-                  ⚠️ Akeekkachiisa: Uunka kana fayyadamuuf aangoo Daayirektaraa (Admin) qabaachuu si barbaachisa.
+                <div className="p-4 text-center text-red-400 bg-[#0f172a] border border-red-900/30 rounded-xl font-mono text-[11px]">
+                  ⚠️ Akeekkachiisa: Uunka kaffaltii herregaa jijjiiruuf aangoo Daayirektaraa (Admin) qabaachuu si barbaachisa.
                 </div>
               )}
             </section>
@@ -859,19 +875,22 @@ export default function Dashboard() {
           </section>
         )}
       </main>
-      {/* FLOATING CONTEXT-AWARE CONVERSATIONAL ASSISTANT WIDGET */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <div className="bg-[#1e293b] border border-slate-700 shadow-2xl rounded-xl p-4 w-72 space-y-3 font-mono text-xs">
-          <div className="flex justify-between items-center border-b border-slate-700 pb-1.5">
-            <span className="font-bold text-emerald-400 animate-pulse">● Gargaaraa AI Dijitaalaa</span>
-            <span className="text-[10px] text-slate-500 uppercase tracking-widest">v3.3 Node</span>
+           {/* FLOATING CONTEXT-AWARE CONVERSATIONAL ASSISTANT WIDGET */}
+      <div className="fixed bottom-6 right-6 z-50 transform transition-all duration-300 hover:scale-[1.01]">
+        <div className="bg-[#1e293b]/95 border border-emerald-500/30 shadow-[0_0_25px_rgba(16,185,129,0.1)] rounded-2xl p-4 w-76 space-y-3 font-mono text-xs backdrop-blur-md">
+          <div className="flex justify-between items-center border-b border-slate-700/60 pb-2">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
+              <span className="font-bold text-emerald-400 tracking-wide">Gargaaraa AI Dijitaalaa</span>
+            </div>
+            <span className="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-bold">v3.3</span>
           </div>
-          <div className="h-32 overflow-y-auto bg-[#0f172a] p-2 rounded text-slate-300 space-y-1.5 text-[11px]" id="aiTerminalChatLog">
-            <p className="text-slate-500">// Sararri terminal amansiisaa dha.</p>
+          <div className="h-36 overflow-y-auto bg-[#0a0f1d] p-2.5 rounded-xl text-slate-300 space-y-2 text-[11px] leading-relaxed border border-slate-800/80 shadow-inner" id="aiTerminalChatLog">
+            <p className="text-slate-500 text-[10px]">// Sararri terminal amansiisaa dha.</p>
             <p className="text-emerald-400 font-bold">Gargaaraa AI:</p>
-            <p className="leading-relaxed">Akkam! Mana barumsaa keessan irratti har&apos;a maal si gargaaruu danda&apos;a?</p>
+            <p>Akkam! Mana barumsaa keessan irratti har&apos;a maal si gargaaruu danda&apos;a?</p>
           </div>
-          <div className="flex gap-1.5">
+          <div className="relative">
             <input 
               type="text" 
               placeholder="Gaaffii kee asitti barreessi..." 
@@ -890,11 +909,12 @@ export default function Dashboard() {
                   log.scrollTop = log.scrollHeight;
                 }
               }}
-              className="w-full bg-[#0f172a] border border-slate-700 rounded p-1.5 text-white outline-none text-[11px] focus:border-purple-500" 
+              className="w-full bg-[#0a0f1d] border border-slate-800 focus:border-emerald-500/50 rounded-xl p-2.5 text-white outline-none text-[11px] transition-all" 
             />
           </div>
         </div>
       </div>
+
       {/* QUIZ SUBMISSION QUESTIONNAIRE MODAL OVERLAY */}
       {activeQuizExam && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 overflow-y-auto font-mono text-xs text-slate-100">
