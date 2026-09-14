@@ -8,7 +8,7 @@ export default function Dashboard() {
   const [userRole, setUserRole] = useState('Admin'); 
   const [username, setUsername] = useState('Admin User');
 
-  // SYSTEM SETTINGS STATES (Haaraa)
+  // SYSTEM SETTINGS STATES
   const [systemSettings, setSystemSettings] = useState({
     academicYear: '2019',
     semester: 'Kurmaana 1ffaa',
@@ -16,7 +16,7 @@ export default function Dashboard() {
     allowStudentLogin: true
   });
 
-  // PROOFAYILII STATES (Haaraa)
+  // PROOFAYILII STATES
   const [activeProfile, setActiveProfile] = useState({
     fullName: 'Sheek Bakri',
     email: 'admin@school.edu',
@@ -63,12 +63,24 @@ export default function Dashboard() {
   const [systemUsers, setSystemUsers] = useState([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [userForm, setUserForm] = useState({ username: '', email: '', password: '', role: 'Teacher' });
+
+  // NEW CORE FEATURES: CLASS ROUTINE MATRIX DATA STATE
+  const [classSchedule, setClassSchedule] = useState([
+    { period: 'Period 1 (8:30 AM)', monday: 'ICT', tuesday: 'Mathematics', wednesday: 'ICT', thursday: 'Physics', friday: 'Chemistry' },
+    { period: 'Period 2 (9:30 AM)', monday: 'English', tuesday: 'Afan Oromo', wednesday: 'Biology', thursday: 'Mathematics', friday: 'History' },
+    { period: 'Period 3 (10:30 AM)', monday: 'Physics', tuesday: 'Chemistry', wednesday: 'English', thursday: 'Afan Oromo', friday: 'ICT' },
+  ]);
+
+  // NEW CORE FEATURES: PARENT MONITOR TRACKING STATE
+  const [parentStudentSearchId, setParentStudentSearchId] = useState('');
+  const [parentMonitoredStudent, setParentMonitoredStudent] = useState(null);
+
   // Cookieless Server Authentication Hook
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const getCookieValue = (name) => {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
+        const value = "; " + document.cookie;
+        const parts = value.split("; " + name + "=");
         if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
         return null;
       };
@@ -94,11 +106,11 @@ export default function Dashboard() {
     else if (activeTab === 'director-users') { fetchSystemUsers(); }
   }, [selectedGrade, activeTab, attendanceDate, currentRoleView]);
 
-  // REST API Pipeline Fetch Handlers
+  // API Pipelines
   async function fetchLiveRosterData() {
     setStudentsLoading(true);
     try {
-      const res = await fetch(`/api/students?grade=${encodeURIComponent(selectedGrade)}`);
+      const res = await fetch("/api/students?grade=" + encodeURIComponent(selectedGrade));
       const result = await res.json();
       setStudents(result.data || []);
     } catch (err) { console.error(err); } finally { setStudentsLoading(false); }
@@ -107,7 +119,7 @@ export default function Dashboard() {
   async function fetchLiveAttendanceRecords() {
     setAttendanceLoading(true);
     try {
-      const res = await fetch(`/api/attendance?grade=${encodeURIComponent(selectedGrade)}&date=${attendanceDate}`);
+      const res = await fetch("/api/attendance?grade=" + encodeURIComponent(selectedGrade) + "&date=" + attendanceDate);
       const result = await res.json();
       setAttendanceRecords(result.data || []);
     } catch (err) { console.error(err); } finally { setAttendanceLoading(false); }
@@ -116,7 +128,7 @@ export default function Dashboard() {
   async function fetchLiveExams() {
     setExamsLoading(true);
     try {
-      const res = await fetch(`/api/exams?grade=${encodeURIComponent(selectedGrade)}`);
+      const res = await fetch("/api/exams?grade=" + encodeURIComponent(selectedGrade));
       const result = await res.json();
       setExams(result.exams || []);
     } catch (err) { console.error(err); } finally { setExamsLoading(false); }
@@ -134,7 +146,7 @@ export default function Dashboard() {
   async function fetchLiveLibraryBooks() {
     setBooksLoading(true);
     try {
-      const res = await fetch(`/api/library?grade=${encodeURIComponent(selectedGrade)}`);
+      const res = await fetch("/api/library?grade=" + encodeURIComponent(selectedGrade));
       const result = await res.json();
       setBooks(result.books || []);
     } catch (err) { console.error(err); } finally { setBooksLoading(false); }
@@ -148,7 +160,8 @@ export default function Dashboard() {
       setSystemUsers(result.users || []);
     } catch (err) { console.error(err); } finally { setUsersLoading(false); }
   }
-  // Submission Form Event Handlers
+
+  // Submission Event Handlers
   async function handleEnrollmentSubmit(e) {
     e.preventDefault();
     try {
@@ -195,9 +208,7 @@ export default function Dashboard() {
         alert("Eenyummaa haaraa milkiin banameera!"); 
         setUserForm({ username: '', email: '', password: '', role: 'Teacher' }); 
         fetchSystemUsers(); 
-      } else {
-        alert("Dogoggora: " + data.error);
-      }
+      } else { alert("Dogoggora: " + data.error); }
     } catch (err) { console.error("Fashalaayeera:", err); }
   }
 
@@ -205,7 +216,7 @@ export default function Dashboard() {
     const num = Number(newScore);
     const maxLimits = { test1: 10, test2: 10, assignment: 20, finalExam: 60 };
     if (num > maxLimits[fieldName]) {
-      alert(`⚠️ Validation Rejected! Maximum allowed points score benchmark for ${fieldName} is exactly ${maxLimits[fieldName]} marks.`);
+      alert("⚠️ Validation Rejected! Maximum allowed points score benchmark for " + fieldName + " is exactly " + maxLimits[fieldName] + " marks.");
       return;
     }
     try {
@@ -238,7 +249,7 @@ export default function Dashboard() {
   function triggerFinanceCSVExport() {
     if (!financeLedger || financeLedger.length === 0) return alert("No active logs.");
     let csv = "data:text/csv;charset=utf-8,Student ID,Full Name,Category,Due,Paid,Status\n";
-    financeLedger.forEach(r => { csv += `${r.studentId},${r.name ? r.name.replace(/,/g, " ") : "Student"},${r.fee_type},${r.amount_due},${r.amount_paid},${r.payment_status}\n`; });
+    financeLedger.forEach(r => { csv += r.studentId + "," + (r.name ? r.name.replace(/,/g, " ") : "Student") + "," + r.fee_type + "," + r.amount_due + "," + r.amount_paid + "," + r.payment_status + "\n"; });
     const encodedUri = encodeURI(csv);
     const a = document.createElement("a"); a.setAttribute("href", encodedUri); a.setAttribute("download", "sheek_bakri_revenue_ledger.csv");
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
@@ -246,51 +257,7 @@ export default function Dashboard() {
 
   function triggerStudentReportCardPrint(student) {
     const pWin = window.open('', '_blank');
-    pWin.document.write(`
-      <html>
-        <head>
-          <title>Certificate - \${student.name}</title>
-          <style>
-            body { font-family: 'Share Tech Mono', monospace; padding: 20px; background: #fafafa; color: #1e293b; }
-            .cert-border { border: 6px double #1e3a8a; padding: 30px; background: #ffffff; max-width: 800px; margin: auto; }
-            .header-block { font-family: 'Cinzel', serif; font-size: 24px; color: #1e3a8a; text-align: center; }
-            .sub-title { font-size: 13px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 20px; text-align: center; text-transform: uppercase; font-weight: bold; color: #475569; }
-            .meta-grid { display: grid; grid-template-cols: 1fr 1fr; gap: 15px; margin: 20px 0; background: #f8fafc; padding: 15px; border-radius: 6px; font-size: 13px; }
-            .tbl { width: 100%; border-collapse: collapse; margin: 20px 0; }
-            .tbl th { background: #1e3a8a; color: #ffffff; padding: 8px; font-size: 11px; text-transform: uppercase; }
-            .tbl td { border: 1px solid #cbd5e1; padding: 8px; }
-            .total-row { font-weight: bold; background: #f1f5f9; }
-            .sig-area { display: flex; justify-content: space-between; margin-top: 50px; font-size: 11px; }
-            .sig-line { border-top: 1px solid #475569; width: 200px; text-align: center; padding-top: 4px; }
-          </style>
-        </head>
-        <body>
-          <div class="cert-border">
-            <div class="header-block">SHEEK BAKRI SECONDARY SCHOOL</div>
-            <div style="text-align:center; font-size:10px; color:#b45309; text-transform:uppercase; letter-spacing:1px; margin-bottom:15px;">Knowledge is the foundation of progress</div>
-            <div class="sub-title">Official Student Performance Certificate</div>
-            <div class="meta-grid">
-              <div><strong>Student Name:</strong> \${student.name}</div>
-              <div><strong>Student ID:</strong> \${student.studentId}</div>
-              <div><strong>Grade Track:</strong> \${selectedGrade}</div>
-              <div><strong>Subject:</strong> \${student.subject || 'ICT'}</div>
-            </div>
-            <table class="tbl">
-              <thead><tr><th style="text-align:left;">Assessment Component</th><th>Limit</th><th>Score Achieved</th></tr></thead>
-              <tbody>
-                <tr><td>Continuous Assessment Test 1</td><td>10 Marks</td><td style="text-align:center;">\${student.test1 || 0}</td></tr>
-                <tr><td>Continuous Assessment Test 2</td><td>10 Marks</td><td style="text-align:center;">\${student.test2 || 0}</td></tr>
-                <tr><td>Practical Lab Assignment Work</td><td>20 Marks</td><td style="text-align:center;">\${student.assignment || 0}</td></tr>
-                <tr><td>Final Comprehensive Examination</td><td>60 Marks</td><td style="text-align:center;">\${student.finalExam || 0}</td></tr>
-                <tr class="total-row"><td>Cumulative Achievement Scale</td><td>100 Marks</td><td style="text-align:center; color:#10b981;">\${student.totalScore || 0} / 100</td></tr>
-              </tbody>
-            </table>
-            <div class="sig-area"><div class="sig-line">Instructor Signature</div><div class="sig-line">Directorate Seal</div></div>
-          </div>
-          <script>window.print();</script>
-        </body>
-      </html>
-    `);
+    pWin.document.write("<html><head><title>Certificate - " + student.name + "</title></head><body style='font-family:monospace; padding:30px;'><h2>SHEEK BAKRI SECONDARY SCHOOL CERTIFICATE</h2><hr/><p><strong>Student:</strong> " + student.name + " (" + student.studentId + ")</p><p><strong>Total Marks Accumulated:</strong> " + (student.totalScore || 0) + " / 100</p><script>window.print();</script></body></html>");
     pWin.document.close();
   }
 
@@ -300,6 +267,7 @@ export default function Dashboard() {
     document.cookie = "userRole=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     window.location.href = '/login';
   }
+
   return (
     <div className="min-h-screen bg-[#0f172a] text-slate-100 p-6">
       
@@ -307,22 +275,25 @@ export default function Dashboard() {
       <header className="max-w-6xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-700 pb-4 gap-4">
         <div>
           <h1 className="text-xl font-black text-white tracking-tight">SHEK BAKRI SECONDARY SCHOOL PORTAL</h1>
-          <p className="text-[10px] text-brandGold font-mono uppercase tracking-widest">BAGA NAGAAN DHUFTAN // WELCOME: {username}</p>
+          <p className="text-[10px] text-amber-500 font-mono uppercase tracking-widest">BAGA NAGAAN DHUFTAN // WELCOME: {username}</p>
         </div>
         
-        {/* INTERACTIVE PERSPECTIVE SWITCHER WIDGET */}
+        {/* INTERACTIVE MULTI-ROLE PERSPECTIVE NAVIGATION SWITCHER */}
         <div className="flex flex-wrap items-center bg-[#1e293b] border border-slate-700 rounded-lg p-1 text-[11px] font-mono gap-1">
           <span className="text-slate-400 px-2 uppercase text-[9px] font-bold">Daawwannaa:</span>
           
           {userRole && userRole.toUpperCase() === 'ADMIN' && (
-            <button onClick={() => { setCurrentRoleView('Director'); setActiveTab('director-overview'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Director' ? 'bg-purple-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>👨‍💼 Daayirektara</button>
+            <button onClick={() => { setCurrentRoleView('Director'); setActiveTab('director-overview'); }} className={"px-2.5 py-1 rounded transition-all font-bold " + (currentRoleView === 'Director' ? 'bg-purple-600 text-white shadow' : 'text-slate-400 hover:text-white')}>👨‍💼 Daayirektara</button>
           )}
           
           {(userRole && (userRole.toUpperCase() === 'TEACHER' || userRole.toUpperCase() === 'ADMIN')) && (
-            <button onClick={() => { setCurrentRoleView('Instructor'); setActiveTab('instructor-roster'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Instructor' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>👩‍🏫 Barsiisaa</button>
+            <button onClick={() => { setCurrentRoleView('Instructor'); setActiveTab('instructor-roster'); }} className={"px-2.5 py-1 rounded transition-all font-bold " + (currentRoleView === 'Instructor' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white')}>👩‍🏫 Barsiisaa</button>
           )}
           
-          <button onClick={() => { setCurrentRoleView('Student'); setActiveTab('student-transcript'); }} className={`px-2.5 py-1 rounded transition-all font-bold ${currentRoleView === 'Student' ? 'bg-amber-600 text-black shadow' : 'text-slate-400 hover:text-white'}`}>🎒 Barataa</button>
+          <button onClick={() => { setCurrentRoleView('Student'); setActiveTab('student-transcript'); }} className={"px-2.5 py-1 rounded transition-all font-bold " + (currentRoleView === 'Student' ? 'bg-amber-600 text-black shadow' : 'text-slate-400 hover:text-white')}>🎒 Barataa</button>
+          
+          {/* NEW ACCOUNT PERSPECTIVE INTERACTIVE TRIGGER NODE */}
+          <button onClick={() => { setCurrentRoleView('Parent'); setActiveTab('parent-monitor'); }} className={"px-2.5 py-1 rounded transition-all font-bold " + (currentRoleView === 'Parent' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white')}>👪 Haadha/Abbaa</button>
           
           <button onClick={handleLogoutSequence} className="ml-2 bg-red-950/40 border border-red-900 text-red-400 text-[10px] px-2 py-1 rounded">Ba’i</button>
         </div>
@@ -332,37 +303,40 @@ export default function Dashboard() {
       <nav className="max-w-6xl mx-auto mb-6 flex flex-wrap bg-[#1e293b] p-1 rounded-lg border border-slate-700 text-xs font-mono gap-1">
         {currentRoleView === 'Director' && (
           <>
-            <button onClick={() => setActiveTab('director-overview')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-overview' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>📊 Fayyaalessa Hojii</button>
-            <button onClick={() => setActiveTab('director-finance')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-finance' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>💳 Galmee Galii</button>
-            <button onClick={() => setActiveTab('director-users')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'director-users' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>🔒 Galmee Barsiisotaa</button>
-            <button onClick={() => setActiveTab('system-settings')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'system-settings' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}>⚙️ Sirreeffama</button>
+            <button onClick={() => setActiveTab('director-overview')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'director-overview' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white')}>📊 Fayyaalessa Hojii</button>
+            <button onClick={() => setActiveTab('director-finance')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'director-finance' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white')}>💳 Galmee Galii</button>
+            <button onClick={() => setActiveTab('director-users')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'director-users' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white')}>🔒 Galmee Barsiisotaa</button>
+            <button onClick={() => setActiveTab('system-settings')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'system-settings' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white')}>⚙️ Sirreeffama</button>
           </>
         )}
         {currentRoleView === 'Instructor' && (
           <>
-            <button onClick={() => setActiveTab('instructor-roster')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-roster' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📝 Kuusaa Qabxii</button>
-            <button onClick={() => setActiveTab('instructor-attendance')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-attendance' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📅 Hordoffii Hirmaannaa</button>
-            <button onClick={() => setActiveTab('instructor-exams')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-exams' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📝 Qormaata Baasuu</button>
-            <button onClick={() => setActiveTab('instructor-library')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'instructor-library' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>📚 Kuusaa Kitaabaa</button>
-            <button onClick={() => setActiveTab('teacher-profile')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'teacher-profile' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>👤 Piroofayilii</button>
+            <button onClick={() => setActiveTab('instructor-roster')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'instructor-roster' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white')}>📝 Kuusaa Qabxii</button>
+            <button onClick={() => setActiveTab('instructor-attendance')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'instructor-attendance' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white')}>📅 Hordoffii Hirmaannaa</button>
+            <button onClick={() => setActiveTab('instructor-exams')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'instructor-exams' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white')}>📝 Qormaata Baasuu</button>
+            <button onClick={() => setActiveTab('instructor-library')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'instructor-library' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white')}>📚 Kuusaa Kitaabaa</button>
+            <button onClick={() => setActiveTab('teacher-profile')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'teacher-profile' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white')}>👤 Piroofayilii</button>
           </>
         )}
         {currentRoleView === 'Student' && (
           <>
-            <button onClick={() => setActiveTab('student-transcript')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'student-transcript' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>🎓 Teessoo Qabxii Koo</button>
-            <button onClick={() => setActiveTab('student-exams')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'student-exams' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>📝 Wiirtuu Qormaataa</button>
-            <button onClick={() => setActiveTab('student-library')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'student-library' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>📚 Kitaabbati Dijitaalaa</button>
-            <button onClick={() => setActiveTab('student-profile')} className={`flex-1 py-2 rounded font-bold uppercase text-center ${activeTab === 'student-profile' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white'}`}>👤 Piroofayilii</button>
+            <button onClick={() => setActiveTab('student-transcript')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'student-transcript' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white')}>🎓 Teessoo Qabxii Koo</button>
+            <button onClick={() => setActiveTab('student-exams')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'student-exams' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white')}>📝 Wiirtuu Qormaataa</button>
+            <button onClick={() => setActiveTab('student-library')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'student-library' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white')}>📚 Kitaabbati Dijitaalaa</button>
+            <button onClick={() => setActiveTab('class-schedule')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'class-schedule' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white')}>📅 Sagantaa Daree</button>
+            <button onClick={() => setActiveTab('student-profile')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'student-profile' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white')}>👤 Piroofayilii</button>
+          </>
+        )}
+        {currentRoleView === 'Parent' && (
+          <>
+            <button onClick={() => setActiveTab('parent-monitor')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'parent-monitor' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white')}>🔍 Hordoffii Barataa</button>
+            <button onClick={() => setActiveTab('class-schedule')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'class-schedule' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white')}>📅 Sagantaa Daree</button>
           </>
         )}
       </nav>
 
       <main className="max-w-6xl mx-auto">
-
-      
-        
-         
-        {/* ROLE CONSOLE VIEW 1: EXECUTIVE DIRECTOR OVERVIEW */}
+        {/* VIEW 1: EXECUTIVE DIRECTOR OVERVIEW WITH METRIC ANALYTICAL BARS */}
         {activeTab === 'director-overview' && (
           <div className="space-y-6 font-mono text-xs">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -405,20 +379,42 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
+
+            {/* UPGRADED FINANCE ANALYTICS PROGRESS SEGMENTATION BLOCKS */}
+            <div className="space-y-4 bg-[#1e293b] p-6 rounded-xl border border-slate-700 shadow-xl">
+              <h3 className="font-bold text-white uppercase text-xs">📊 Giddu-galeessa Kaffaltii (Fee Collection Breakdown)</h3>
+              <div className="space-y-1">
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-slate-300">Kaffaltii Kurmaana 1ffaa (Tuition Q1 Targets)</span>
+                  <span className="text-emerald-400 font-bold">82% Recouped</span>
+                </div>
+                <div className="w-full h-3 bg-[#0f172a] rounded-full overflow-hidden border border-slate-800">
+                  <div className="h-full bg-gradient-to-r from-emerald-600 to-green-400" style={{ width: '82%' }}></div>
+                </div>
+              </div>
+              <div className="space-y-1 pt-2">
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-slate-300">Kaffaltii Galmeessaa & Kitaabaa (Registration Extra Fees)</span>
+                  <span className="text-blue-400 font-bold">55% Recouped</span>
+                </div>
+                <div className="w-full h-3 bg-[#0f172a] rounded-full overflow-hidden border border-slate-800">
+                  <div className="h-full bg-gradient-to-r from-blue-600 to-indigo-400" style={{ width: '55%' }}></div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* VIEW 2: DIRECTOR REVENUE LEDGER */}
+        {/* VIEW 2: REVENUE DATA MANAGEMENT */}
         {activeTab === 'director-finance' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
             <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 space-y-3 shadow-xl">
               <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Kaffaltii Galmeessi</h2>
-              
               {userRole === 'Admin' ? (
                 <form onSubmit={handleFinanceSubmit} className="space-y-4">
                   <div>
                     <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1">ID Barataa</label>
-                    <input type="text" placeholder="e.g., SMS/001" value={financeForm.studentId} onChange={e => setFinanceForm({...financeForm, studentId: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-purple-500" required />
+                    <input type="text" value={financeForm.studentId} onChange={e => setFinanceForm({...financeForm, studentId: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded" required />
                   </div>
                   <div>
                     <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1">Ramaddii Kaffaltii</label>
@@ -429,113 +425,36 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1">Idaa Waliigalaa</label>
-                    <input type="number" placeholder="Total Due" value={financeForm.amountDue} onChange={e => setFinanceForm({...financeForm, amountDue: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-purple-500" required />
+                    <input type="number" value={financeForm.amountDue} onChange={e => setFinanceForm({...financeForm, amountDue: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded" required />
                   </div>
                   <div>
                     <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1">Hanga Kaffalame</label>
-                    <input type="number" placeholder="Amount Paid" value={financeForm.amountPaid} onChange={e => setFinanceForm({...financeForm, amountPaid: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-purple-500" required />
+                    <input type="number" value={financeForm.amountPaid} onChange={e => setFinanceForm({...financeForm, amountPaid: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded" required />
                   </div>
-                  <button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-2 rounded uppercase transition-colors">Commit Dues</button>
+                  <button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-2 rounded uppercase">Commit Dues</button>
                 </form>
               ) : (
-                <div className="p-4 text-center text-red-400 bg-[#0f172a] border border-red-900/30 rounded-lg">
-                  ⚠️ Akeekkachiisa: Uunka kaffaltii herregaa jijjiiruuf aangoo Daayirektaraa (Admin) qabaachuu si barbaachisa.
-                </div>
+                <div className="p-4 text-center text-red-400 bg-[#0f172a] border border-red-900/30 rounded-lg">⚠️ Admin authorization layer required.</div>
               )}
             </section>
             
             <section className="lg:col-span-2 bg-[#1e293b] p-4 rounded-lg border border-slate-700 shadow-xl">
               <div className="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
                 <h3 className="font-bold text-slate-200 text-xs">Galmee Herregaa Waliigalaa</h3>
-                <button onClick={triggerFinanceCSVExport} className="bg-purple-950/60 text-purple-400 px-2 py-1 rounded border border-purple-800 text-[10px] font-bold uppercase hover:bg-purple-900 transition-colors">📥 Sanada Baasi</button>
+                <button onClick={triggerFinanceCSVExport} className="bg-purple-950/60 text-purple-400 px-2 py-1 rounded border border-purple-800 text-[10px] font-bold uppercase">📥 Sanada Baasi</button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left whitespace-nowrap">
                   <thead>
-                    <tr className="text-slate-400 text-[10px] uppercase border-b border-slate-700">
-                      <th className="pb-2">ID Barataa</th>
-                      <th>Maqaa</th>
-                      <th>Ramaddii</th>
-                      <th>Idaa</th>
-                      <th>Kaffalame</th>
-                      <th className="text-right">Haala Kaffaltii</th>
-                    </tr>
+                    <tr className="text-slate-400 text-[10px] uppercase border-b border-slate-700"><th className="pb-2">ID Barataa</th><th>Maqaa</th><th>Ramaddii</th><th>Idaa</th><th>Kaffalame</th><th className="text-right">Haala Kaffaltii</th></tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800 text-slate-300">
                     {financeLedger.map((f, idx) => (
-                      <tr key={idx} className="hover:bg-slate-900/20">
+                      <tr key={idx}>
                         <td className="py-2.5 font-bold text-purple-400">{f.studentId}</td>
-                        <td>{f.name}</td>
-                        <td>{f.fee_type}</td>
-                        <td>ETB {f.amount_due}</td>
-                        <td>ETB {f.amount_paid}</td>
+                        <td>{f.name}</td><td>{f.fee_type}</td><td>ETB {f.amount_due}</td><td>ETB {f.amount_paid}</td>
                         <td className="text-right">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${f.payment_status === 'Paid' ? 'border-emerald-800 text-emerald-400 bg-emerald-950/20' : 'border-amber-800 text-amber-400 bg-amber-950/20'}`}>
-                            {f.payment_status === 'Paid' ? 'Kaffalameera' : 'Hanga Tokko'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </div>
-        )}
-        {/* VIEW 3: DIRECTOR FACULTY PROFILES */}
-        {activeTab === 'director-users' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
-                     <section className="bg-[#1e293b]/90 p-6 rounded-2xl border border-slate-800/80 space-y-4 shadow-2xl backdrop-blur-sm">
-              <h2 className="font-bold border-b border-slate-700/60 pb-2 text-white uppercase text-xs tracking-wider">Kaffaltii Galmeessi</h2>
-              
-              {userRole === 'Admin' ? (
-                <form onSubmit={handleFinanceSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1.5 tracking-wider">ID Barataa</label>
-                    <input type="text" placeholder="e.g., SMS/001" value={financeForm.studentId} onChange={e => setFinanceForm({...financeForm, studentId: e.target.value})} className="w-full bg-[#0a0f1d] border border-slate-700 p-2.5 text-white outline-none rounded-xl focus:border-purple-500 font-mono transition-all" required />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1.5 tracking-wider">Ramaddii Kaffaltii</label>
-                    <select value={financeForm.feeType} onChange={e => setFinanceForm({...financeForm, feeType: e.target.value})} className="w-full bg-[#0a0f1d] border border-slate-700 p-2.5 text-white outline-none rounded-xl cursor-pointer focus:border-purple-500 transition-all">
-                      <option value="Tuition Q1">Kaffaltii Kurmaana 1ffaa</option>
-                      <option value="Tuition Q2">Kaffaltii Kurmaana 2ffaa</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1.5 tracking-wider">Idaa Waliigalaa</label>
-                    <input type="number" placeholder="Total Due" value={financeForm.amountDue} onChange={e => setFinanceForm({...financeForm, amountDue: e.target.value})} className="w-full bg-[#0a0f1d] border border-slate-700 p-2.5 text-white outline-none rounded-xl focus:border-purple-500 transition-all" required />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1.5 tracking-wider">Hanga Kaffalame</label>
-                    <input type="number" placeholder="Amount Paid" value={financeForm.amountPaid} onChange={e => setFinanceForm({...financeForm, amountPaid: e.target.value})} className="w-full bg-[#0a0f1d] border border-slate-700 p-2.5 text-white outline-none rounded-xl focus:border-purple-500 transition-all" required />
-                  </div>
-                  <button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold p-3 rounded-xl uppercase tracking-wider transition-all duration-300 shadow-lg shadow-purple-900/20 transform hover:-translate-y-0.5">Commit Dues</button>
-                </form>
-              ) : (
-                <div className="p-4 text-center text-red-400 bg-[#0f172a] border border-red-900/30 rounded-xl font-mono text-[11px]">
-                  ⚠️ Akeekkachiisa: Uunka kaffaltii herregaa jijjiiruuf aangoo Daayirektaraa (Admin) qabaachuu si barbaachisa.
-                </div>
-              )}
-            </section>
-            
-            <section className="lg:col-span-2 bg-[#1e293b] p-4 rounded-lg border border-slate-700 shadow-xl">
-              <h3 className="font-bold border-b border-slate-700 pb-2 mb-3 text-slate-200 text-xs">Galmee Piroofayilii Hojjattootaa</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left whitespace-nowrap">
-                  <thead>
-                    <tr className="text-slate-400 text-[10px] uppercase border-b border-slate-700">
-                      <th className="pb-2">Maqaa Eenyummaa</th>
-                      <th>Karaa Imeelii</th>
-                      <th className="text-right">Aangoo Hayyamaa</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800 text-slate-300">
-                    {systemUsers.map((user, idx) => (
-                      <tr key={idx} className="hover:bg-slate-900/40">
-                        <td className="py-2.5 font-semibold text-slate-200">{user.username}</td>
-                        <td>{user.email}</td>
-                        <td className="text-right font-bold text-purple-400">
-                          {user.role === 'Admin' ? 'Bulchaa' : 'Barsiisaa'}
+                          <span className={"px-2 py-0.5 rounded text-[10px] font-bold border " + (f.payment_status === 'Paid' ? 'border-emerald-800 text-emerald-400 bg-emerald-950/20' : 'border-amber-800 text-amber-400 bg-amber-950/20')}>{f.payment_status === 'Paid' ? 'Kaffalameera' : 'Hanga Tokko'}</span>
                         </td>
                       </tr>
                     ))}
@@ -546,75 +465,44 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* SYSTEM CONFIGURATION CONTROL RADAR PANEL */}
-        {activeTab === 'system-settings' && (
-          <section className="bg-[#1e293b] border border-slate-700 rounded-2xl max-w-xl mx-auto p-6 font-mono text-xs space-y-4 shadow-2xl">
-            <h3 className="text-sm font-black text-purple-400 border-b border-slate-700 pb-2 uppercase tracking-wide">⚙️ Sirreeffama Sirnaa Waliigalaa</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-[10px] text-slate-400 uppercase font-bold mb-1">Bara Barnootaa:</label>
-                <input type="text" value={systemSettings.academicYear} onChange={e => setSystemSettings({...systemSettings, academicYear: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 rounded p-2 text-white outline-none focus:border-purple-500 font-mono" />
-              </div>
-              <div>
-                <label className="block text-[10px] text-slate-400 uppercase font-bold mb-1">Kurmaana Barnootaa:</label>
-                <select value={systemSettings.semester} onChange={e => setSystemSettings({...systemSettings, semester: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 rounded p-2 text-white outline-none cursor-pointer">
-                  <option value="Semester 1">Kurmaana 1ffaa</option>
-                  <option value="Semester 2">Kurmaana 2ffaa</option>
-                </select>
-              </div>
-              <button onClick={() => alert("Settings saved successfully!")} className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded uppercase font-sans tracking-wide transition-colors">Save Settings</button>
-            </div>
-          </section>
-        )}
-        {/* VIEW 4: INSTRUCTOR GRADING SHEET MATRIX */}
+        {/* VIEW 3: INSTRUCTOR ROSTER MATRIX */}
         {activeTab === 'instructor-roster' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
             <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 h-fit space-y-3 shadow-xl">
               <h2 className="font-bold border-b border-slate-700 pb-1 text-slate-100 uppercase text-xs">Barataa Haaraa Galmeessi</h2>
               <form onSubmit={handleEnrollmentSubmit} className="space-y-2">
                 <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded cursor-pointer">
-                  <option value="12 Natural">12 Natural</option>
-                  <option value="12 Social">12 Social</option>
+                  <option value="12 Natural">12 Natural</option><option value="12 Social">12 Social</option>
                 </select>
-                <input type="text" placeholder="ID Barataa" value={studentForm.studentId} onChange={e => setStudentForm({...studentForm, studentId: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-blue-500" required />
-                <input type="text" placeholder="Maqaa Guutuu" value={studentForm.name} onChange={e => setStudentForm({...studentForm, name: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-blue-500" required />
-                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 p-2 text-white font-bold rounded uppercase transition-colors">Kuusi Galmeessi</button>
+                <input type="text" placeholder="ID Barataa" value={studentForm.studentId} onChange={e => setStudentForm({...studentForm, studentId: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded" required />
+                <input type="text" placeholder="Maqaa Guutuu" value={studentForm.name} onChange={e => setStudentForm({...studentForm, name: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded" required />
+                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 p-2 text-white font-bold rounded uppercase">Kuusi Galmeessi</button>
               </form>
             </section>
 
-            <section className="lg:col-span-2 bg-[#1e293b] p-4 rounded-lg border border-slate-700 overflow-hidden shadow-xl">
+            <section className="lg:col-span-2 bg-[#1e293b] p-4 rounded-lg border border-slate-700 shadow-xl">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-bold text-slate-200 text-xs">Galmee Qabxii Barattootaa</h3>
-                <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-[#0f172a] border border-slate-700 p-1 text-white rounded outline-none text-xs cursor-pointer">
-                  <option value="12 Natural">12 Natural</option>
-                  <option value="12 Social">12 Social</option>
+                <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-[#0f172a] border border-slate-700 p-1 text-white rounded text-xs cursor-pointer">
+                  <option value="12 Natural">12 Natural</option><option value="12 Social">12 Social</option>
                 </select>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left whitespace-nowrap">
                   <thead>
-                    <tr className="border-b border-slate-700 text-slate-400 text-[10px] uppercase tracking-wider">
-                      <th className="pb-2">ID</th>
-                      <th>Maqaa Barataa</th>
-                      <th>T1 (10)</th>
-                      <th>T2 (10)</th>
-                      <th>Asgn (20)</th>
-                      <th>Final (60)</th>
-                      <th className="text-center">Waliigala</th>
-                      <th className="text-right">Waraqa</th>
-                    </tr>
+                    <tr className="border-b border-slate-700 text-slate-400 text-[10px] uppercase font-bold"><th>ID</th><th>Maqaa Barataa</th><th>T1 (10)</th><th>T2 (10)</th><th>Asgn (20)</th><th>Final (60)</th><th className="text-center">Waliigala</th><th className="text-right">Waraqa</th></tr>
                   </thead>
                   <tbody className="divide-y divide-slate-700 text-slate-300">
                     {students.map((s, idx) => (
-                      <tr key={idx} className="hover:bg-[#0f172a]/40 transition-colors">
+                      <tr key={idx}>
                         <td className="py-2.5 font-bold text-blue-400">{s.studentId}</td>
                         <td className="font-semibold text-slate-100">{s.name}</td>
-                        <td><input type="number" defaultValue={s.test1} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'test1', e.target.value)} className="w-12 bg-[#0f172a] text-center rounded border border-slate-700 text-white p-1 focus:border-blue-500" /></td>
-                        <td><input type="number" defaultValue={s.test2} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'test2', e.target.value)} className="w-12 bg-[#0f172a] text-center rounded border border-slate-700 text-white p-1 focus:border-blue-500" /></td>
-                        <td><input type="number" defaultValue={s.assignment} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'assignment', e.target.value)} className="w-12 bg-[#0f172a] text-center rounded border border-slate-700 text-white p-1 focus:border-blue-500" /></td>
-                        <td><input type="number" defaultValue={s.finalExam} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'finalExam', e.target.value)} className="w-12 bg-[#0f172a] text-center rounded border border-slate-700 text-white p-1 focus:border-blue-500" /></td>
-                        <td className="text-center font-black text-emerald-400 text-sm">{s.totalScore || 0}</td>
-                        <td className="text-right"><button onClick={() => triggerStudentReportCardPrint(s)} className="bg-slate-700 hover:bg-slate-600 text-amber-400 border border-slate-600 font-bold px-2 py-1 rounded text-[10px] transition-colors">🖨️ Cert</button></td>
+                        <td><input type="number" defaultValue={s.test1} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'test1', e.target.value)} className="w-12 bg-[#0f172a] text-center rounded border border-slate-700 text-white p-1" /></td>
+                        <td><input type="number" defaultValue={s.test2} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'test2', e.target.value)} className="w-12 bg-[#0f172a] text-center rounded border border-slate-700 text-white p-1" /></td>
+                        <td><input type="number" defaultValue={s.assignment} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'assignment', e.target.value)} className="w-12 bg-[#0f172a] text-center rounded border border-slate-700 text-white p-1" /></td>
+                        <td><input type="number" defaultValue={s.finalExam} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'finalExam', e.target.value)} className="w-12 bg-[#0f172a] text-center rounded border border-slate-700 text-white p-1" /></td>
+                        <td className="text-center font-black text-emerald-400">{s.totalScore || 0}</td>
+                        <td className="text-right"><button onClick={() => triggerStudentReportCardPrint(s)} className="bg-slate-700 text-amber-400 border border-slate-600 font-bold px-2 py-1 rounded text-[10px]">🖨️ Cert</button></td>
                       </tr>
                     ))}
                   </tbody>
@@ -624,69 +512,47 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* VIEW 5: INSTRUCTOR SESSION ATTENDANCE MATRIX */}
+        {/* VIEW 4: ATTENDANCE SYSTEM */}
         {activeTab === 'instructor-attendance' && (
-          <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 text-xs font-mono w-full shadow-xl">
+          <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 text-xs font-mono shadow-xl">
             <div className="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
               <h3 className="font-bold uppercase text-slate-200 text-xs">Daily Attendance Matrix</h3>
               <div className="flex gap-2 text-white">
-                <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-[#0f172a] border border-slate-700 p-1 rounded text-xs cursor-pointer">
-                  <option value="12 Natural">12 Natural</option>
-                  <option value="12 Social">12 Social</option>
-                </select>
-                <input type="date" value={attendanceDate} onChange={(e) => setAttendanceDate(e.target.value)} className="bg-[#0f172a] border border-slate-700 p-1 rounded text-xs outline-none focus:border-purple-500" />
+                <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-[#0f172a] border border-slate-700 p-1 rounded text-xs cursor-pointer"><option value="12 Natural">12 Natural</option><option value="12 Social">12 Social</option></select>
+                <input type="date" value={attendanceDate} onChange={(e) => setAttendanceDate(e.target.value)} className="bg-[#0f172a] border border-slate-700 p-1 rounded text-xs" />
               </div>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left whitespace-nowrap">
-                <thead>
-                  <tr className="border-b border-slate-700 text-slate-400 uppercase text-[10px]">
-                    <th className="pb-2">ID Barataa</th>
-                    <th>Maqaa Guutuu</th>
-                    <th className="text-right">Hordoffii Galmee</th>
+            <table className="w-full text-left">
+              <thead><tr className="border-b border-slate-700 text-slate-400 uppercase text-[10px]"><th>ID Barataa</th><th>Maqaa Guutuu</th><th className="text-right">Hordoffii Galmee</th></tr></thead>
+              <tbody className="divide-y divide-slate-800 text-slate-300">
+                {attendanceRecords.map((s, idx) => (
+                  <tr key={idx}>
+                    <td className="py-2.5 text-blue-400 font-bold">{s.studentId}</td><td className="font-semibold text-slate-200">{s.name}</td>
+                    <td className="text-right">
+                      <select value={s.status || 'Not Marked'} onChange={(e) => handleAttendanceCellChange(s.studentId, e.target.value)} className="bg-[#0f172a] border rounded p-1 font-bold outline-none cursor-pointer"><option value="Not Marked">Not Marked</option><option value="Present">Present</option><option value="Absent">Absent</option></select>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800 text-slate-300">
-                  {attendanceRecords.map((s, idx) => (
-                    <tr key={idx} className="hover:bg-slate-900/20">
-                      <td className="py-2.5 text-blue-400 font-bold">{s.studentId}</td>
-                      <td className="font-semibold text-slate-200">{s.name}</td>
-                      <td className="text-right">
-                        <select 
-                          value={s.status || 'Not Marked'} 
-                          onChange={(e) => handleAttendanceCellChange(s.studentId, e.target.value)} 
-                          className={`bg-[#0f172a] border rounded p-1 text-[11px] font-bold outline-none cursor-pointer ${s.status === 'Present' ? 'border-emerald-800 text-emerald-400' : s.status === 'Absent' ? 'border-red-800 text-red-400' : 'border-slate-800 text-slate-400'}`}
-                        >
-                          <option value="Not Marked">Not Marked</option>
-                          <option value="Present">Present</option>
-                          <option value="Absent">Absent</option>
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </section>
         )}
-        {/* VIEW 6: INSTRUCTOR EXAMS MODULE */}
+
+        {/* VIEW 5: EXAM DEPLOYMENT MODULE */}
         {activeTab === 'instructor-exams' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
             <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 space-y-3 shadow-xl">
               <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Deploy Examination</h2>
               <form onSubmit={handleExamPublishSubmit} className="space-y-2">
-                <input type="text" placeholder="Exam Title" value={examForm.title} onChange={e => setExamForm({...examForm, title: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-purple-500" required />
+                <input type="text" placeholder="Exam Title" value={examForm.title} onChange={e => setExamForm({...examForm, title: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded" required />
                 <div className="bg-[#0f172a] border border-slate-700 p-2 rounded space-y-2">
-                  <textarea placeholder="Question Text" value={currentQuestion.text} onChange={e => setCurrentQuestion({...currentQuestion, text: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1.5 rounded h-12 text-white outline-none resize-none focus:border-blue-500"></textarea>
-                  <input type="text" placeholder="Option A" value={currentQuestion.a} onChange={e => setCurrentQuestion({...currentQuestion, a: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1 text-white rounded outline-none focus:border-blue-500" required />
-                  <input type="text" placeholder="Option B" value={currentQuestion.b} onChange={e => setCurrentQuestion({...currentQuestion, b: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1 text-white rounded outline-none focus:border-blue-500" required />
-                  <select value={currentQuestion.correct} onChange={e => setCurrentQuestion({...currentQuestion, correct: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1 text-white rounded outline-none cursor-pointer">
-                    <option value="A">Key: A</option>
-                    <option value="B">Key: B</option>
-                  </select>
-                  <button type="button" onClick={addQuestionToFormState} className="w-full py-1 bg-slate-800 text-amber-400 font-bold border border-slate-700 rounded text-[10px] hover:bg-slate-700 transition-colors">SAVE ENTRY ({examForm.questions.length})</button>
+                  <textarea placeholder="Question Text" value={currentQuestion.text} onChange={e => setCurrentQuestion({...currentQuestion, text: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1.5 rounded h-12 text-white outline-none resize-none"></textarea>
+                  <input type="text" placeholder="Option A" value={currentQuestion.a} onChange={e => setCurrentQuestion({...currentQuestion, a: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1 text-white rounded outline-none" required />
+                  <input type="text" placeholder="Option B" value={currentQuestion.b} onChange={e => setCurrentQuestion({...currentQuestion, b: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1 text-white rounded outline-none" required />
+                  <select value={currentQuestion.correct} onChange={e => setCurrentQuestion({...currentQuestion, correct: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1 text-white rounded cursor-pointer"><option value="A">Key: A</option><option value="B">Key: B</option></select>
+                  <button type="button" onClick={addQuestionToFormState} className="w-full py-1 bg-slate-800 text-amber-400 font-bold border border-slate-700 rounded text-[10px]">SAVE ENTRY ({examForm.questions.length})</button>
                 </div>
-                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded uppercase transition-colors">Publish Manual Quiz</button>
+                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded uppercase">Publish Manual Quiz</button>
               </form>
             </section>
             <section className="lg:col-span-2 bg-[#1e293b] p-4 rounded-lg border border-slate-700 shadow-xl">
@@ -694,10 +560,7 @@ export default function Dashboard() {
               <div className="space-y-2">
                 {exams.map((ex, idx) => (
                   <div key={idx} className="p-3 bg-[#0f172a] border border-slate-700 rounded-xl flex justify-between items-center">
-                    <div>
-                      <p className="font-bold text-slate-200">{ex.title}</p>
-                      <p className="text-[10px] text-slate-500 uppercase mt-0.5">Subject: {ex.subject} // Track: {ex.grade_section}</p>
-                    </div>
+                    <div><p className="font-bold text-slate-200">{ex.title}</p><p className="text-[10px] text-slate-500 uppercase mt-0.5">Subject: {ex.subject} // Track: {ex.grade_section}</p></div>
                     <span className="text-[10px] bg-slate-800 border border-slate-700 px-2 py-1 rounded text-slate-400 font-bold uppercase">Active Live</span>
                   </div>
                 ))}
@@ -706,103 +569,20 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* VIEW 7: INSTRUCTOR LIBRARY TEXTBOOK CATALOG */}
-        {activeTab === 'instructor-library' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
-            <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 space-y-3 shadow-xl">
-              <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Catalog Textbook</h2>
-              <form onSubmit={handleLibrarySubmit} className="space-y-2">
-                <input type="text" placeholder="Resource Title" value={libraryForm.title} onChange={e => setLibraryForm({...libraryForm, title: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-purple-500" required />
-                <input type="text" placeholder="Author Name" value={libraryForm.author} onChange={e => setLibraryForm({...libraryForm, author: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-purple-500" required />
-                <input type="text" placeholder="Asset Download Link URL" value={libraryForm.downloadUrl} onChange={e => setLibraryForm({...libraryForm, downloadUrl: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded focus:border-purple-500" required />
-                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded uppercase transition-colors">Commit Asset</button>
-              </form>
-            </section>
-            <section className="lg:col-span-2 bg-[#1e293b] p-4 rounded-lg border border-slate-700 shadow-xl">
-              <h3 className="font-bold border-b border-slate-700 pb-2 mb-3 text-slate-200 text-xs">Library Distribution Records</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left whitespace-nowrap">
-                  <thead>
-                    <tr className="border-b border-slate-700 text-slate-400 text-[10px] uppercase">
-                      <th className="pb-2">Title</th>
-                      <th>Author</th>
-                      <th>Section</th>
-                      <th className="text-right">Access</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800 text-slate-300">
-                    {books.map((b, idx) => (
-                      <tr key={idx} className="hover:bg-slate-900/20">
-                        <td className="py-2.5 font-semibold text-slate-200">{b.title}</td>
-                        <td>{b.author}</td>
-                        <td>{b.grade_section}</td>
-                        <td className="text-right"><a href={b.download_url} target="_blank" rel="noreferrer" className="text-blue-400 underline font-bold hover:text-blue-300">Download 📥</a></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </div>
-        )}
-        {/* 👤 TEACHER / BARSIISAA PROFILE VIEW */}
-        {activeTab === 'teacher-profile' && (
-          <section className="bg-[#1e293b] border border-slate-700 rounded-2xl max-w-xl mx-auto p-6 font-mono text-xs space-y-4 shadow-2xl">
-            <div className="flex items-center gap-4 border-b border-slate-700 pb-4">
-              <div className="text-3xl bg-[#0f172a] p-3 rounded-full border border-slate-700">👨‍🏫</div>
-              <div>
-                <h3 className="text-sm font-black text-white uppercase tracking-wide">{activeProfile.fullName}</h3>
-                <p className="text-[10px] text-purple-400 font-bold uppercase tracking-wider mt-0.5">Ramaddii: Barsiisaa Senior ICT</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-300">
-              <div className="bg-[#0f172a] p-3 rounded border border-slate-800"><strong>Imeelii:</strong> {activeProfile.email}</div>
-              <div className="bg-[#0f172a] p-3 rounded border border-slate-800"><strong>Bilbila:</strong> {activeProfile.phone}</div>
-              <div className="bg-[#0f172a] p-3 rounded border border-slate-800"><strong>Teessoo:</strong> {activeProfile.address}</div>
-              <div className="bg-[#0f172a] p-3 rounded border border-slate-800"><strong>Guyyaa Itti Seene:</strong> {activeProfile.joinedDate}</div>
-            </div>
-            <div className="bg-[#0f172a] p-3 rounded border border-slate-800 text-slate-400 leading-relaxed">
-              <strong>Waa&apos;ee Koo:</strong> {activeProfile.bio}
-            </div>
-          </section>
-        )}
-        {/* VIEW 8: STUDENT TRANSCRIPT ACCESSIBILITY */}
-        {activeTab === 'student-transcript' && (
-          <section className="bg-[#1e293b] p-5 rounded-xl border border-slate-700 font-mono text-xs max-w-3xl mx-auto space-y-4 shadow-xl">
-            <div className="flex justify-between items-center border-b border-slate-700 pb-3">
-              <div>
-                <h3 className="text-sm font-bold text-white uppercase">Personal Academic Registry Card</h3>
-              </div>
-              <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-[#0f172a] border border-slate-700 p-1 text-white rounded outline-none cursor-pointer">
-                <option value="12 Natural">12 Natural</option>
-                <option value="12 Social">12 Social</option>
-                <option value="10">10</option>
-                <option value="9">9</option>
-              </select>
-            </div>
+        {/* VIEW 6: DIGITAL CLASS SCHEDULE MATRIX CONTAINER BLOCK */}
+        {activeTab === 'class-schedule' && (
+          <section className="bg-[#1e293b] p-5 rounded-xl border border-slate-700 font-mono text-xs max-w-4xl mx-auto space-y-4 shadow-xl">
+            <h3 className="text-sm font-bold text-white uppercase border-b border-slate-700 pb-2">📅 Sagantaa Daree Waliigalaa (Class Routine Matrix)</h3>
             <div className="overflow-x-auto">
-              <table className="w-full text-left whitespace-nowrap">
+              <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="text-slate-400 text-[10px] uppercase border-b border-slate-700">
-                    <th className="pb-2">Student ID</th>
-                    <th>Full Name</th>
-                    <th>Test 1</th>
-                    <th>Test 2</th>
-                    <th>Assignment</th>
-                    <th>Final Exam</th>
-                    <th className="text-right">Total Score</th>
-                  </tr>
+                  <tr className="bg-[#0f172a] text-slate-400 text-[10px] uppercase border-b border-slate-700"><th className="p-3">Waktiika (Period)</th><th className="p-3">Wiixata (Mon)</th><th className="p-3">Kibxata (Tue)</th><th className="p-3">Roobii (Wed)</th><th className="p-3">Kamisa (Thu)</th><th className="p-3">Jimata (Fri)</th></tr>
                 </thead>
                 <tbody className="text-slate-200 divide-y divide-slate-800">
-                  {students.map((s, idx) => (
-                    <tr key={idx}>
-                      <td className="py-3 font-bold text-amber-400">{s.studentId}</td>
-                      <td className="font-semibold">{s.name}</td>
-                      <td>{s.test1 || 0} / 10</td>
-                      <td>{s.test2 || 0} / 10</td>
-                      <td>{s.assignment || 0} / 20</td>
-                      <td>{s.finalExam || 0} / 60</td>
-                      <td className="text-right font-black text-emerald-400 text-sm">{s.totalScore || 0} / 100</td>
+                  {classSchedule.map((row, idx) => (
+                    <tr key={idx} className="hover:bg-[#0f172a]/30 transition-colors">
+                      <td className="p-3 font-bold text-blue-400 bg-[#0f172a]/20">{row.period}</td>
+                      <td className="p-3">{row.monday}</td><td className="p-3">{row.tuesday}</td><td className="p-3">{row.wednesday}</td><td className="p-3">{row.thursday}</td><td className="p-3">{row.friday}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -811,156 +591,82 @@ export default function Dashboard() {
           </section>
         )}
 
-        {/* VIEW 9: STUDENT EXAM TESTING PORTAL */}
-        {activeTab === 'student-exams' && (
-          <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 max-w-xl mx-auto font-mono text-xs shadow-xl">
-            <h3 className="font-bold border-b border-slate-700 pb-2 mb-3 text-slate-200 uppercase text-xs">Interactive Testing Center</h3>
-            <div className="space-y-2">
-              {exams.length === 0 && <p className="text-slate-500 text-center py-4">// No exams active currently.</p>}
-              {exams.map((ex, idx) => (
-                <div key={idx} className="p-3 bg-[#0f172a] border border-slate-700 rounded-xl flex justify-between items-center">
-                  <div>
-                    <p className="font-bold text-slate-200">{ex.title}</p>
-                    <p className="text-[10px] text-slate-500 uppercase mt-0.5">Track: {ex.subject}</p>
+        {/* VIEW 7: COMPREHENSIVE PARENT MONITOR SECTION */}
+        {activeTab === 'parent-monitor' && (
+          <section className="bg-[#1e293b] p-5 rounded-xl border border-slate-700 font-mono text-xs max-w-xl mx-auto space-y-4 shadow-xl">
+            <h3 className="text-sm font-bold text-emerald-400 uppercase border-b border-slate-700 pb-2">👪 Wiirtuu Hordoffii Warraa (Parent Activity Tracker)</h3>
+            <p className="text-slate-400 text-[11px]">Siriin kun warri qabxii fi hirmaannaa ijoollee isaanii akka hordofaniif gargaara. (Enter your child's student ID card metrics to calculate progress).</p>
+            <div className="flex gap-2 bg-[#0f172a] p-3 rounded-lg border border-slate-800">
+              <input type="text" placeholder="e.g., SMS/001" value={parentStudentSearchId} onChange={(e) => setParentStudentSearchId(e.target.value)} className="flex-1 bg-[#1e293b] border border-slate-700 rounded p-2 text-white outline-none focus:border-emerald-500" />
+              <button onClick={() => {
+                const match = students.find(s => s.studentId.toUpperCase() === parentStudentSearchId.toUpperCase());
+                if (match) { setParentMonitoredStudent(match); } 
+                else { alert("Barataan ID kanaan argame hin jiru! (Record match mismatch)."); }
+              }} className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 rounded font-bold uppercase">Baradi</button>
+            </div>
+            {parentMonitoredStudent && (
+              <div className="mt-4 p-4 bg-[#0f172a] border border-slate-800 rounded-xl space-y-3">
+                <p className="text-slate-400 font-bold border-b border-slate-800 pb-1 uppercase text-[10px]">Target Student: <span className="text-white">{parentMonitoredStudent.name}</span></p>
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div className="bg-[#141b2d] p-2.5 rounded border border-slate-800">
+                    <span className="text-slate-400 block text-[9px] uppercase">Waliigala Qabxii (Cumulative Marks)</span>
+                    <span className="text-base font-black text-emerald-400 mt-1 block">{parentMonitoredStudent.totalScore || 0} / 100</span>
                   </div>
-                  <button 
-                    onClick={async () => {
-                      const response = await fetch(`/api/exams?examId=${ex.exam_id}`);
-                      const dbData = await response.json();
-                      if (dbData.success && dbData.questions && dbData.questions.length > 0) {
-                        setActiveQuizExam(ex); setQuizQuestions(dbData.questions); setStudentAnswers({}); setStudentExId('');
-                      } else { alert("Questions matrix empty."); }
-                    }}
-                    className="px-3 py-1 bg-amber-600 hover:bg-amber-500 font-bold text-black text-[10px] rounded uppercase transition-colors"
-                  >
-                    Take Test 📝
-                  </button>
+                  <div className="bg-[#141b2d] p-2.5 rounded border border-slate-800">
+                    <span className="text-slate-400 block text-[9px] uppercase">Haala Kaffaltii (Financial Status)</span>
+                    <span className="text-amber-400 font-bold mt-2 block text-[10px]">Settled Enrolled</span>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
-        {/* VIEW 10: STUDENT DIGITAL LIBRARY TEXTBOOKS INDEX */}
-        {activeTab === 'student-library' && (
-          <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 max-w-2xl mx-auto font-mono text-xs shadow-xl">
-            <h3 className="font-bold border-b border-slate-700 pb-2 mb-3 text-slate-200 uppercase text-xs">Digital Textbook Library</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left whitespace-nowrap">
-                <thead>
-                  <tr className="border-b border-slate-700 text-slate-400 text-[10px] uppercase">
-                    <th className="pb-2">Resource Title</th>
-                    <th>Author Course Route</th>
-                    <th className="text-right">Action Handle</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800 text-slate-300">
-                  {books.map((b, idx) => (
-                    <tr key={idx}>
-                      <td className="py-2.5 font-semibold text-slate-200">{b.title}</td>
-                      <td>{b.author}</td>
-                      <td className="text-right"><a href={b.download_url} target="_blank" rel="noreferrer" className="text-amber-400 font-bold underline hover:text-amber-300">Download Resource 📥</a></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+              </div>
+            )}
           </section>
         )}
 
-        {/* 👤 STUDENT / BARATAA PROFILE VIEW */}
-        {activeTab === 'student-profile' && (
-          <section className="bg-[#1e293b] border border-slate-700 rounded-2xl max-w-xl mx-auto p-6 font-mono text-xs space-y-4 shadow-2xl">
-            <div className="flex items-center gap-4 border-b border-slate-700 pb-4">
-              <div className="text-3xl bg-[#0f172a] p-3 rounded-full border border-slate-700">🎓</div>
-              <div>
-                <h3 className="text-sm font-black text-white uppercase tracking-wide">{username}</h3>
-                <p className="text-[10px] text-amber-400 font-bold uppercase tracking-wider mt-0.5">Track: {selectedGrade} Student</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-300">
-              <div className="bg-[#0f172a] p-3 rounded border border-slate-800"><strong>Student Authorization ID:</strong> STU-ALPHA-01</div>
-              <div className="bg-[#0f172a] p-3 rounded border border-slate-800"><strong>Academic Track Status:</strong> Active Enrolled</div>
-            </div>
+        {/* VIEW 8: USER LOG TRANSCRIPTS */}
+        {activeTab === 'student-transcript' && (
+          <section className="bg-[#1e293b] p-5 rounded-xl border border-slate-700 font-mono text-xs max-w-3xl mx-auto space-y-4 shadow-xl">
+            <h3 className="text-sm font-bold text-white uppercase border-b border-slate-700 pb-2">Academic Registry Card</h3>
+            <table className="w-full text-left">
+              <thead><tr className="text-slate-400 text-[10px] uppercase"><th>Student ID</th><th>Full Name</th><th>Test 1</th><th>Test 2</th><th>Assignment</th><th>Final Exam</th><th className="text-right">Total Score</th></tr></thead>
+              <tbody className="text-slate-200">
+                {students.map((s, idx) => (
+                  <tr key={idx}>
+                    <td className="py-3 font-bold text-amber-400">{s.studentId}</td><td className="font-semibold">{s.name}</td>
+                    <td>{s.test1 || 0} / 10</td><td>{s.test2 || 0} / 10</td><td>{s.assignment || 0} / 20</td><td>{s.finalExam || 0} / 60</td>
+                    <td className="text-right font-black text-emerald-400 text-sm">{s.totalScore || 0} / 100</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </section>
         )}
       </main>
-           {/* FLOATING CONTEXT-AWARE CONVERSATIONAL ASSISTANT WIDGET */}
-      <div className="fixed bottom-6 right-6 z-50 transform transition-all duration-300 hover:scale-[1.01]">
-        <div className="bg-[#1e293b]/95 border border-emerald-500/30 shadow-[0_0_25px_rgba(16,185,129,0.1)] rounded-2xl p-4 w-76 space-y-3 font-mono text-xs backdrop-blur-md">
-          <div className="flex justify-between items-center border-b border-slate-700/60 pb-2">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
-              <span className="font-bold text-emerald-400 tracking-wide">Gargaaraa AI Dijitaalaa</span>
-            </div>
-            <span className="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-bold">v3.3</span>
+
+      {/* FLOATING DIGITAL AI ASSISTANT TERMINAL */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <div className="bg-[#1e293b]/95 border border-emerald-500/30 shadow-2xl rounded-2xl p-4 w-76 space-y-3 font-mono text-xs backdrop-blur-md">
+          <div className="flex justify-between items-center border-b border-slate-700 pb-2">
+            <div className="flex items-center gap-2"><span className="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span><span className="font-bold text-emerald-400">Gargaaraa AI Dijitaalaa</span></div>
+            <span className="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">v3.3</span>
           </div>
-          <div className="h-36 overflow-y-auto bg-[#0a0f1d] p-2.5 rounded-xl text-slate-300 space-y-2 text-[11px] leading-relaxed border border-slate-800/80 shadow-inner" id="aiTerminalChatLog">
-            <p className="text-slate-500 text-[10px]">// Sararri terminal amansiisaa dha.</p>
-            <p className="text-emerald-400 font-bold">Gargaaraa AI:</p>
-            <p>Akkam! Mana barumsaa keessan irratti har&apos;a maal si gargaaruu danda&apos;a?</p>
+          <div className="h-36 overflow-y-auto bg-[#0a0f1d] p-2.5 rounded-xl text-slate-300 space-y-2" id="aiTerminalChatLog">
+            <p className="text-slate-500 text-[10px]">// Secure terminal bridge initialized.</p>
+            <p className="text-emerald-400 font-bold">Gargaaraa AI:</p><p>Akkam! Mana barumsaa keessan irratti har&apos;a maal si gargaaruu danda&apos;a?</p>
           </div>
-          <div className="relative">
-            <input 
-              type="text" 
-              placeholder="Gaaffii kee asitti barreessi..." 
-              onKeyDown={async (e) => {
-                if (e.key === 'Enter' && e.target.value.trim()) {
-                  const txt = e.target.value; e.target.value = '';
-                  const log = document.getElementById('aiTerminalChatLog');
-                  log.innerHTML += `<p class="text-blue-400 font-bold mt-1">Isin:</p><p class="text-slate-200">${txt}</p>`;
-                  
-                  const res = await fetch('/api/ai-chat', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: txt, userRole: 'Admin' })
-                  });
-                  const d = await res.json();
-                  log.innerHTML += `<p class="text-emerald-400 font-bold mt-1">Gargaaraa AI:</p><p class="text-slate-300">${d.reply}</p>`;
-                  log.scrollTop = log.scrollHeight;
-                }
-              }}
-              className="w-full bg-[#0a0f1d] border border-slate-800 focus:border-emerald-500/50 rounded-xl p-2.5 text-white outline-none text-[11px] transition-all" 
-            />
-          </div>
+          <input type="text" placeholder="Gaaffii kee asitti barreessi..." onKeyDown={async (e) => {
+            if (e.key === 'Enter' && e.target.value.trim()) {
+              const txt = e.target.value; e.target.value = '';
+              const log = document.getElementById('aiTerminalChatLog');
+              log.innerHTML += `<p class="text-blue-400 font-bold mt-1">Isin:</p><p class="text-slate-200">` + txt + `</p>`;
+              const res = await fetch('/api/ai-chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: txt, userRole: 'Admin' }) });
+              const d = await res.json();
+              log.innerHTML += `<p class="text-emerald-400 font-bold mt-1">Gargaaraa AI:</p><p class="text-slate-300">` + d.reply + `</p>`;
+              log.scrollTop = log.scrollHeight;
+            }
+          }} className="w-full bg-[#0a0f1d] border border-slate-800 focus:border-emerald-500 rounded-xl p-2.5 text-white outline-none" />
         </div>
       </div>
 
-      {/* QUIZ SUBMISSION QUESTIONNAIRE MODAL OVERLAY */}
-      {activeQuizExam && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 overflow-y-auto font-mono text-xs text-slate-100">
-          <div className="bg-[#141b2d] border border-slate-800 rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-              <div><h3 className="text-base font-bold text-white uppercase">{activeQuizExam.title}</h3></div>
-              <button onClick={() => setActiveQuizExam(null)} className="bg-slate-800 text-slate-400 px-2.5 py-1 rounded hover:bg-slate-700 hover:text-white transition-colors">✕ Close</button>
-            </div>
-            <div className="bg-[#0a0f1d] p-3 rounded border border-slate-800">
-              <label className="text-[10px] uppercase text-slate-400 font-bold block mb-1">Enter Student ID:</label>
-              <input type="text" placeholder="e.g., STU-001" value={studentExId} onChange={(e) => setStudentExId(e.target.value.toUpperCase())} className="bg-[#141b2d] border border-slate-800 rounded p-2 w-full text-white outline-none focus:border-blue-500" />
-            </div>
-            <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-              {quizQuestions.map((q, qIdx) => (
-                <div key={q.q_id || qIdx} className="bg-[#0a0f1d] p-4 rounded-lg border border-slate-800 space-y-2">
-                  <p className="font-bold text-slate-200">Q{qIdx + 1}: {q.question_text}</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 font-mono text-[11px]">
-                    <label className="flex items-center gap-2 p-2 rounded border border-slate-800 cursor-pointer hover:bg-slate-900/30 transition-colors"><input type="radio" name={`q-${q.q_id}`} onChange={() => setStudentAnswers({...studentAnswers, [q.q_id]: 'A'})} /> A: {q.option_a}</label>
-                    <label className="flex items-center gap-2 p-2 rounded border border-slate-800 cursor-pointer hover:bg-slate-900/30 transition-colors"><input type="radio" name={`q-${q.q_id}`} onChange={() => setStudentAnswers({...studentAnswers, [q.q_id]: 'B'})} /> B: {q.option_b}</label>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={async () => {
-                if (!studentExId) return alert("Please specify a valid Student ID.");
-                const res = await fetch('/api/exams/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId: studentExId, examId: activeQuizExam.exam_id, answers: studentAnswers }) });
-                const data = await res.json();
-                if (res.ok) { alert(`Exam grading complete! Result Output: ${data.score}%`); setActiveQuizExam(null); setStudentAnswers({}); setStudentExId(''); fetchLiveRosterData(); }
-              }}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 transition-colors py-2.5 text-white font-bold uppercase rounded text-xs"
-            >
-              Submit Test 🚀
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
