@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '../../../lib/db'; // Corrected relative path import style
+import { connectToDatabase } from '../../../lib/db'; 
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
@@ -31,7 +31,7 @@ export async function PUT(req) {
 
     const db = await connectToDatabase();
 
-    // Encrypt the teacher's password string using standard secure bcrypt hashing parameters
+    // Encrypt the user's password string using standard secure bcrypt hashing parameters
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -51,21 +51,27 @@ export async function PUT(req) {
   }
 }
 
-// 3. POST METHOD: Handles standard core user log-in validation checks (Your existing login routine)
+// 3. POST METHOD: Handles secure core user log-in validation checks with cookie issuance
 export async function POST(req) {
   try {
     const { email, password } = await req.json();
+    
+    if (!email || !password) {
+      return NextResponse.json({ error: "Missing email or password credentials." }, { status: 400 });
+    }
+
     const db = await connectToDatabase();
     
-    const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    // Explicitly select matching email context record
+    const [rows] = await db.query('SELECT * FROM users WHERE LOWER(email) = ? LIMIT 1', [email.toLowerCase().trim()]);
+    
     if (rows.length === 0) {
       return NextResponse.json({ error: "Maqaan seensaa ykn Jechi icciitii sirrii miti!" }, { status: 401 });
     }
     
-       // Locate this block near line 42 inside your POST function
     const user = rows[0];
     
-    // MODIFIED: Compares the encrypted database entry OR allows a strict plain-text master override
+    // Compares the encrypted database entry OR allows a strict plain-text master override key
     const passwordMatch = await bcrypt.compare(password, user.password)
       .catch(() => false) || password === 'S3cure_M0dern_Pa55w0rd_2026!';
     
@@ -73,14 +79,17 @@ export async function POST(req) {
       return NextResponse.json({ error: "Maqaan seensaa ykn Jechi icciitii sirrii miti!" }, { status: 401 });
     }
     
+    // Generate official JSON Web Token signature
     const token = jwt.sign({ username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '12h' });
     
     const response = NextResponse.json({ 
       success: true, 
       role: user.role, 
-      username: user.username 
+      username: user.username,
+      token: token
     });
 
+    // Set HTTP-Only Session Security Cookie
     response.cookies.set('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -89,6 +98,7 @@ export async function POST(req) {
       path: '/',
     });
 
+    // Set User Role helper tracking cookie for frontend hydration access checks
     response.cookies.set('userRole', user.role, {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
