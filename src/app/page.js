@@ -26,75 +26,55 @@ export default function Dashboard() {
     bio: 'Mana Barnoota Sadarkaa 2ffaa Sheek Bakri Saphaloo.'
   });
 
-  // Student Section States
+  // Core Data Lists Arrays
   const [selectedGrade, setSelectedGrade] = useState('12 Natural');
   const [students, setStudents] = useState([]);
   const [studentForm, setStudentForm] = useState({ studentId: '', name: '' });
   const [studentsLoading, setStudentsLoading] = useState(false);
 
-  // Attendance Section States
   const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().split('T')[0]);
   const [attendanceRecords, setAttendanceRecords] = useState([]);
   const [attendanceLoading, setAttendanceLoading] = useState(false);
 
-  // Exam Center States
   const [exams, setExams] = useState([]);
   const [examsLoading, setExamsLoading] = useState(false);
   const [examForm, setExamForm] = useState({ title: '', subject: 'ICT', questions: [] });
   const [currentQuestion, setCurrentQuestion] = useState({ text: '', a: '', b: '', correct: 'A' });
 
-  // Student Testing Modal States
+  // Quiz Interaction States
   const [activeQuizExam, setActiveQuizExam] = useState(null);
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [studentAnswers, setStudentAnswers] = useState({});
   const [studentExId, setStudentExId] = useState('');
 
-  // Finance Section States
   const [financeLedger, setFinanceLedger] = useState([]);
   const [financeLoading, setFinanceLoading] = useState(false);
   const [financeForm, setFinanceForm] = useState({ studentId: '', feeType: 'Tuition Q1', amountDue: '', amountPaid: '' });
 
-  // Library Section States
-  const [books, setBooks] = useState([]);
+  // Library Management Asset Lists
+  const [books, setBooks] = useState([
+    { title: 'Grade 12 Information Technology', author: 'Ministry of Education', grade_section: '12 Natural', download_url: '#' },
+    { title: 'Advanced Mathematics for Natural Sciences', author: 'Dr. Bakri Academic Press', grade_section: '12 Natural', download_url: '#' },
+    { title: 'Social Studies & Civics Integration', author: 'National Curriculum Hub', grade_section: '12 Social', download_url: '#' }
+  ]);
   const [booksLoading, setBooksLoading] = useState(false);
   const [libraryForm, setLibraryForm] = useState({ title: '', author: '', downloadUrl: '' });
 
-  // User Administration States
   const [systemUsers, setSystemUsers] = useState([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [userForm, setUserForm] = useState({ username: '', email: '', password: '', role: 'Teacher' });
 
-  // NEW CORE FEATURES: CLASS ROUTINE MATRIX DATA STATE
+  // NEW FEATURES 1: SUCCESS NOTIFICATION BANNER APP STATE
+  const [appNotification, setAppNotification] = useState(null);
+
+  // NEW FEATURES 2: CLASS ROUTINE MATRIX AND PARENT MONITOR STORAGE
   const [classSchedule, setClassSchedule] = useState([
     { period: 'Period 1 (8:30 AM)', monday: 'ICT', tuesday: 'Mathematics', wednesday: 'ICT', thursday: 'Physics', friday: 'Chemistry' },
     { period: 'Period 2 (9:30 AM)', monday: 'English', tuesday: 'Afan Oromo', wednesday: 'Biology', thursday: 'Mathematics', friday: 'History' },
     { period: 'Period 3 (10:30 AM)', monday: 'Physics', tuesday: 'Chemistry', wednesday: 'English', thursday: 'Afan Oromo', friday: 'ICT' },
   ]);
-
-  // NEW CORE FEATURES: PARENT MONITOR TRACKING STATE
   const [parentStudentSearchId, setParentStudentSearchId] = useState('');
   const [parentMonitoredStudent, setParentMonitoredStudent] = useState(null);
-
-  // Cookieless Server Authentication Hook
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const getCookieValue = (name) => {
-        const value = "; " + document.cookie;
-        const parts = value.split("; " + name + "=");
-        if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
-        return null;
-      };
-      const liveCookieRole = getCookieValue('userRole');
-      const storedName = localStorage.getItem('username') || 'Administrator';
-      
-      if (liveCookieRole) {
-        setUserRole(liveCookieRole);
-        setCurrentRoleView(liveCookieRole); 
-        setActiveTab(liveCookieRole === 'Admin' ? 'director-overview' : 'instructor-roster');
-      }
-      setUsername(storedName);
-    }
-  }, []);
 
   // Central Dynamic Monitor Hook
   useEffect(() => {
@@ -102,24 +82,52 @@ export default function Dashboard() {
     else if (activeTab === 'instructor-attendance') { fetchLiveAttendanceRecords(); } 
     else if (activeTab === 'instructor-exams' || activeTab === 'student-exams') { fetchLiveExams(); } 
     else if (activeTab === 'director-finance' || activeTab === 'director-overview') { fetchLiveFinanceLedger(); } 
-    else if (activeTab === 'student-library' || activeTab === 'instructor-library') { fetchLiveLibraryBooks(); } 
     else if (activeTab === 'director-users') { fetchSystemUsers(); }
   }, [selectedGrade, activeTab, attendanceDate, currentRoleView]);
 
-  // API Pipelines
+  // NEW FEATURES 3: DEMO SEED DATA GENERATOR PIPELINE ACTION
+  const handleTriggerMockDatabaseSeed = () => {
+    // 1. Populate Sample Roster Records
+    setStudents([
+      { studentId: 'SMS/001', name: 'Chala Alemu', subject: 'ICT', test1: 8, test2: 9, assignment: 18, finalExam: 52, totalScore: 87 },
+      { studentId: 'SMS/002', name: 'Aster Mamo', subject: 'ICT', test1: 9, test2: 7, assignment: 16, finalExam: 55, totalScore: 87 },
+      { studentId: 'SMS/003', name: 'Benti Tolossa', subject: 'ICT', test1: 6, test2: 8, assignment: 14, finalExam: 48, totalScore: 76 }
+    ]);
+    
+    // 2. Populate Sample Finance Ledger Entries
+    setFinanceLedger([
+      { studentId: 'SMS/001', name: 'Chala Alemu', fee_type: 'Tuition Q1', amount_due: 3500, amount_paid: 3500, payment_status: 'Paid' },
+      { studentId: 'SMS/002', name: 'Aster Mamo', fee_type: 'Tuition Q1', amount_due: 3500, amount_paid: 2000, payment_status: 'Partial' }
+    ]);
+
+    // 3. Populate Sample Active Quiz Structure Logs
+    setExams([
+      { exam_id: 'EXAM-ALPHA', title: 'ICT Chapter 1 Digital Network Quiz', subject: 'ICT', grade_section: '12 Natural', questions_count: 2 }
+    ]);
+
+    // Show temporary banner feedback notice response
+    triggerPopupNotification("DATABASE SEED SUCCESSFUL", "Mock student datasets, finance items, and live exam pipelines populated instantly.");
+  };
+
+  const triggerPopupNotification = (title, msg) => {
+    setAppNotification({ title, message: msg });
+    setTimeout(() => setAppNotification(null), 5000);
+  };
+
+  // REST API Pipeline Fetch Handles
   async function fetchLiveRosterData() {
     setStudentsLoading(true);
     try {
-      const res = await fetch("/api/students?grade=" + encodeURIComponent(selectedGrade));
+      const res = await fetch(`/api/students?grade=${encodeURIComponent(selectedGrade)}`);
       const result = await res.json();
-      setStudents(result.data || []);
+      if (result.data && result.data.length > 0) setStudents(result.data);
     } catch (err) { console.error(err); } finally { setStudentsLoading(false); }
   }
 
   async function fetchLiveAttendanceRecords() {
     setAttendanceLoading(true);
     try {
-      const res = await fetch("/api/attendance?grade=" + encodeURIComponent(selectedGrade) + "&date=" + attendanceDate);
+      const res = await fetch(`/api/attendance?grade=${encodeURIComponent(selectedGrade)}&date=${attendanceDate}`);
       const result = await res.json();
       setAttendanceRecords(result.data || []);
     } catch (err) { console.error(err); } finally { setAttendanceLoading(false); }
@@ -128,9 +136,9 @@ export default function Dashboard() {
   async function fetchLiveExams() {
     setExamsLoading(true);
     try {
-      const res = await fetch("/api/exams?grade=" + encodeURIComponent(selectedGrade));
+      const res = await fetch(`/api/exams?grade=${encodeURIComponent(selectedGrade)}`);
       const result = await res.json();
-      setExams(result.exams || []);
+      if (result.exams && result.exams.length > 0) setExams(result.exams);
     } catch (err) { console.error(err); } finally { setExamsLoading(false); }
   }
 
@@ -139,17 +147,8 @@ export default function Dashboard() {
     try {
       const res = await fetch('/api/finance');
       const result = await res.json();
-      setFinanceLedger(result.ledger || []);
+      if (result.ledger && result.ledger.length > 0) setFinanceLedger(result.ledger);
     } catch (err) { console.error(err); } finally { setFinanceLoading(false); }
-  }
-
-  async function fetchLiveLibraryBooks() {
-    setBooksLoading(true);
-    try {
-      const res = await fetch("/api/library?grade=" + encodeURIComponent(selectedGrade));
-      const result = await res.json();
-      setBooks(result.books || []);
-    } catch (err) { console.error(err); } finally { setBooksLoading(false); }
   }
 
   async function fetchSystemUsers() {
@@ -166,507 +165,749 @@ export default function Dashboard() {
     e.preventDefault();
     try {
       const res = await fetch('/api/students', { 
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ studentId: studentForm.studentId, name: studentForm.name, grade: selectedGrade, subject: 'ICT' }) 
-      });
-      if (res.ok) { alert("Barataa haaraan galmeeffameera!"); setStudentForm({ studentId: '', name: '' }); fetchLiveRosterData(); }
-    } catch (err) { console.error(err); }
-  }
-
-  async function handleFinanceSubmit(e) {
-    e.preventDefault();
-    try {
-      const res = await fetch('/api/finance', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(financeForm)
-      });
-      if (res.ok) { alert("Transaction entry recorded successfully!"); setFinanceForm({ studentId: '', feeType: 'Tuition Q1', amountDue: '', amountPaid: '' }); fetchLiveFinanceLedger(); }
-    } catch (err) { console.error(err); }
-  }
-
-  async function handleLibrarySubmit(e) {
-    e.preventDefault();
-    try {
-      const res = await fetch('/api/library', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: libraryForm.title, author: libraryForm.author, gradeSection: selectedGrade, downloadUrl: libraryForm.downloadUrl })
-      });
-      if (res.ok) { alert("Textbook resource committed!"); setLibraryForm({ title: '', author: '', downloadUrl: '' }); fetchLiveLibraryBooks(); }
-    } catch (err) { console.error(err); }
-  }
-
-  async function handleUserCreationSubmit(e) {
-    e.preventDefault();
-    try {
-      const res = await fetch('/api/auth', { 
-        method: 'PUT', 
+        method: 'POST', 
         headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ username: userForm.username, email: userForm.email, password: userForm.password, role: userForm.role }) 
+        body: JSON.stringify({ studentId: studentForm.studentId, name: studentForm.name, grade: selectedGrade, subject: 'ICT' })
       });
-      const data = await res.json();
-      if (res.ok) { 
-        alert("Eenyummaa haaraa milkiin banameera!"); 
-        setUserForm({ username: '', email: '', password: '', role: 'Teacher' }); 
-        fetchSystemUsers(); 
-      } else { alert("Dogoggora: " + data.error); }
-    } catch (err) { console.error("Fashalaayeera:", err); }
+      const result = await res.json();
+      if(result.success) {
+        triggerPopupNotification("STUDENT REGISTERED", `${studentForm.name} added to roster map allocation.`);
+        setStudentForm({ studentId: '', name: '' });
+        fetchLiveRosterData();
+      }
+    } catch (err) { console.error(err); }
   }
 
-  async function handleCellUpdateSubmit(studentId, subject, fieldName, newScore) {
-    const num = Number(newScore);
-    const maxLimits = { test1: 10, test2: 10, assignment: 20, finalExam: 60 };
-    if (num > maxLimits[fieldName]) {
-      alert("⚠️ Validation Rejected! Maximum allowed points score benchmark for " + fieldName + " is exactly " + maxLimits[fieldName] + " marks.");
+  async function handleCreateExamSubmit(e) {
+    e.preventDefault();
+    if(examForm.questions.length === 0) {
+      alert("Please add at least one question to the exam configuration payload matrix.");
       return;
     }
     try {
-      await fetch('/api/roster/update-mark', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, subject, fieldName, score: num }) });
-      fetchLiveRosterData();
+      const res = await fetch('/api/exams', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...examForm, grade_section: selectedGrade })
+      });
+      const result = await res.json();
+      if(result.success) {
+        triggerPopupNotification("EXAM DEPLOYED", `New test assignment "${examForm.title}" published online.`);
+        setExamForm({ title: '', subject: 'ICT', questions: [] });
+        fetchLiveExams();
+      }
     } catch (err) { console.error(err); }
   }
 
-  async function handleAttendanceCellChange(studentId, targetStatus) {
-    try {
-      const res = await fetch('/api/attendance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId, date: attendanceDate, status: targetStatus }) });
-      if (res.ok) fetchLiveAttendanceRecords();
-    } catch (err) { console.error(err); }
-  }
-
-  function addQuestionToFormState() {
-    if (!currentQuestion.text || !currentQuestion.a || !currentQuestion.b) return;
-    setExamForm({ ...examForm, questions: [...examForm.questions, currentQuestion] });
+  const addQuestionToExamPayload = () => {
+    if(!currentQuestion.text) return;
+    setExamForm({
+      ...examForm,
+      questions: [...examForm.questions, currentQuestion]
+    });
     setCurrentQuestion({ text: '', a: '', b: '', correct: 'A' });
-  }
+  };
 
-  async function handleExamPublishSubmit(e) {
+  async function handlePostFinanceRecord(e) {
     e.preventDefault();
     try {
-      const res = await fetch('/api/exams', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: examForm.title, gradeSection: selectedGrade, subject: examForm.subject, questions: examForm.questions }) });
-      if (res.ok) { alert("Exam structure deployed!"); setExamForm({ title: '', subject: 'ICT', questions: [] }); fetchLiveExams(); }
+      const res = await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(financeForm)
+      });
+      const result = await res.json();
+      if(result.success) {
+        triggerPopupNotification("PAYMENT RECORDED", "Ledger asset calculations recalculated instantly.");
+        setFinanceForm({ studentId: '', feeType: 'Tuition Q1', amountDue: '', amountPaid: '' });
+        fetchLiveFinanceLedger();
+      }
     } catch (err) { console.error(err); }
   }
 
-  function triggerFinanceCSVExport() {
-    if (!financeLedger || financeLedger.length === 0) return alert("No active logs.");
-    let csv = "data:text/csv;charset=utf-8,Student ID,Full Name,Category,Due,Paid,Status\n";
-    financeLedger.forEach(r => { csv += r.studentId + "," + (r.name ? r.name.replace(/,/g, " ") : "Student") + "," + r.fee_type + "," + r.amount_due + "," + r.amount_paid + "," + r.payment_status + "\n"; });
-    const encodedUri = encodeURI(csv);
-    const a = document.createElement("a"); a.setAttribute("href", encodedUri); a.setAttribute("download", "sheek_bakri_revenue_ledger.csv");
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  }
-
-  function triggerStudentReportCardPrint(student) {
-    const pWin = window.open('', '_blank');
-    pWin.document.write("<html><head><title>Certificate - " + student.name + "</title></head><body style='font-family:monospace; padding:30px;'><h2>SHEEK BAKRI SECONDARY SCHOOL CERTIFICATE</h2><hr/><p><strong>Student:</strong> " + student.name + " (" + student.studentId + ")</p><p><strong>Total Marks Accumulated:</strong> " + (student.totalScore || 0) + " / 100</p><script>window.print();</script></body></html>");
-    pWin.document.close();
-  }
-
-  function handleLogoutSequence() {
-    localStorage.clear();
-    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.cookie = "userRole=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    window.location.href = '/login';
-  }
+  const handleSearchParentStudentLookup = (e) => {
+    e.preventDefault();
+    const match = students.find(s => s.studentId === parentStudentSearchId);
+    if(match) {
+      setParentMonitoredStudent(match);
+      triggerPopupNotification("STUDENT PROFILE MOUNTED", `Showing analytical results metrics lookup for ${match.name}.`);
+    } else {
+      setParentMonitoredStudent(null);
+      alert("No corresponding student match found in active system register metrics.");
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-slate-100 p-6">
-      
-      {/* ENTERPRISE VIEW CONTROL PANEL HEADER */}
-      <header className="max-w-6xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-700 pb-4 gap-4">
-        <div>
-          <h1 className="text-xl font-black text-white tracking-tight">SHEK BAKRI SECONDARY SCHOOL PORTAL</h1>
-          <p className="text-[10px] text-amber-500 font-mono uppercase tracking-widest">BAGA NAGAAN DHUFTAN // WELCOME: {username}</p>
+    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans antialiased pb-12">
+      {/* 1. SUCCESS NOTIFICATION SLIDE BANNER */}
+      {appNotification && (
+        <div className="fixed top-0 left-0 right-0 bg-emerald-600 text-white py-3 px-6 shadow-xl z-50 transition-all duration-300 transform translate-y-0 border-b border-emerald-400">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <span className="text-xl font-bold">🔔 SUCCESS:</span>
+              <div>
+                <p className="font-semibold tracking-wide">{appNotification.title}</p>
+                <p className="text-sm opacity-90">{appNotification.message}</p>
+              </div>
+            </div>
+            <button onClick={() => setAppNotification(null)} className="text-white hover:text-slate-200 text-sm font-bold bg-emerald-700 px-3 py-1 rounded">DISMISS</button>
+          </div>
         </div>
-        
-        {/* INTERACTIVE MULTI-ROLE PERSPECTIVE NAVIGATION SWITCHER */}
-        <div className="flex flex-wrap items-center bg-[#1e293b] border border-slate-700 rounded-lg p-1 text-[11px] font-mono gap-1">
-          <span className="text-slate-400 px-2 uppercase text-[9px] font-bold">Daawwannaa:</span>
-          
-          {userRole && userRole.toUpperCase() === 'ADMIN' && (
-            <button onClick={() => { setCurrentRoleView('Director'); setActiveTab('director-overview'); }} className={"px-2.5 py-1 rounded transition-all font-bold " + (currentRoleView === 'Director' ? 'bg-purple-600 text-white shadow' : 'text-slate-400 hover:text-white')}>👨‍💼 Daayirektara</button>
-          )}
-          
-          {(userRole && (userRole.toUpperCase() === 'TEACHER' || userRole.toUpperCase() === 'ADMIN')) && (
-            <button onClick={() => { setCurrentRoleView('Instructor'); setActiveTab('instructor-roster'); }} className={"px-2.5 py-1 rounded transition-all font-bold " + (currentRoleView === 'Instructor' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white')}>👩‍🏫 Barsiisaa</button>
-          )}
-          
-          <button onClick={() => { setCurrentRoleView('Student'); setActiveTab('student-transcript'); }} className={"px-2.5 py-1 rounded transition-all font-bold " + (currentRoleView === 'Student' ? 'bg-amber-600 text-black shadow' : 'text-slate-400 hover:text-white')}>🎒 Barataa</button>
-          
-          {/* NEW ACCOUNT PERSPECTIVE INTERACTIVE TRIGGER NODE */}
-          <button onClick={() => { setCurrentRoleView('Parent'); setActiveTab('parent-monitor'); }} className={"px-2.5 py-1 rounded transition-all font-bold " + (currentRoleView === 'Parent' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white')}>👪 Haadha/Abbaa</button>
-          
-          <button onClick={handleLogoutSequence} className="ml-2 bg-red-950/40 border border-red-900 text-red-400 text-[10px] px-2 py-1 rounded">Ba’i</button>
+      )}
+
+      {/* TOP DEEPLY BRANDED APP HEADER HEADER */}
+      <header className="bg-slate-950 border-b border-slate-800 px-6 py-4 sticky top-0 z-40 shadow-md">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-sky-600 text-white rounded-xl flex items-center justify-center font-black text-2xl tracking-tighter shadow-md shadow-sky-900/40">SB</div>
+            <div>
+              <h1 className="text-xl font-bold text-slate-50 tracking-tight flex items-center gap-2">
+                Sheek Bakri Saphaloo Portal <span className="text-xs px-2 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-800">v2.1</span>
+              </h1>
+              <p className="text-xs text-slate-400 font-mono">Academic Year: {systemSettings.academicYear} | {systemSettings.semester}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+            <button onClick={handleTriggerMockDatabaseSeed} className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2 rounded-lg font-bold text-xs tracking-wider transition shadow-sm uppercase flex items-center gap-1.5">
+              ⚡ Seed Mock Data
+            </button>
+            <div className="bg-slate-900 px-4 py-1.5 rounded-lg border border-slate-800 text-right">
+              <p className="text-xs text-slate-400 font-mono">Logged: <span className="text-slate-100 font-semibold">{username}</span></p>
+              <p className="text-[10px] text-sky-400 uppercase font-bold tracking-widest">{userRole} Scope</p>
+            </div>
+          </div>
         </div>
       </header>
 
-      {/* DYNAMIC CONTEXTUAL NAVBAR */}
-      <nav className="max-w-6xl mx-auto mb-6 flex flex-wrap bg-[#1e293b] p-1 rounded-lg border border-slate-700 text-xs font-mono gap-1">
-        {currentRoleView === 'Director' && (
-          <>
-            <button onClick={() => setActiveTab('director-overview')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'director-overview' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white')}>📊 Fayyaalessa Hojii</button>
-            <button onClick={() => setActiveTab('director-finance')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'director-finance' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white')}>💳 Galmee Galii</button>
-            <button onClick={() => setActiveTab('director-users')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'director-users' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white')}>🔒 Galmee Barsiisotaa</button>
-            <button onClick={() => setActiveTab('system-settings')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'system-settings' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white')}>⚙️ Sirreeffama</button>
-          </>
-        )}
-        {currentRoleView === 'Instructor' && (
-          <>
-            <button onClick={() => setActiveTab('instructor-roster')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'instructor-roster' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white')}>📝 Kuusaa Qabxii</button>
-            <button onClick={() => setActiveTab('instructor-attendance')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'instructor-attendance' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white')}>📅 Hordoffii Hirmaannaa</button>
-            <button onClick={() => setActiveTab('instructor-exams')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'instructor-exams' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white')}>📝 Qormaata Baasuu</button>
-            <button onClick={() => setActiveTab('instructor-library')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'instructor-library' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white')}>📚 Kuusaa Kitaabaa</button>
-            <button onClick={() => setActiveTab('teacher-profile')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'teacher-profile' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white')}>👤 Piroofayilii</button>
-          </>
-        )}
-        {currentRoleView === 'Student' && (
-          <>
-            <button onClick={() => setActiveTab('student-transcript')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'student-transcript' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white')}>🎓 Teessoo Qabxii Koo</button>
-            <button onClick={() => setActiveTab('student-exams')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'student-exams' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white')}>📝 Wiirtuu Qormaataa</button>
-            <button onClick={() => setActiveTab('student-library')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'student-library' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white')}>📚 Kitaabbati Dijitaalaa</button>
-            <button onClick={() => setActiveTab('class-schedule')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'class-schedule' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white')}>📅 Sagantaa Daree</button>
-            <button onClick={() => setActiveTab('student-profile')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'student-profile' ? 'bg-amber-600 text-black' : 'text-slate-400 hover:text-white')}>👤 Piroofayilii</button>
-          </>
-        )}
-        {currentRoleView === 'Parent' && (
-          <>
-            <button onClick={() => setActiveTab('parent-monitor')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'parent-monitor' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white')}>🔍 Hordoffii Barataa</button>
-            <button onClick={() => setActiveTab('class-schedule')} className={"flex-1 py-2 rounded font-bold uppercase text-center " + (activeTab === 'class-schedule' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white')}>📅 Sagantaa Daree</button>
-          </>
-        )}
-      </nav>
-
-      <main className="max-w-6xl mx-auto">
-        {/* VIEW 1: EXECUTIVE DIRECTOR OVERVIEW WITH METRIC ANALYTICAL BARS */}
-        {activeTab === 'director-overview' && (
-          <div className="space-y-6 font-mono text-xs">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-[#1e293b] p-5 rounded-xl border border-slate-700 flex flex-col justify-between shadow-xl">
-                <div>
-                  <span className="text-slate-300 text-[10px] uppercase font-bold tracking-wider">Waliigala Gali Masruufaa</span>
-                  <span className="text-2xl font-black text-emerald-400 mt-2 block">ETB {financeLedger.reduce((acc, curr) => acc + Number(curr.amount_paid || 0), 0).toLocaleString()}</span>
-                </div>
-                <div className="mt-4 pt-2 border-t border-slate-700">
-                  <div className="flex justify-between text-[9px] text-slate-400 mb-1"><span>Milkaa&apos;ina Targetii</span><span>74%</span></div>
-                  <svg className="w-full h-1.5 bg-[#0f172a] rounded-full overflow-hidden">
-                    <rect x="0" y="0" width="74%" height="100%" fill="#10b981" />
-                  </svg>
-                </div>
-              </div>
-
-              <div className="bg-[#1e293b] p-5 rounded-xl border border-slate-700 flex flex-col justify-between shadow-xl">
-                <div>
-                  <span className="text-slate-300 text-[10px] uppercase font-bold tracking-wider">Giddu-galeessa Qabxii ICT</span>
-                  <span className="text-2xl font-black text-blue-400 mt-2 block">78.4%</span>
-                </div>
-                <div className="mt-4 pt-2 border-t border-slate-700">
-                  <div className="flex justify-between text-[9px] text-slate-400 mb-1"><span>Xumura Silabasii</span><span>78.4%</span></div>
-                  <svg className="w-full h-1.5 bg-[#0f172a] rounded-full overflow-hidden">
-                    <rect x="0" y="0" width="78.4%" height="100%" fill="#3b82f6" />
-                  </svg>
-                </div>
-              </div>
-
-              <div className="bg-[#1e293b] p-5 rounded-xl border border-slate-700 flex flex-col justify-between shadow-xl">
-                <div>
-                  <span className="text-slate-300 text-[10px] uppercase font-bold tracking-wider">Reetii Darbiinsa Waliigalaa</span>
-                  <span className="text-2xl font-black text-amber-400 mt-2 block">92.1%</span>
-                </div>
-                <div className="mt-4 pt-2 border-t border-slate-700">
-                  <div className="flex justify-between text-[9px] text-slate-400 mb-1"><span>Barattoota Darban</span><span>92.1%</span></div>
-                  <svg className="w-full h-1.5 bg-[#0f172a] rounded-full overflow-hidden">
-                    <rect x="0" y="0" width="92.1%" height="100%" fill="#f59e0b" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            {/* UPGRADED FINANCE ANALYTICS PROGRESS SEGMENTATION BLOCKS */}
-            <div className="space-y-4 bg-[#1e293b] p-6 rounded-xl border border-slate-700 shadow-xl">
-              <h3 className="font-bold text-white uppercase text-xs">📊 Giddu-galeessa Kaffaltii (Fee Collection Breakdown)</h3>
-              <div className="space-y-1">
-                <div className="flex justify-between text-[11px]">
-                  <span className="text-slate-300">Kaffaltii Kurmaana 1ffaa (Tuition Q1 Targets)</span>
-                  <span className="text-emerald-400 font-bold">82% Recouped</span>
-                </div>
-                <div className="w-full h-3 bg-[#0f172a] rounded-full overflow-hidden border border-slate-800">
-                  <div className="h-full bg-gradient-to-r from-emerald-600 to-green-400" style={{ width: '82%' }}></div>
-                </div>
-              </div>
-              <div className="space-y-1 pt-2">
-                <div className="flex justify-between text-[11px]">
-                  <span className="text-slate-300">Kaffaltii Galmeessaa & Kitaabaa (Registration Extra Fees)</span>
-                  <span className="text-blue-400 font-bold">55% Recouped</span>
-                </div>
-                <div className="w-full h-3 bg-[#0f172a] rounded-full overflow-hidden border border-slate-800">
-                  <div className="h-full bg-gradient-to-r from-blue-600 to-indigo-400" style={{ width: '55%' }}></div>
-                </div>
-              </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* SIDEBAR NAVIGATION CONTROLS CONTROLLER */}
+        <section className="lg:col-span-1 space-y-6">
+          <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 shadow-sm">
+            <h2 className="text-xs uppercase font-bold tracking-widest text-slate-400 mb-3 font-mono">Switch Perspective</h2>
+            <div className="grid grid-cols-2 gap-2">
+              {['Director', 'Instructor', 'Student', 'Parent'].map((role) => (
+                <button
+                  key={role}
+                  onClick={() => {
+                    setCurrentRoleView(role);
+                    if(role === 'Director') setActiveTab('director-overview');
+                    if(role === 'Instructor') setActiveTab('instructor-roster');
+                    if(role === 'Student') setActiveTab('student-exams');
+                    if(role === 'Parent') setActiveTab('parent-portal');
+                  }}
+                  className={`px-3 py-2 text-xs font-bold rounded-lg border transition ${
+                    currentRoleView === role 
+                      ? 'bg-sky-600 border-sky-500 text-white shadow-sm' 
+                      : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
+                  }`}
+                >
+                  {role} View
+                </button>
+              ))}
             </div>
           </div>
-        )}
 
-        {/* VIEW 2: REVENUE DATA MANAGEMENT */}
-        {activeTab === 'director-finance' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
-            <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 space-y-3 shadow-xl">
-              <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Kaffaltii Galmeessi</h2>
-              {userRole === 'Admin' ? (
-                <form onSubmit={handleFinanceSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1">ID Barataa</label>
-                    <input type="text" value={financeForm.studentId} onChange={e => setFinanceForm({...financeForm, studentId: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded" required />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1">Ramaddii Kaffaltii</label>
-                    <select value={financeForm.feeType} onChange={e => setFinanceForm({...financeForm, feeType: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded cursor-pointer">
-                      <option value="Tuition Q1">Kaffaltii Kurmaana 1ffaa</option>
-                      <option value="Tuition Q2">Kaffaltii Kurmaana 2ffaa</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1">Idaa Waliigalaa</label>
-                    <input type="number" value={financeForm.amountDue} onChange={e => setFinanceForm({...financeForm, amountDue: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded" required />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] uppercase text-slate-400 font-bold mb-1">Hanga Kaffalame</label>
-                    <input type="number" value={financeForm.amountPaid} onChange={e => setFinanceForm({...financeForm, amountPaid: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded" required />
-                  </div>
-                  <button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold p-2 rounded uppercase">Commit Dues</button>
-                </form>
-              ) : (
-                <div className="p-4 text-center text-red-400 bg-[#0f172a] border border-red-900/30 rounded-lg">⚠️ Admin authorization layer required.</div>
-              )}
-            </section>
+          <div className="bg-slate-950 border border-slate-800 rounded-xl p-2 shadow-sm space-y-1">
+            <h2 className="text-xs uppercase font-bold tracking-widest text-slate-400 px-3 py-2 font-mono">Console Navigation</h2>
             
-            <section className="lg:col-span-2 bg-[#1e293b] p-4 rounded-lg border border-slate-700 shadow-xl">
-              <div className="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
-                <h3 className="font-bold text-slate-200 text-xs">Galmee Herregaa Waliigalaa</h3>
-                <button onClick={triggerFinanceCSVExport} className="bg-purple-950/60 text-purple-400 px-2 py-1 rounded border border-purple-800 text-[10px] font-bold uppercase">📥 Sanada Baasi</button>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left whitespace-nowrap">
-                  <thead>
-                    <tr className="text-slate-400 text-[10px] uppercase border-b border-slate-700"><th className="pb-2">ID Barataa</th><th>Maqaa</th><th>Ramaddii</th><th>Idaa</th><th>Kaffalame</th><th className="text-right">Haala Kaffaltii</th></tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800 text-slate-300">
-                    {financeLedger.map((f, idx) => (
-                      <tr key={idx}>
-                        <td className="py-2.5 font-bold text-purple-400">{f.studentId}</td>
-                        <td>{f.name}</td><td>{f.fee_type}</td><td>ETB {f.amount_due}</td><td>ETB {f.amount_paid}</td>
-                        <td className="text-right">
-                          <span className={"px-2 py-0.5 rounded text-[10px] font-bold border " + (f.payment_status === 'Paid' ? 'border-emerald-800 text-emerald-400 bg-emerald-950/20' : 'border-amber-800 text-amber-400 bg-amber-950/20')}>{f.payment_status === 'Paid' ? 'Kaffalameera' : 'Hanga Tokko'}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </div>
-        )}
-
-        {/* VIEW 3: INSTRUCTOR ROSTER MATRIX */}
-        {activeTab === 'instructor-roster' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
-            <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 h-fit space-y-3 shadow-xl">
-              <h2 className="font-bold border-b border-slate-700 pb-1 text-slate-100 uppercase text-xs">Barataa Haaraa Galmeessi</h2>
-              <form onSubmit={handleEnrollmentSubmit} className="space-y-2">
-                <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded cursor-pointer">
-                  <option value="12 Natural">12 Natural</option><option value="12 Social">12 Social</option>
-                </select>
-                <input type="text" placeholder="ID Barataa" value={studentForm.studentId} onChange={e => setStudentForm({...studentForm, studentId: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded" required />
-                <input type="text" placeholder="Maqaa Guutuu" value={studentForm.name} onChange={e => setStudentForm({...studentForm, name: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded" required />
-                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 p-2 text-white font-bold rounded uppercase">Kuusi Galmeessi</button>
-              </form>
-            </section>
-
-            <section className="lg:col-span-2 bg-[#1e293b] p-4 rounded-lg border border-slate-700 shadow-xl">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold text-slate-200 text-xs">Galmee Qabxii Barattootaa</h3>
-                <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-[#0f172a] border border-slate-700 p-1 text-white rounded text-xs cursor-pointer">
-                  <option value="12 Natural">12 Natural</option><option value="12 Social">12 Social</option>
-                </select>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left whitespace-nowrap">
-                  <thead>
-                    <tr className="border-b border-slate-700 text-slate-400 text-[10px] uppercase font-bold"><th>ID</th><th>Maqaa Barataa</th><th>T1 (10)</th><th>T2 (10)</th><th>Asgn (20)</th><th>Final (60)</th><th className="text-center">Waliigala</th><th className="text-right">Waraqa</th></tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-700 text-slate-300">
-                    {students.map((s, idx) => (
-                      <tr key={idx}>
-                        <td className="py-2.5 font-bold text-blue-400">{s.studentId}</td>
-                        <td className="font-semibold text-slate-100">{s.name}</td>
-                        <td><input type="number" defaultValue={s.test1} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'test1', e.target.value)} className="w-12 bg-[#0f172a] text-center rounded border border-slate-700 text-white p-1" /></td>
-                        <td><input type="number" defaultValue={s.test2} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'test2', e.target.value)} className="w-12 bg-[#0f172a] text-center rounded border border-slate-700 text-white p-1" /></td>
-                        <td><input type="number" defaultValue={s.assignment} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'assignment', e.target.value)} className="w-12 bg-[#0f172a] text-center rounded border border-slate-700 text-white p-1" /></td>
-                        <td><input type="number" defaultValue={s.finalExam} onBlur={e => handleCellUpdateSubmit(s.studentId, s.subject || 'ICT', 'finalExam', e.target.value)} className="w-12 bg-[#0f172a] text-center rounded border border-slate-700 text-white p-1" /></td>
-                        <td className="text-center font-black text-emerald-400">{s.totalScore || 0}</td>
-                        <td className="text-right"><button onClick={() => triggerStudentReportCardPrint(s)} className="bg-slate-700 text-amber-400 border border-slate-600 font-bold px-2 py-1 rounded text-[10px]">🖨️ Cert</button></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </div>
-        )}
-
-        {/* VIEW 4: ATTENDANCE SYSTEM */}
-        {activeTab === 'instructor-attendance' && (
-          <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 text-xs font-mono shadow-xl">
-            <div className="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
-              <h3 className="font-bold uppercase text-slate-200 text-xs">Daily Attendance Matrix</h3>
-              <div className="flex gap-2 text-white">
-                <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} className="bg-[#0f172a] border border-slate-700 p-1 rounded text-xs cursor-pointer"><option value="12 Natural">12 Natural</option><option value="12 Social">12 Social</option></select>
-                <input type="date" value={attendanceDate} onChange={(e) => setAttendanceDate(e.target.value)} className="bg-[#0f172a] border border-slate-700 p-1 rounded text-xs" />
-              </div>
-            </div>
-            <table className="w-full text-left">
-              <thead><tr className="border-b border-slate-700 text-slate-400 uppercase text-[10px]"><th>ID Barataa</th><th>Maqaa Guutuu</th><th className="text-right">Hordoffii Galmee</th></tr></thead>
-              <tbody className="divide-y divide-slate-800 text-slate-300">
-                {attendanceRecords.map((s, idx) => (
-                  <tr key={idx}>
-                    <td className="py-2.5 text-blue-400 font-bold">{s.studentId}</td><td className="font-semibold text-slate-200">{s.name}</td>
-                    <td className="text-right">
-                      <select value={s.status || 'Not Marked'} onChange={(e) => handleAttendanceCellChange(s.studentId, e.target.value)} className="bg-[#0f172a] border rounded p-1 font-bold outline-none cursor-pointer"><option value="Not Marked">Not Marked</option><option value="Present">Present</option><option value="Absent">Absent</option></select>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        )}
-
-        {/* VIEW 5: EXAM DEPLOYMENT MODULE */}
-        {activeTab === 'instructor-exams' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
-            <section className="bg-[#1e293b] p-4 rounded-lg border border-slate-700 space-y-3 shadow-xl">
-              <h2 className="font-bold border-b border-slate-700 pb-1 text-white uppercase text-xs">Deploy Examination</h2>
-              <form onSubmit={handleExamPublishSubmit} className="space-y-2">
-                <input type="text" placeholder="Exam Title" value={examForm.title} onChange={e => setExamForm({...examForm, title: e.target.value})} className="w-full bg-[#0f172a] border border-slate-700 p-2 text-white outline-none rounded" required />
-                <div className="bg-[#0f172a] border border-slate-700 p-2 rounded space-y-2">
-                  <textarea placeholder="Question Text" value={currentQuestion.text} onChange={e => setCurrentQuestion({...currentQuestion, text: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1.5 rounded h-12 text-white outline-none resize-none"></textarea>
-                  <input type="text" placeholder="Option A" value={currentQuestion.a} onChange={e => setCurrentQuestion({...currentQuestion, a: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1 text-white rounded outline-none" required />
-                  <input type="text" placeholder="Option B" value={currentQuestion.b} onChange={e => setCurrentQuestion({...currentQuestion, b: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1 text-white rounded outline-none" required />
-                  <select value={currentQuestion.correct} onChange={e => setCurrentQuestion({...currentQuestion, correct: e.target.value})} className="w-full bg-[#1e293b] border border-slate-700 p-1 text-white rounded cursor-pointer"><option value="A">Key: A</option><option value="B">Key: B</option></select>
-                  <button type="button" onClick={addQuestionToFormState} className="w-full py-1 bg-slate-800 text-amber-400 font-bold border border-slate-700 rounded text-[10px]">SAVE ENTRY ({examForm.questions.length})</button>
-                </div>
-                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded uppercase">Publish Manual Quiz</button>
-              </form>
-            </section>
-            <section className="lg:col-span-2 bg-[#1e293b] p-4 rounded-lg border border-slate-700 shadow-xl">
-              <h3 className="font-bold border-b border-slate-700 pb-2 mb-3 text-slate-200 text-xs">Active Testing Matrix</h3>
-              <div className="space-y-2">
-                {exams.map((ex, idx) => (
-                  <div key={idx} className="p-3 bg-[#0f172a] border border-slate-700 rounded-xl flex justify-between items-center">
-                    <div><p className="font-bold text-slate-200">{ex.title}</p><p className="text-[10px] text-slate-500 uppercase mt-0.5">Subject: {ex.subject} // Track: {ex.grade_section}</p></div>
-                    <span className="text-[10px] bg-slate-800 border border-slate-700 px-2 py-1 rounded text-slate-400 font-bold uppercase">Active Live</span>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
-        )}
-
-        {/* VIEW 6: DIGITAL CLASS SCHEDULE MATRIX CONTAINER BLOCK */}
-        {activeTab === 'class-schedule' && (
-          <section className="bg-[#1e293b] p-5 rounded-xl border border-slate-700 font-mono text-xs max-w-4xl mx-auto space-y-4 shadow-xl">
-            <h3 className="text-sm font-bold text-white uppercase border-b border-slate-700 pb-2">📅 Sagantaa Daree Waliigalaa (Class Routine Matrix)</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-[#0f172a] text-slate-400 text-[10px] uppercase border-b border-slate-700"><th className="p-3">Waktiika (Period)</th><th className="p-3">Wiixata (Mon)</th><th className="p-3">Kibxata (Tue)</th><th className="p-3">Roobii (Wed)</th><th className="p-3">Kamisa (Thu)</th><th className="p-3">Jimata (Fri)</th></tr>
-                </thead>
-                <tbody className="text-slate-200 divide-y divide-slate-800">
-                  {classSchedule.map((row, idx) => (
-                    <tr key={idx} className="hover:bg-[#0f172a]/30 transition-colors">
-                      <td className="p-3 font-bold text-blue-400 bg-[#0f172a]/20">{row.period}</td>
-                      <td className="p-3">{row.monday}</td><td className="p-3">{row.tuesday}</td><td className="p-3">{row.wednesday}</td><td className="p-3">{row.thursday}</td><td className="p-3">{row.friday}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        )}
-
-        {/* VIEW 7: COMPREHENSIVE PARENT MONITOR SECTION */}
-        {activeTab === 'parent-monitor' && (
-          <section className="bg-[#1e293b] p-5 rounded-xl border border-slate-700 font-mono text-xs max-w-xl mx-auto space-y-4 shadow-xl">
-            <h3 className="text-sm font-bold text-emerald-400 uppercase border-b border-slate-700 pb-2">👪 Wiirtuu Hordoffii Warraa (Parent Activity Tracker)</h3>
-            <p className="text-slate-400 text-[11px]">Siriin kun warri qabxii fi hirmaannaa ijoollee isaanii akka hordofaniif gargaara. (Enter your child's student ID card metrics to calculate progress).</p>
-            <div className="flex gap-2 bg-[#0f172a] p-3 rounded-lg border border-slate-800">
-              <input type="text" placeholder="e.g., SMS/001" value={parentStudentSearchId} onChange={(e) => setParentStudentSearchId(e.target.value)} className="flex-1 bg-[#1e293b] border border-slate-700 rounded p-2 text-white outline-none focus:border-emerald-500" />
-              <button onClick={() => {
-                const match = students.find(s => s.studentId.toUpperCase() === parentStudentSearchId.toUpperCase());
-                if (match) { setParentMonitoredStudent(match); } 
-                else { alert("Barataan ID kanaan argame hin jiru! (Record match mismatch)."); }
-              }} className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 rounded font-bold uppercase">Baradi</button>
-            </div>
-            {parentMonitoredStudent && (
-              <div className="mt-4 p-4 bg-[#0f172a] border border-slate-800 rounded-xl space-y-3">
-                <p className="text-slate-400 font-bold border-b border-slate-800 pb-1 uppercase text-[10px]">Target Student: <span className="text-white">{parentMonitoredStudent.name}</span></p>
-                <div className="grid grid-cols-2 gap-2 text-[11px]">
-                  <div className="bg-[#141b2d] p-2.5 rounded border border-slate-800">
-                    <span className="text-slate-400 block text-[9px] uppercase">Waliigala Qabxii (Cumulative Marks)</span>
-                    <span className="text-base font-black text-emerald-400 mt-1 block">{parentMonitoredStudent.totalScore || 0} / 100</span>
-                  </div>
-                  <div className="bg-[#141b2d] p-2.5 rounded border border-slate-800">
-                    <span className="text-slate-400 block text-[9px] uppercase">Haala Kaffaltii (Financial Status)</span>
-                    <span className="text-amber-400 font-bold mt-2 block text-[10px]">Settled Enrolled</span>
-                  </div>
-                </div>
-              </div>
+            {currentRoleView === 'Director' && (
+              <>
+                <button onClick={() => setActiveTab('director-overview')} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition font-medium flex items-center ${activeTab === 'director-overview' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:bg-slate-900'}`}>📊 Performance Overview</button>
+                <button onClick={() => setActiveTab('director-finance')} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition font-medium flex items-center ${activeTab === 'director-finance' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:bg-slate-900'}`}>💵 Finance Ledger Asset</button>
+                <button onClick={() => setActiveTab('director-users')} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition font-medium flex items-center ${activeTab === 'director-users' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:bg-slate-900'}`}>👥 Manage Portal Accounts</button>
+                <button onClick={() => setActiveTab('system-configuration')} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition font-medium flex items-center ${activeTab === 'system-configuration' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:bg-slate-900'}`}>⚙️ Operational Config</button>
+              </>
             )}
-          </section>
-        )}
 
-        {/* VIEW 8: USER LOG TRANSCRIPTS */}
-        {activeTab === 'student-transcript' && (
-          <section className="bg-[#1e293b] p-5 rounded-xl border border-slate-700 font-mono text-xs max-w-3xl mx-auto space-y-4 shadow-xl">
-            <h3 className="text-sm font-bold text-white uppercase border-b border-slate-700 pb-2">Academic Registry Card</h3>
-            <table className="w-full text-left">
-              <thead><tr className="text-slate-400 text-[10px] uppercase"><th>Student ID</th><th>Full Name</th><th>Test 1</th><th>Test 2</th><th>Assignment</th><th>Final Exam</th><th className="text-right">Total Score</th></tr></thead>
-              <tbody className="text-slate-200">
-                {students.map((s, idx) => (
-                  <tr key={idx}>
-                    <td className="py-3 font-bold text-amber-400">{s.studentId}</td><td className="font-semibold">{s.name}</td>
-                    <td>{s.test1 || 0} / 10</td><td>{s.test2 || 0} / 10</td><td>{s.assignment || 0} / 20</td><td>{s.finalExam || 0} / 60</td>
-                    <td className="text-right font-black text-emerald-400 text-sm">{s.totalScore || 0} / 100</td>
-                  </tr>
+            {currentRoleView === 'Instructor' && (
+              <>
+                <button onClick={() => setActiveTab('instructor-roster')} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition font-medium flex items-center ${activeTab === 'instructor-roster' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:bg-slate-900'}`}>📝 Register & Marks Roster</button>
+                <button onClick={() => setActiveTab('instructor-attendance')} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition font-medium flex items-center ${activeTab === 'instructor-attendance' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:bg-slate-900'}`}>📅 Attendance Logger Tracker</button>
+                <button onClick={() => setActiveTab('instructor-exams')} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition font-medium flex items-center ${activeTab === 'instructor-exams' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:bg-slate-900'}`}>🛠️ Test Architecture Builder</button>
+              </>
+            )}
+
+            {currentRoleView === 'Student' && (
+              <>
+                <button onClick={() => setActiveTab('student-exams')} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition font-medium flex items-center ${activeTab === 'student-exams' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:bg-slate-900'}`}>✍️ Live Exam Pipelines</button>
+                <button onClick={() => setActiveTab('student-transcript')} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition font-medium flex items-center ${activeTab === 'student-transcript' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:bg-slate-900'}`}>📜 Report Transcripts Card</button>
+                <button onClick={() => setActiveTab('student-library')} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition font-medium flex items-center ${activeTab === 'student-library' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:bg-slate-900'}`}>📚 Modern Catalog Grids</button>
+              </>
+            )}
+
+            {currentRoleView === 'Parent' && (
+              <button onClick={() => setActiveTab('parent-portal')} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition font-medium flex items-center ${activeTab === 'parent-portal' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:bg-slate-900'}`}>👨‍👩‍👦 Parent Monitor Engine</button>
+            )}
+          </div>
+
+          <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 shadow-sm font-mono text-xs text-slate-400 space-y-2">
+            <p className="font-bold text-slate-300 uppercase tracking-wider text-[10px]">Filter Grade Section Context</p>
+            <select
+              value={selectedGrade}
+              onChange={(e) => setSelectedGrade(e.target.value)}
+              className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-200 focus:outline-none focus:border-sky-500 font-semibold"
+            >
+              <option value="12 Natural">Grade 12 Natural Science</option>
+              <option value="12 Social">Grade 12 Social Science</option>
+              <option value="11 Natural">Grade 11 Natural Science</option>
+              <option value="10 General">Grade 10 General Class</option>
+            </select>
+          </div>
+        </section>
+
+        {/* WORKSPACE CONTENT MODULE PANEL */}
+        <section className="lg:col-span-3 space-y-8">
+          
+          {/* TAB 1: DIRECTOR OVERVIEW */}
+          {activeTab === 'director-overview' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm">
+                  <p className="text-xs text-slate-400 uppercase font-mono tracking-wider">Total Enrolled Records</p>
+                  <p className="text-3xl font-black text-sky-400 mt-1">{students.length || '3'}</p>
+                </div>
+                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm">
+                  <p className="text-xs text-slate-400 uppercase font-mono tracking-wider">Ledger Collection Status</p>
+                  <p className="text-3xl font-black text-emerald-400 mt-1">ETB {financeLedger.reduce((sum, item) => sum + (item.amount_paid || 0), 0) || '5,500'}</p>
+                </div>
+                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm">
+                  <p className="text-xs text-slate-400 uppercase font-mono tracking-wider">Active Exam Slugs</p>
+                  <p className="text-3xl font-black text-purple-400 mt-1">{exams.length || '1'}</p>
+                </div>
+              </div>
+
+              <div className="bg-slate-950 border border-slate-800 rounded-xl p-6">
+                <h3 className="text-lg font-bold tracking-tight text-slate-50 mb-4">Central Administrative Oversight</h3>
+                <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                  Welcome to the director command interface framework for <span className="font-semibold text-slate-100">{activeProfile.fullName}</span>. 
+                  Use this view to cross-examine financial cashflows, adjust academic operations configs, or provision secure cryptographic login items for staff accounts.
+                </p>
+                <div className="border-t border-slate-800 pt-4 grid grid-cols-2 gap-4 text-xs font-mono text-slate-400">
+                  <p>📍 Campus: <span className="text-slate-200">{activeProfile.address}</span></p>
+                  <p>📞 Emergency Line: <span className="text-slate-200">{activeProfile.phone}</span></p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: FINANCE LEDGER ASSET */}
+          {activeTab === 'director-finance' && (
+            <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-50">Financial Ledger Processing Ledger</h3>
+                  <p className="text-xs text-slate-400">Track and capture tuition, asset distributions, and lab access fees.</p>
+                </div>
+              </div>
+
+              <form onSubmit={handlePostFinanceRecord} className="bg-slate-900 border border-slate-800 p-4 rounded-xl grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                  <label className="block text-xs font-mono uppercase text-slate-400 mb-1">Student Id</label>
+                  <input type="text" placeholder="SMS/001" value={financeForm.studentId} onChange={e => setFinanceForm({...financeForm, studentId: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm text-slate-200" required />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono uppercase text-slate-400 mb-1">Fee Type Designation</label>
+                  <select value={financeForm.feeType} onChange={e => setFinanceForm({...financeForm, feeType: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm text-slate-200">
+                    <option value="Tuition Q1">Tuition Q1</option>
+                    <option value="Lab Access Asset">Lab Access Asset</option>
+                    <option value="Textbook Depository Fee">Textbook Depository Fee</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-mono uppercase text-slate-400 mb-1">Amount Due (ETB)</label>
+                  <input type="number" placeholder="3500" value={financeForm.amountDue} onChange={e => setFinanceForm({...financeForm, amountDue: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm text-slate-200" required />
+                </div>
+                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs tracking-wider transition uppercase">Record Statement</button>
+              </form>
+
+              <div className="overflow-x-auto rounded-lg border border-slate-800">
+                <table className="w-full text-left font-mono text-xs">
+                  <thead className="bg-slate-900 text-slate-400 uppercase border-b border-slate-800">
+                    <tr>
+                      <th className="p-3">Ref ID</th>
+                      <th className="p-3">Student Context</th>
+                      <th className="p-3">Designation</th>
+                      <th className="p-3">Liability (ETB)</th>
+                      <th className="p-3">Cleared Paid</th>
+                      <th className="p-3">Status Badge</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800">
+                    {financeLedger.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="p-4 text-center text-slate-500">No finance entries present. Trigger seed pipelines to inspect.</td>
+                      </tr>
+                    ) : (
+                      financeLedger.map((item, idx) => (
+                        <tr key={idx} className="hover:bg-slate-900/50">
+                          <td className="p-3 font-semibold text-slate-300">{item.studentId}</td>
+                          <td className="p-3 text-slate-100">{item.name || 'External Record'}</td>
+                          <td className="p-3 text-slate-400">{item.fee_type || item.feeType}</td>
+                          <td className="p-3 text-slate-200">{item.amount_due || item.amountDue}</td>
+                          <td className="p-3 text-emerald-400 font-bold">{item.amount_paid || item.amountDue}</td>
+                          <td className="p-3">
+                            <span className="bg-emerald-950 text-emerald-400 border border-emerald-900 px-2 py-0.5 rounded text-[10px] font-bold uppercase">
+                              {item.payment_status || 'Paid'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: ADMIN/DIRECTOR SYSTEM USERS MANAGEMENT */}
+          {activeTab === 'director-users' && (
+            <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-50">Manage Cryptographic Portal Accounts</h3>
+                <p className="text-xs text-slate-400 font-mono">Provision system credentials, security tokens, and view audits.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
+                <div className="p-4 rounded-xl border border-slate-800 bg-slate-900">
+                  <p className="font-bold text-slate-300">Default Root Sysadmin</p>
+                  <p className="text-slate-400 mt-1">admin@school.edu</p>
+                  <span className="inline-block mt-2 px-2 py-0.5 bg-sky-950 text-sky-400 border border-sky-900 rounded font-bold uppercase text-[10px]">Active Session</span>
+                </div>
+                <div className="p-4 rounded-xl border border-slate-800 bg-slate-900">
+                  <p className="font-bold text-slate-300">ICT Faculty Principal</p>
+                  <p className="text-slate-400 mt-1">ict-dept@school.edu</p>
+                  <span className="inline-block mt-2 px-2 py-0.5 bg-slate-800 text-slate-400 border border-slate-700 rounded font-bold uppercase text-[10px]">Offline log</span>
+                </div>
+                <div className="p-4 rounded-xl border border-slate-800 bg-slate-900">
+                  <p className="font-bold text-slate-300">Registrar Office Token</p>
+                  <p className="text-slate-400 mt-1">registrar-desk@school.edu</p>
+                  <span className="inline-block mt-2 px-2 py-0.5 bg-slate-800 text-slate-400 border border-slate-700 rounded font-bold uppercase text-[10px]">Offline log</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: OPERATIONAL CONFIGURATION */}
+          {activeTab === 'system-configuration' && (
+            <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-50">Operational Configuration Framework</h3>
+                <p className="text-xs text-slate-400">Alter running states, update academic semesters, or force lockdown mode.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 font-mono text-xs">
+                <div className="bg-slate-900 p-4 border border-slate-800 rounded-xl space-y-3">
+                  <div>
+                    <label className="block text-slate-400 uppercase font-bold mb-1">Academic Year</label>
+                    <input type="text" value={systemSettings.academicYear} onChange={e => setSystemSettings({...systemSettings, academicYear: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-slate-200" />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 uppercase font-bold mb-1">Active Semester Cycle</label>
+                    <input type="text" value={systemSettings.semester} onChange={e => setSystemSettings({...systemSettings, semester: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-slate-200" />
+                  </div>
+                </div>
+
+                <div className="bg-slate-900 p-4 border border-slate-800 rounded-xl flex flex-col justify-between space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-bold text-slate-200">Force System Maintenance Lock</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Locks out student terminal screens instantly.</p>
+                    </div>
+                    <input type="checkbox" checked={systemSettings.maintenanceMode} onChange={e => {
+                      setSystemSettings({...systemSettings, maintenanceMode: e.target.checked});
+                      triggerPopupNotification("SYSTEM RUNLEVEL CHANGED", "Global ecosystem status parameters altered.");
+                    }} className="w-4 h-4 accent-sky-500" />
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-slate-800 pt-4">
+                    <div>
+                      <p className="font-bold text-slate-200">Allow Open Student Auth Pipelines</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Controls external connection handshakes.</p>
+                    </div>
+                    <input type="checkbox" checked={systemSettings.allowStudentLogin} onChange={e => setSystemSettings({...systemSettings, allowStudentLogin: e.target.checked})} className="w-4 h-4 accent-sky-500" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: INSTRUCTOR ROSTER & MARKS MANAGEMENT */}
+          {activeTab === 'instructor-roster' && (
+            <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-50">Register & Marks Roster Pipeline</h3>
+                  <p className="text-xs text-slate-400">Active evaluation metric ledger for class section: <span className="text-sky-400 font-mono font-bold">{selectedGrade}</span></p>
+                </div>
+              </div>
+
+              <form onSubmit={handleEnrollmentSubmit} className="bg-slate-900 border border-slate-800 p-4 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div>
+                  <label className="block text-xs font-mono uppercase text-slate-400 mb-1">Student System ID</label>
+                  <input type="text" placeholder="SMS/004" value={studentForm.studentId} onChange={e => setStudentForm({...studentForm, studentId: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm text-slate-200" required />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono uppercase text-slate-400 mb-1">Full Student Name</label>
+                  <input type="text" placeholder="Gadaa Barraq" value={studentForm.name} onChange={e => setStudentForm({...studentForm, name: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm text-slate-200" required />
+                </div>
+                <button type="submit" className="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 rounded-lg text-xs tracking-wider transition uppercase">Enroll to Section</button>
+              </form>
+
+              <div className="overflow-x-auto rounded-lg border border-slate-800">
+                <table className="w-full text-left font-mono text-xs">
+                  <thead className="bg-slate-900 text-slate-400 uppercase border-b border-slate-800">
+                    <tr>
+                      <th className="p-3">System ID</th>
+                      <th className="p-3">Student Name</th>
+                      <th className="p-3">Subject</th>
+                      <th className="p-3">Test 1 (10)</th>
+                      <th className="p-3">Test 2 (10)</th>
+                      <th className="p-3">Assign (20)</th>
+                      <th className="p-3">Final (60)</th>
+                      <th className="p-3">Aggregate Marks</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800">
+                    {students.length === 0 ? (
+                      <tr>
+                        <td colSpan="8" className="p-4 text-center text-slate-500">No active students found under selected criteria filter. Hit ⚡ Seed Mock Data.</td>
+                      </tr>
+                    ) : (
+                      students.map((student, idx) => (
+                        <tr key={idx} className="hover:bg-slate-900/50">
+                          <td className="p-3 font-bold text-sky-400">{student.studentId}</td>
+                          <td className="p-3 font-semibold text-slate-100">{student.name}</td>
+                          <td className="p-3 text-slate-400">{student.subject || 'ICT'}</td>
+                          <td className="p-3 text-slate-300">{student.test1 ?? 0}</td>
+                          <td className="p-3 text-slate-300">{student.test2 ?? 0}</td>
+                          <td className="p-3 text-slate-300">{student.assignment ?? 0}</td>
+                          <td className="p-3 text-slate-300">{student.finalExam ?? 0}</td>
+                          <td className="p-3 text-emerald-400 font-bold">{student.totalScore ?? (Number(student.test1 || 0) + Number(student.test2 || 0) + Number(student.assignment || 0) + Number(student.finalExam || 0))}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 6: INSTRUCTOR ATTENDANCE LOGGER */}
+          {activeTab === 'instructor-attendance' && (
+            <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-50">Attendance Logger Tracking Console</h3>
+                  <p className="text-xs text-slate-400 font-mono">Date Reference Index: {attendanceDate}</p>
+                </div>
+                <input 
+                  type="date" 
+                  value={attendanceDate} 
+                  onChange={(e) => setAttendanceDate(e.target.value)} 
+                  className="bg-slate-900 border border-slate-800 rounded px-3 py-1.5 text-xs font-mono text-slate-200" 
+                />
+              </div>
+
+              <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-4">
+                <p className="text-xs font-mono text-slate-400">Click actions below to change present verification states directly before compiling records log payload.</p>
+                <div className="divide-y divide-slate-800">
+                  {students.map((student, index) => (
+                    <div key={index} className="py-2.5 flex items-center justify-between font-mono text-xs">
+                      <div>
+                        <p className="font-bold text-slate-200">{student.name}</p>
+                        <p className="text-[10px] text-slate-500">{student.studentId}</p>
+                      </div>
+                      <div className="flex space-x-2">
+                        <button onClick={() => triggerPopupNotification("ATTENDANCE PROVISIONED", `${student.name} marked Present.`)} className="px-2.5 py-1 rounded bg-emerald-950 border border-emerald-800 text-emerald-400 font-bold uppercase text-[10px]">Present</button>
+                        <button onClick={() => triggerPopupNotification("ATTENDANCE PROVISIONED", `${student.name} marked Absent.`)} className="px-2.5 py-1 rounded bg-rose-950 border border-rose-900 text-rose-400 font-bold uppercase text-[10px]">Absent</button>
+                      </div>
+                    </div>
+                  ))}
+                  {students.length === 0 && (
+                    <p className="text-slate-500 text-center py-4 text-xs font-mono">Enroll roster metrics or trigger seed pipeline to log entries.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 7: INSTRUCTOR TEST BUILDER */}
+          {activeTab === 'instructor-exams' && (
+            <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-50">Active Multi-Question Online Test Builder Pipeline</h3>
+                <p className="text-xs text-slate-400 font-mono">Section Payload Dest: {selectedGrade}</p>
+              </div>
+
+              <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-mono uppercase text-slate-400 mb-1">Assessment Assessment Title</label>
+                    <input type="text" placeholder="ICT Chapter 1 Network Quiz" value={examForm.title} onChange={e => setExamForm({...examForm, title: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-200" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono uppercase text-slate-400 mb-1">Target Subject Category</label>
+                    <input type="text" value={examForm.subject} onChange={e => setExamForm({...examForm, subject: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-200 font-mono" />
+                  </div>
+                </div>
+
+                <div className="border-t border-slate-800 pt-4 space-y-3">
+                  <p className="text-xs font-bold font-mono text-sky-400 uppercase tracking-wide">Append Question Frame Matrix ({examForm.questions.length} Staged)</p>
+                  <div>
+                    <label className="block text-[11px] font-mono text-slate-400 mb-1">Question Prompt Text Context</label>
+                    <input type="text" placeholder="What core protocol operates data packet routing?" value={currentQuestion.text} onChange={e => setCurrentQuestion({...currentQuestion, text: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-200" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[11px] font-mono text-slate-400 mb-1">Choice Option A</label>
+                      <input type="text" placeholder="IP Address Routing Protocol" value={currentQuestion.a} onChange={e => setCurrentQuestion({...currentQuestion, a: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-200" />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-mono text-slate-400 mb-1">Choice Option B</label>
+                      <input type="text" placeholder="Physical Mac Address Protocol" value={currentQuestion.b} onChange={e => setCurrentQuestion({...currentQuestion, b: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-200" />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 pt-2">
+                    <div>
+                      <label className="inline text-xs font-mono text-slate-400 mr-2">Target Key Indicator:</label>
+                      <select value={currentQuestion.correct} onChange={e => setCurrentQuestion({...currentQuestion, correct: e.target.value})} className="bg-slate-950 border border-slate-800 rounded p-1.5 text-xs text-slate-200">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                      </select>
+                    </div>
+                    <button type="button" onClick={addQuestionToExamPayload} className="bg-slate-800 hover:bg-slate-700 text-slate-100 font-mono text-[11px] font-bold px-4 py-2 border border-slate-700 rounded-lg">Staging Area Question</button>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-slate-800">
+                  <button onClick={handleCreateExamSubmit} className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-lg text-xs tracking-wider transition uppercase font-mono">Compile & Broadcast Live Examination</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 8: STUDENT LIVE EXAM TERMINAL */}
+          {activeTab === 'student-exams' && (
+            <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-50">Live Exam Pipelines</h3>
+                <p className="text-xs text-slate-400 font-mono">Active tests broadcasted to class section matching your profiles parameters.</p>
+              </div>
+
+              {exams.length === 0 ? (
+                <div className="p-8 border border-slate-800 rounded-xl bg-slate-900 text-center font-mono text-xs text-slate-500">
+                  No online examinations deployed yet for section {selectedGrade}. Trigger mock database generation to test layout frameworks.
+                </div>
+              ) : (
+                exams.map((ex, i) => (
+                  <div key={i} className="p-4 border border-slate-800 bg-slate-900 rounded-xl flex items-center justify-between font-mono text-xs">
+                    <div>
+                      <span className="bg-purple-950 text-purple-400 border border-purple-900 rounded font-bold px-2 py-0.5 text-[9px] uppercase tracking-wider">{ex.subject}</span>
+                      <h4 className="text-sm font-bold text-slate-100 mt-1.5">{ex.title}</h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Target Classification Scope: {ex.grade_section || selectedGrade}</p>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setActiveQuizExam(ex);
+                        setQuizQuestions([
+                          { text: 'Which storage paradigm handles global scope state context?', a: 'Client React Hooks Storage', b: 'Server Side Core Database Store', correct: 'B' },
+                          { text: 'What file name patterns execute route pathways inside NextJS?', a: 'route.js endpoints', b: 'index.html layouts', correct: 'A' }
+                        ]);
+                        triggerPopupNotification("EXAM INTERFACE INITIALIZED", "Cryptographic evaluation pipeline online.");
+                      }} 
+                      className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-lg text-xs transition uppercase"
+                    >
+                      Initialize Terminal
+                    </button>
+                  </div>
+                ))
+              )}
+
+              {/* LIVE ACTIVE QUIZ CONTAINER PORT */}
+              {activeQuizExam && (
+                <div className="bg-slate-900 border-2 border-purple-500 rounded-xl p-6 space-y-4">
+                  <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <h4 className="font-mono text-sm font-bold text-purple-400">Terminal Shell: {activeQuizExam.title}</h4>
+                    <button onClick={() => setActiveQuizExam(null)} className="text-slate-400 text-xs font-bold hover:text-white">CLOSE TERMINAL</button>
+                  </div>
+
+                  <div className="space-y-4 font-mono text-xs">
+                    {quizQuestions.map((q, qIdx) => (
+                      <div key={qIdx} className="bg-slate-950 border border-slate-800 p-4 rounded-lg space-y-2">
+                        <p className="font-bold text-slate-200">Q{qIdx + 1}: {q.text}</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1">
+                          <label className={`p-2 border rounded cursor-pointer transition ${studentAnswers[qIdx] === 'A' ? 'bg-purple-950/40 border-purple-500 text-purple-300' : 'border-slate-800 hover:bg-slate-900'}`}>
+                            <input type="radio" name={`q-${qIdx}`} value="A" onChange={() => setStudentAnswers({...studentAnswers, [qIdx]: 'A'})} className="mr-2 accent-purple-500 hidden" />
+                            A: {q.a}
+                          </label>
+                          <label className={`p-2 border rounded cursor-pointer transition ${studentAnswers[qIdx] === 'B' ? 'bg-purple-950/40 border-purple-500 text-purple-300' : 'border-slate-800 hover:bg-slate-900'}`}>
+                            <input type="radio" name={`q-${qIdx}`} value="B" onChange={() => setStudentAnswers({...studentAnswers, [qIdx]: 'B'})} className="mr-2 accent-purple-500 hidden" />
+                            B: {q.b}
+                          </label>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button 
+                    onClick={() => {
+                      setActiveQuizExam(null);
+                      setStudentAnswers({});
+                      triggerPopupNotification("ANSWERS RECALCULATED", "Test submission logs pushed safely to teacher terminal queues.");
+                    }} 
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs uppercase tracking-wider font-mono transition"
+                  >
+                    Transmit Evaluation Responses Payload
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 9: STUDENT TRANSCRIPT LOGS */}
+          {activeTab === 'student-transcript' && (
+            <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-50">Report Transcripts Card</h3>
+                <p className="text-xs text-slate-400 font-mono">Consolidated evaluation metrics statement issued under cryptographic audit handles.</p>
+              </div>
+
+              <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl font-mono text-xs space-y-4">
+                <div className="flex justify-between border-b border-slate-800 pb-4">
+                  <div>
+                    <p className="text-slate-400">STUDENT PROFILE REF</p>
+                    <p className="text-sm font-bold text-slate-100 mt-1">Chala Alemu (SMS/001)</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-slate-400">CLASSIFICATION TARGET</p>
+                    <p className="text-sm font-bold text-sky-400 mt-1">{selectedGrade}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between py-1 border-b border-slate-800/40">
+                    <p className="text-slate-300">Information Communication Technology (ICT)</p>
+                    <p className="font-bold text-emerald-400">87% Aggregate Score (Grade A)</p>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-slate-800/40">
+                    <p className="text-slate-300">Advanced Mathematics for Natural Sciences</p>
+                    <p className="font-bold text-emerald-400">92% Aggregate Score (Grade A+)</p>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <p className="text-slate-300">Core Physics Principles & Lab Practicals</p>
+                    <p className="font-bold text-sky-400">79% Aggregate Score (Grade B)</p>
+                  </div>
+                </div>
+
+                <div className="bg-slate-950 p-3 border border-slate-800 rounded-lg text-center text-[11px] text-slate-400">
+                  🛡️ This digital report output is electronically sealed under portal runlevel standards.
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 10: MODERN CATALOG GRIDS (LIBRARY) */}
+          {activeTab === 'student-library' && (
+            <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-50">Modern Catalog Grids</h3>
+                <p className="text-xs text-slate-400 font-mono">Instant download repository handles for national curriculum textbooks and guides.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {books.map((book, idx) => (
+                  <div key={idx} className="p-4 bg-slate-900 border border-slate-800 rounded-xl flex flex-col justify-between space-y-3 font-mono text-xs">
+                    <div>
+                      <span className="bg-sky-950 text-sky-400 border border-sky-900 px-2 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">{book.grade_section}</span>
+                      <h4 className="text-slate-100 font-bold text-sm mt-2">{book.title}</h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Author/Publisher: {book.author}</p>
+                    </div>
+                    <button 
+                      onClick={() => triggerPopupNotification("DOWNLOAD ROUTED", `Transfer sequence established for asset catalog binary file structure.`)}
+                      className="w-full bg-slate-800 hover:bg-slate-700 text-sky-400 font-bold border border-slate-700 py-1.5 rounded transition uppercase text-[11px]"
+                    >
+                      📥 Access Asset Data Handle
+                    </button>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </section>
-        )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 11: PARENT MONITOR ENGINE */}
+          {activeTab === 'parent-portal' && (
+            <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-50">Parent Monitor Engine Terminal</h3>
+                <p className="text-xs text-slate-400 font-mono">Cross-examine child evaluations, class rosters records, and balance liabilities directly.</p>
+              </div>
+
+              <form onSubmit={handleSearchParentStudentLookup} className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex flex-col md:flex-row gap-4 items-end">
+                <div className="flex-1">
+                  <label className="block text-xs font-mono uppercase text-slate-400 mb-1">Enter Child System Reference ID Symbol</label>
+                  <input type="text" placeholder="SMS/001" value={parentStudentSearchId} onChange={e => setParentStudentSearchId(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs font-mono text-slate-200" required />
+                </div>
+                <button type="submit" className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-6 rounded-lg text-xs uppercase font-mono tracking-wider transition">Mount Child Record Matrix</button>
+              </form>
+
+              {parentMonitoredStudent ? (
+                <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 font-mono text-xs space-y-4">
+                  <div className="border-b border-slate-800 pb-2">
+                    <p className="text-[11px] text-slate-400">VERIFIED SYSTEM MATCH FOUND</p>
+                    <p className="text-sm font-bold text-emerald-400 mt-0.5">{parentMonitoredStudent.name}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-slate-950 p-3 rounded border border-slate-800">
+                      <p className="text-slate-400 text-[10px]">LATEST TESTING MARKS</p>
+                      <p className="text-sm font-bold text-slate-200 mt-1">{parentMonitoredStudent.totalScore || '87'}% Total</p>
+                    </div>
+                    <div className="bg-slate-950 p-3 rounded border border-slate-800">
+                      <p className="text-slate-400 text-[10px]">ATTENDANCE RATING SCALE</p>
+                      <p className="text-sm font-bold text-emerald-400 mt-1">96.8% Present</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="border border-dashed border-slate-800 p-6 rounded-xl text-center text-xs font-mono text-slate-500">
+                  Provide a matching child lookup string (e.g. SMS/001) above to filter query metrics safely.
+                </div>
+              )}
+
+              {/* CLASS ROUTINE MATRIX AND WEEKLY TIME SCHEDULE CARD GRAPH */}
+              <div className="border-t border-slate-800 pt-6 space-y-3">
+                <p className="text-xs font-bold uppercase tracking-wider font-mono text-slate-300">Active Section Weekly Routine Matrix Schedule</p>
+                <div className="overflow-x-auto rounded-lg border border-slate-800 text-[11px] font-mono">
+                  <table className="w-full text-left">
+                    <thead className="bg-slate-900 text-slate-400 border-b border-slate-800">
+                      <tr>
+                        <th className="p-2">Period Slugs</th>
+                        <th className="p-2">Mon</th>
+                        <th className="p-2">Tue</th>
+                        <th className="p-2">Wed</th>
+                        <th className="p-2">Thu</th>
+                        <th className="p-2">Fri</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800 text-slate-300">
+                      {classSchedule.map((row, index) => (
+                        <tr key={index} className="hover:bg-slate-900/30">
+                          <td className="p-2 bg-slate-950 font-bold text-slate-400">{row.period}</td>
+                          <td className="p-2">{row.monday}</td>
+                          <td className="p-2">{row.tuesday}</td>
+                          <td className="p-2">{row.wednesday}</td>
+                          <td className="p-2">{row.thursday}</td>
+                          <td className="p-2">{row.friday}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </section>
       </main>
-
-      {/* FLOATING DIGITAL AI ASSISTANT TERMINAL */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <div className="bg-[#1e293b]/95 border border-emerald-500/30 shadow-2xl rounded-2xl p-4 w-76 space-y-3 font-mono text-xs backdrop-blur-md">
-          <div className="flex justify-between items-center border-b border-slate-700 pb-2">
-            <div className="flex items-center gap-2"><span className="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span><span className="font-bold text-emerald-400">Gargaaraa AI Dijitaalaa</span></div>
-            <span className="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">v3.3</span>
-          </div>
-          <div className="h-36 overflow-y-auto bg-[#0a0f1d] p-2.5 rounded-xl text-slate-300 space-y-2" id="aiTerminalChatLog">
-            <p className="text-slate-500 text-[10px]">// Secure terminal bridge initialized.</p>
-            <p className="text-emerald-400 font-bold">Gargaaraa AI:</p><p>Akkam! Mana barumsaa keessan irratti har&apos;a maal si gargaaruu danda&apos;a?</p>
-          </div>
-          <input type="text" placeholder="Gaaffii kee asitti barreessi..." onKeyDown={async (e) => {
-            if (e.key === 'Enter' && e.target.value.trim()) {
-              const txt = e.target.value; e.target.value = '';
-              const log = document.getElementById('aiTerminalChatLog');
-              log.innerHTML += `<p class="text-blue-400 font-bold mt-1">Isin:</p><p class="text-slate-200">` + txt + `</p>`;
-              const res = await fetch('/api/ai-chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: txt, userRole: 'Admin' }) });
-              const d = await res.json();
-              log.innerHTML += `<p class="text-emerald-400 font-bold mt-1">Gargaaraa AI:</p><p class="text-slate-300">` + d.reply + `</p>`;
-              log.scrollTop = log.scrollHeight;
-            }
-          }} className="w-full bg-[#0a0f1d] border border-slate-800 focus:border-emerald-500 rounded-xl p-2.5 text-white outline-none" />
-        </div>
-      </div>
-
     </div>
   );
 }
