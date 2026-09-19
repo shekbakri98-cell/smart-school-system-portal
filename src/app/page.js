@@ -13,7 +13,7 @@ export default function LoginPage() {
     e.preventDefault();
     setErrorMessage('');
     setIsLoading(true);
-    
+     
     try {
       const response = await fetch('/api/auth', {
         method: 'POST',
