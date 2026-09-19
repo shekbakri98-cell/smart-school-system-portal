@@ -1,19 +1,12 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
-  const [router, setRouter] = useState(null);
-  const [email, setEmail] = useState('');
+  const [username, setUsernameInput] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  // Safely initialize the router navigation framework only after the page mounts in the browser
-  useEffect(() => {
-    setRouter(window && typeof window !== 'undefined' ? true : false);
-  }, []);
-
   const nextRouter = useRouter();
 
   async function handleLoginSequenceExecution(e) {
@@ -22,24 +15,23 @@ export default function LoginPage() {
     setIsLoading(true);
     
     try {
-      const response = await fetch('/api/auth', {
+      // Points exactly to your secure cookie-dropping route handler
+      const response = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ username, password })
       });
       
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Authentication execution rejected.");
       
-      // Store security credentials securely on the local device browser layer
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userRole', data.role);
-      localStorage.setItem('username', data.username);
+      // Context states used only for frontend layout scopes (e.g., matching the logged user context)
+      localStorage.setItem('userRole', data.user.role);
+      localStorage.setItem('username', data.user.username);
       
-      if (nextRouter) {
-        nextRouter.push('/'); 
-        nextRouter.refresh();
-      }
+      // Safely routes verified traffic past the middleware gateway right into the admin panel
+      nextRouter.push('/dashboard'); 
+      nextRouter.refresh();
     } catch (err) {
       setErrorMessage(err.message);
     } finally {
@@ -85,13 +77,13 @@ export default function LoginPage() {
           
           <form onSubmit={handleLoginSequenceExecution} className="space-y-4 text-xs">
             <div>
-              <label className="block uppercase tracking-wider text-slate-400 mb-1 font-bold text-[10px]">Security Access Email</label>
+              <label className="block uppercase tracking-wider text-slate-400 mb-1 font-bold text-[10px]">Security Access Username / Email</label>
               <input 
-                type="email" 
+                type="text" 
                 required 
-                placeholder="e.g. admin@school.edu"
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
+                placeholder="e.g. Admin User"
+                value={username} 
+                onChange={(e) => setUsernameInput(e.target.value)} 
                 className="w-full bg-[#0a0f1d] border border-slate-800 rounded p-2.5 text-white focus:outline-none focus:border-blue-500 transition-colors" 
               />
             </div>
