@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #0b1329; }
-::-webkit-scrollbar-thumb { background: #f5a623; border-radius: 4px; }
+body {
+  background-color: #0a0f1d;
+  color: #cbd5e1;
+}
