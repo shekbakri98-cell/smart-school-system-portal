@@ -1,68 +1,69 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '../../../../lib/db';
+import { prisma } from '@/lib/prisma';
 
+// 1. POST METHOD: Handles atomic bulk exam and question array payload commits
 export async function POST(req) {
-  let db;
   try {
-    // MATCH THE FRONTEND: Extract the parsed questions array directly
+    // Extract the parsed parameters array directly from the frontend request signature
     const { title, gradeSection, subject, questions } = await req.json();
 
+    // Integrity constraint evaluation checks
     if (!title || !gradeSection || !questions || !Array.isArray(questions)) {
-      return NextResponse.json({ error: "Missing required parameters or questions payload matrix." }, { status: 400 });
-    }
-
-    db = await connectToDatabase();
-    
-    // Step A: Start transaction to ensure atomic execution
-    await db.beginTransaction();
-
-    // Step B: Insert global exam parameters to generate an operational ID
-    const [examResult] = await db.query(
-      'INSERT INTO school_exams (title, grade_section, subject) VALUES (?, ?, ?)',
-      [title, gradeSection, subject || 'ICT']
-    );
-    const newExamId = examResult.insertId;
-
-    let questionsCommitted = 0;
-
-    // Step C: Loop through the already parsed questions array from the frontend
-    for (let i = 0; i < questions.length; i++) {
-      const q = questions[i];
-
-      // Safe protection fallback checks
-      const questionText = q.text || 'Missing Question Text';
-      const optionA = q.a || '';
-      const optionB = q.b || '';
-      const optionC = q.c || '';
-      const optionD = q.d || '';
-      const correctOption = (q.correct || 'A').toUpperCase();
-
-      // Insert question node elements
-      await db.query(
-        'INSERT INTO exam_questions (exam_id, question_text, option_a, option_b, option_c, option_d, correct_option) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [newExamId, questionText, optionA, optionB, optionC, optionD, correctOption]
+      return NextResponse.json(
+        { error: "Missing required parameters or questions payload matrix configuration." }, 
+        { status: 400 }
       );
-      questionsCommitted++;
     }
 
-    // Commit all entries only if no rows failed
-    await db.commit();
+    // Map and sanitize the incoming question object arrays into uniform structures
+    const sanitizedQuestions = questions.map((q, idx) => ({
+      text: q.text || `Missing Question Node String at index ${idx}`,
+      a: q.a || '',
+      b: q.b || '',
+      c: q.c || '',
+      d: q.d || '',
+      correct: (q.correct || 'A').toUpperCase()
+    }));
+
+    // Save the record cleanly inside your MySQL database model mapping layer using Prisma
+    const newExam = await prisma.exam.create({
+      data: {
+        title: title.trim(),
+        subject: subject || 'ICT',
+        grade_section: gradeSection, // Aligns camelCase request data to snake_case schema columns
+        questions_count: sanitizedQuestions.length,
+        questions: sanitizedQuestions // Commits the standard parsed array natively into your MySQL JSON type field
+      }
+    });
 
     return NextResponse.json({ 
       success: true, 
-      message: `Bulk deployment successful! Imported ${questionsCommitted} question nodes seamlessly.` 
+      message: `Bulk deployment successful! Imported ${newExam.questions_count} question nodes seamlessly.`,
+      examId: newExam.id
     });
 
   } catch (error) {
-    // Roll back open actions completely if any single internal failure occurs
-    if (db) {
-      try {
-        await db.rollback();
-      } catch (rbErr) {
-        console.error("Rollback error state encountered:", rbErr);
-      }
-    }
-    
-    return NextResponse.json({ error: "Bulk data insertion failure: " + error.message }, { status: 500 });
+    console.error("Bulk exam transaction mapping runtime crash:", error);
+    return NextResponse.json(
+      { error: "Bulk data insertion failure inside serverless runlevel: " + error.message }, 
+      { status: 500 }
+    );
+  }
+}
+
+// 2. GET METHOD: Pulls active testing pipelines matching the chosen grade parameter context
+export async function GET(req) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const grade = searchParams.get('grade') || '12 Natural';
+
+    const exams = await prisma.exam.findMany({
+      where: { grade_section: grade },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return NextResponse.json({ success: true, exams });
+  } catch (error) {
+    return NextResponse.json({ error: "Exams collection fetch failed: " + error.message }, { status: 500 });
   }
 }
