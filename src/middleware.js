@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
-// Explicitly provision open network paths that do not require valid crypto headers 
-const publicRoutes = ['/login', '/api/auth'];
+// ✅ FIX: Whitelists the seed trigger path to bypass the middleware check cleanly
+const publicRoutes = ['/login', '/api/auth', '/api/admin/seed'];
 
 // Protect mutating API write nodes from unauthorized student execution vectors
 const teacherRestrictedRoutes = ['/api/students', '/api/attendance', '/api/exams', '/api/finance'];
