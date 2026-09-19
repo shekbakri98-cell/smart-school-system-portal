@@ -1,46 +1,38 @@
 import { NextResponse } from 'next/server';
 
-// ✅ FIX: Whitelists the seed trigger path to bypass the middleware check cleanly
 const publicRoutes = ['/login', '/api/auth', '/api/admin/seed'];
-
-// Protect mutating API write nodes from unauthorized student execution vectors
-const teacherRestrictedRoutes = ['/api/students', '/api/attendance', '/api/exams', '/api/finance'];
+const teacherRestrictedRoutes = ['/api/students', '/api/attendance', '/api/exams'];
 
 export function middleware(req) {
   const { pathname } = req.nextUrl;
 
-  // 1. Immediately drop static next compilation dependencies to maximize connection speeds
-  if (
-    pathname.startsWith('/_next') || 
-    pathname.startsWith('/static') || 
-    pathname.includes('.')
-  ) {
+  if (pathname.startsWith('/_next') || pathname.startsWith('/static') || pathname.includes('.')) {
     return NextResponse.next();
   }
 
-  // 2. Grant free entry pass if request context maps directly to public login routes
   if (publicRoutes.some(route => pathname === route || pathname.startsWith(route + '/'))) {
     return NextResponse.next();
   }
 
-  // 3. Extract active verification tokens directly out of standard network header cookies array streams
   const token = req.cookies.get('token')?.value;
   const userRole = req.cookies.get('userRole')?.value;
 
-  // 4. Force immediate terminal session lock out if user drops connection signatures completely
   if (!token) {
     const loginUrl = new URL('/login', req.url);
     return NextResponse.redirect(loginUrl);
   }
 
-  // 5. Intercept logged in node traffic requesting sign-in pages to loop them forward onto safe dashboards
   if (pathname === '/login' || pathname === '/') {
     const dashboardUrl = new URL('/dashboard', req.url);
     return NextResponse.redirect(dashboardUrl);
   }
 
-  // 6. Enforce strict role validation constraints over administrative operational runlevels
+  // Strictly block students from hitting the exam deployment configurations path endpoints
   if (userRole === 'Student' && teacherRestrictedRoutes.some(route => pathname.startsWith(route))) {
+    // Exception: Allow students to transmit quiz submission responses into the sub-route mapping node
+    if (pathname === '/api/exams/submit') {
+      return NextResponse.next();
+    }
     return new NextResponse(
       JSON.stringify({ error: "Dhowwameera! Aangoo gahaa hin qabdu hojii kanaaf." }),
       { status: 403, headers: { 'Content-Type': 'application/json' } }
@@ -50,15 +42,6 @@ export function middleware(req) {
   return NextResponse.next();
 }
 
-// Intercept matching framework route contexts selectively across run levels
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };
