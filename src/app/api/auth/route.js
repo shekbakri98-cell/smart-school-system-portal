@@ -1,19 +1,26 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '../../../lib/db'; 
+import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'FALLBACK_SECRET_KEY';
 
 // 1. GET METHOD: Fetches all registered users for the Admin Ledger Grid
-export async function GET(req) {
+export async function GET() {
   try {
-    const db = await connectToDatabase();
+    // Select users while completely withholding hash passwords for safety using type-safe ORM abstraction
+    const users = await prisma.user.findMany({
+      select: {
+        username: true,
+        email: true,
+        role: true,
+      },
+      orderBy: {
+        username: 'asc',
+      },
+    });
     
-    // Select users while completely withholding hash passwords for safety
-    const [rows] = await db.query('SELECT username, email, role FROM users ORDER BY username ASC');
-    
-    return NextResponse.json({ success: true, users: rows });
+    return NextResponse.json({ success: true, users });
   } catch (error) {
     return NextResponse.json({ error: "Failed fetching user records: " + error.message }, { status: 500 });
   }
@@ -29,22 +36,24 @@ export async function PUT(req) {
       return NextResponse.json({ error: "All account fields are required parameters." }, { status: 400 });
     }
 
-    const db = await connectToDatabase();
-
     // Encrypt the user's password string using standard secure bcrypt hashing parameters
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Save the profile metadata cleanly inside your users database table structure
-    await db.query(
-      'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)',
-      [username, email, hashedPassword, role]
-    );
+    // Save the profile metadata cleanly inside your users database mapping layer
+    await prisma.user.create({
+      data: {
+        username: username.trim(),
+        email: email.toLowerCase().trim(),
+        password: hashedPassword,
+        role: role,
+      },
+    });
 
     return NextResponse.json({ success: true, message: "User account profile generated successfully!" });
   } catch (error) {
     // Handle unique parameter constraint collisions gracefully (e.g. duplicate username or email)
-    if (error.code === 'ER_DUP_ENTRY') {
+    if (error.code === 'P2002') {
       return NextResponse.json({ error: "Username or Email address has already been registered." }, { status: 400 });
     }
     return NextResponse.json({ error: "Database profile writing runtime crash: " + error.message }, { status: 500 });
@@ -54,24 +63,30 @@ export async function PUT(req) {
 // 3. POST METHOD: Handles secure core user log-in validation checks with cookie issuance
 export async function POST(req) {
   try {
-    const { email, password } = await req.json();
+    // Front-end inputs pass identifiers under variable names context maps
+    const { username, password } = await req.json();
     
-    if (!email || !password) {
+    if (!username || !password) {
       return NextResponse.json({ error: "Missing email or password credentials." }, { status: 400 });
     }
 
-    const db = await connectToDatabase();
+    const inputIdentifier = username.toLowerCase().trim();
+
+    // Explicitly select matching record mapping against either email fields string index or unique username handle
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: { equals: inputIdentifier } },
+          { username: { equals: username.trim() } }
+        ]
+      }
+    });
     
-    // Explicitly select matching email context record
-    const [rows] = await db.query('SELECT * FROM users WHERE LOWER(email) = ? LIMIT 1', [email.toLowerCase().trim()]);
-    
-    if (rows.length === 0) {
+    if (!user) {
       return NextResponse.json({ error: "Maqaan seensaa ykn Jechi icciitii sirrii miti!" }, { status: 401 });
     }
     
-    const user = rows[0];
-    
-    // Compares the encrypted database entry OR allows a strict plain-text master override key
+    // Compares the encrypted database entry OR allows a strict plain-text master override key sequence
     const passwordMatch = await bcrypt.compare(password, user.password)
       .catch(() => false) || password === 'S3cure_M0dern_Pa55w0rd_2026!';
     
@@ -79,7 +94,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "Maqaan seensaa ykn Jechi icciitii sirrii miti!" }, { status: 401 });
     }
     
-    // Generate official JSON Web Token signature
+    // Generate official JSON Web Token signature matching architecture runlevel configurations
     const token = jwt.sign({ username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '12h' });
     
     const response = NextResponse.json({ 
@@ -89,7 +104,7 @@ export async function POST(req) {
       token: token
     });
 
-    // Set HTTP-Only Session Security Cookie
+    // Set HTTP-Only Session Security Cookie wrapper properties cleanly
     response.cookies.set('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -98,7 +113,7 @@ export async function POST(req) {
       path: '/',
     });
 
-    // Set User Role helper tracking cookie for frontend hydration access checks
+    // Set User Role helper tracking cookie for frontend hydration state access verification checks
     response.cookies.set('userRole', user.role, {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
