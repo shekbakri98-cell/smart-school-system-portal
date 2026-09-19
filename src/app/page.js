@@ -24,9 +24,11 @@ export default function LoginPage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Authentication execution rejected.");
       
+      // Save identity references locally for immediate frontend view hydration checks
       localStorage.setItem('userRole', data.role);
       localStorage.setItem('username', data.username);
       
+      // Navigate past the gateway directly into your dynamic multi-role dashboard panels
       nextRouter.push('/dashboard'); 
       nextRouter.refresh();
     } catch (err) {
