@@ -656,7 +656,7 @@ export default function Dashboard() {
                             <p className="font-bold text-slate-200">{student.name}</p>
                             <div className="flex items-center space-x-2 mt-0.5">
                               <span className="text-[10px] text-slate-500">{student.studentId}</span>
-                              <span className={`text-[9px] px-1.5 rounded font-bold border uppercase \${
+                              <span className={`text-[9px] px-1.5 rounded font-bold border uppercase ${
                                 currentStatus === 'Present' ? 'bg-emerald-950 border-emerald-900 text-emerald-400' :
                                 currentStatus === 'Absent' ? 'bg-rose-950 border-rose-900 text-rose-400' : 'bg-slate-800 border-slate-700 text-slate-400'
                               }`}>{currentStatus}</span>
@@ -782,12 +782,12 @@ export default function Dashboard() {
                       <div key={qIdx} className="bg-slate-950 border border-slate-800 p-4 rounded-lg space-y-2">
                         <p className="font-bold text-slate-200">Q{qIdx + 1}: {q.text}</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1">
-                          <label className={`p-2 border rounded cursor-pointer transition \${studentAnswers[qIdx] === 'A' ? 'bg-purple-950/40 border-purple-500 text-purple-300' : 'border-slate-800 hover:bg-slate-900'}`}>
-                            <input type="radio" name={`q-\${qIdx}`} value="A" onChange={() => setStudentAnswers({...studentAnswers, [qIdx]: 'A'})} className="mr-2 accent-purple-500 hidden" />
+                          <label className={`p-2 border rounded cursor-pointer transition ${studentAnswers[qIdx] === 'A' ? 'bg-purple-950/40 border-purple-500 text-purple-300' : 'border-slate-800 hover:bg-slate-900'}`}>
+                            <input type="radio" name={`q-${qIdx}`} value="A" onChange={() => setStudentAnswers({...studentAnswers, [qIdx]: 'A'})} className="mr-2 accent-purple-500 hidden" />
                             A: {q.a}
                           </label>
-                          <label className={`p-2 border rounded cursor-pointer transition \${studentAnswers[qIdx] === 'B' ? 'bg-purple-950/40 border-purple-500 text-purple-300' : 'border-slate-800 hover:bg-slate-900'}`}>
-                            <input type="radio" name={`q-\${qIdx}`} value="B" onChange={() => setStudentAnswers({...studentAnswers, [qIdx]: 'B'})} className="mr-2 accent-purple-500 hidden" />
+                          <label className={`p-2 border rounded cursor-pointer transition ${studentAnswers[qIdx] === 'B' ? 'bg-purple-950/40 border-purple-500 text-purple-300' : 'border-slate-800 hover:bg-slate-900'}`}>
+                            <input type="radio" name={`q-${qIdx}`} value="B" onChange={() => setStudentAnswers({...studentAnswers, [qIdx]: 'B'})} className="mr-2 accent-purple-500 hidden" />
                             B: {q.b}
                           </label>
                         </div>
