@@ -45,7 +45,6 @@ export default function Dashboard() {
   const [activeQuizExam, setActiveQuizExam] = useState(null);
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [studentAnswers, setStudentAnswers] = useState({});
-  const [studentExId, setStudentExId] = useState('');
 
   const [financeLedger, setFinanceLedger] = useState([]);
   const [financeLoading, setFinanceLoading] = useState(false);
@@ -57,17 +56,13 @@ export default function Dashboard() {
     { title: 'Advanced Mathematics for Natural Sciences', author: 'Dr. Bakri Academic Press', grade_section: '12 Natural', download_url: '#' },
     { title: 'Social Studies & Civics Integration', author: 'National Curriculum Hub', grade_section: '12 Social', download_url: '#' }
   ]);
-  const [booksLoading, setBooksLoading] = useState(false);
-  const [libraryForm, setLibraryForm] = useState({ title: '', author: '', downloadUrl: '' });
-
   const [systemUsers, setSystemUsers] = useState([]);
   const [usersLoading, setUsersLoading] = useState(false);
-  const [userForm, setUserForm] = useState({ username: '', email: '', password: '', role: 'Teacher' });
 
-  // NEW FEATURES 1: SUCCESS NOTIFICATION BANNER APP STATE
+  // APP NOTIFICATION STATE
   const [appNotification, setAppNotification] = useState(null);
 
-  // NEW FEATURES 2: CLASS ROUTINE MATRIX AND PARENT MONITOR STORAGE
+  // CLASS ROUTINE MATRIX
   const [classSchedule, setClassSchedule] = useState([
     { period: 'Period 1 (8:30 AM)', monday: 'ICT', tuesday: 'Mathematics', wednesday: 'ICT', thursday: 'Physics', friday: 'Chemistry' },
     { period: 'Period 2 (9:30 AM)', monday: 'English', tuesday: 'Afan Oromo', wednesday: 'Biology', thursday: 'Mathematics', friday: 'History' },
@@ -78,36 +73,22 @@ export default function Dashboard() {
 
   // Central Dynamic Monitor Hook
   useEffect(() => {
-    if (activeTab === 'instructor-roster' || activeTab === 'student-transcript') { fetchLiveRosterData(); } 
-    else if (activeTab === 'instructor-attendance') { fetchLiveAttendanceRecords(); } 
-    else if (activeTab === 'instructor-exams' || activeTab === 'student-exams') { fetchLiveExams(); } 
-    else if (activeTab === 'director-finance' || activeTab === 'director-overview') { fetchLiveFinanceLedger(); } 
-    else if (activeTab === 'director-users') { fetchSystemUsers(); }
+    if (activeTab === 'instructor-roster' || activeTab === 'student-transcript' || activeTab === 'instructor-attendance') { 
+      fetchLiveRosterData(); 
+    }
+    if (activeTab === 'instructor-attendance') { 
+      fetchLiveAttendanceRecords(); 
+    } 
+    else if (activeTab === 'instructor-exams' || activeTab === 'student-exams') { 
+      fetchLiveExams(); 
+    } 
+    else if (activeTab === 'director-finance' || activeTab === 'director-overview') { 
+      fetchLiveFinanceLedger(); 
+    } 
+    else if (activeTab === 'director-users') { 
+      fetchSystemUsers(); 
+    }
   }, [selectedGrade, activeTab, attendanceDate, currentRoleView]);
-
-  // NEW FEATURES 3: DEMO SEED DATA GENERATOR PIPELINE ACTION
-  const handleTriggerMockDatabaseSeed = () => {
-    // 1. Populate Sample Roster Records
-    setStudents([
-      { studentId: 'SMS/001', name: 'Chala Alemu', subject: 'ICT', test1: 8, test2: 9, assignment: 18, finalExam: 52, totalScore: 87 },
-      { studentId: 'SMS/002', name: 'Aster Mamo', subject: 'ICT', test1: 9, test2: 7, assignment: 16, finalExam: 55, totalScore: 87 },
-      { studentId: 'SMS/003', name: 'Benti Tolossa', subject: 'ICT', test1: 6, test2: 8, assignment: 14, finalExam: 48, totalScore: 76 }
-    ]);
-    
-    // 2. Populate Sample Finance Ledger Entries
-    setFinanceLedger([
-      { studentId: 'SMS/001', name: 'Chala Alemu', fee_type: 'Tuition Q1', amount_due: 3500, amount_paid: 3500, payment_status: 'Paid' },
-      { studentId: 'SMS/002', name: 'Aster Mamo', fee_type: 'Tuition Q1', amount_due: 3500, amount_paid: 2000, payment_status: 'Partial' }
-    ]);
-
-    // 3. Populate Sample Active Quiz Structure Logs
-    setExams([
-      { exam_id: 'EXAM-ALPHA', title: 'ICT Chapter 1 Digital Network Quiz', subject: 'ICT', grade_section: '12 Natural', questions_count: 2 }
-    ]);
-
-    // Show temporary banner feedback notice response
-    triggerPopupNotification("DATABASE SEED SUCCESSFUL", "Mock student datasets, finance items, and live exam pipelines populated instantly.");
-  };
 
   const triggerPopupNotification = (title, msg) => {
     setAppNotification({ title, message: msg });
@@ -120,8 +101,14 @@ export default function Dashboard() {
     try {
       const res = await fetch(`/api/students?grade=${encodeURIComponent(selectedGrade)}`);
       const result = await res.json();
-      if (result.data && result.data.length > 0) setStudents(result.data);
-    } catch (err) { console.error(err); } finally { setStudentsLoading(false); }
+      if (result.success && result.data) {
+        setStudents(result.data);
+      }
+    } catch (err) { 
+      console.error("Error pulling database roster maps:", err); 
+    } finally { 
+      setStudentsLoading(false); 
+    }
   }
 
   async function fetchLiveAttendanceRecords() {
@@ -130,7 +117,11 @@ export default function Dashboard() {
       const res = await fetch(`/api/attendance?grade=${encodeURIComponent(selectedGrade)}&date=${attendanceDate}`);
       const result = await res.json();
       setAttendanceRecords(result.data || []);
-    } catch (err) { console.error(err); } finally { setAttendanceLoading(false); }
+    } catch (err) { 
+      console.error("Error pulling attendance matrices:", err); 
+    } finally { 
+      setAttendanceLoading(false); 
+    }
   }
 
   async function fetchLiveExams() {
@@ -138,8 +129,12 @@ export default function Dashboard() {
     try {
       const res = await fetch(`/api/exams?grade=${encodeURIComponent(selectedGrade)}`);
       const result = await res.json();
-      if (result.exams && result.exams.length > 0) setExams(result.exams);
-    } catch (err) { console.error(err); } finally { setExamsLoading(false); }
+      if (result.exams) setExams(result.exams);
+    } catch (err) { 
+      console.error("Error pulling live exams:", err); 
+    } finally { 
+      setExamsLoading(false); 
+    }
   }
 
   async function fetchLiveFinanceLedger() {
@@ -147,8 +142,12 @@ export default function Dashboard() {
     try {
       const res = await fetch('/api/finance');
       const result = await res.json();
-      if (result.ledger && result.ledger.length > 0) setFinanceLedger(result.ledger);
-    } catch (err) { console.error(err); } finally { setFinanceLoading(false); }
+      if (result.ledger) setFinanceLedger(result.ledger);
+    } catch (err) { 
+      console.error("Error reading financial infrastructure ledger:", err); 
+    } finally { 
+      setFinanceLoading(false); 
+    }
   }
 
   async function fetchSystemUsers() {
@@ -157,7 +156,11 @@ export default function Dashboard() {
       const res = await fetch('/api/auth'); 
       const result = await res.json();
       setSystemUsers(result.users || []);
-    } catch (err) { console.error(err); } finally { setUsersLoading(false); }
+    } catch (err) { 
+      console.error("Error auditing system tokens:", err); 
+    } finally { 
+      setUsersLoading(false); 
+    }
   }
 
   // Submission Event Handlers
@@ -167,15 +170,43 @@ export default function Dashboard() {
       const res = await fetch('/api/students', { 
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ studentId: studentForm.studentId, name: studentForm.name, grade: selectedGrade, subject: 'ICT' })
+        body: JSON.stringify({ 
+          studentId: studentForm.studentId, 
+          name: studentForm.name, 
+          grade: selectedGrade, 
+          subject: 'ICT' 
+        })
       });
       const result = await res.json();
       if(result.success) {
-        triggerPopupNotification("STUDENT REGISTERED", `${studentForm.name} added to roster map allocation.`);
+        triggerPopupNotification("STUDENT REGISTERED", `${studentForm.name} committed to MySQL storage allocation.`);
         setStudentForm({ studentId: '', name: '' });
         fetchLiveRosterData();
       }
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+      console.error("Enrollment handshake transaction failed:", err); 
+    }
+  }
+
+  async function handlePostAttendance(studentId, targetStatus) {
+    try {
+      const res = await fetch('/api/attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentId,
+          date: attendanceDate,
+          status: targetStatus
+        })
+      });
+      const result = await res.json();
+      if (result.success) {
+        triggerPopupNotification("ATTENDANCE COMMITTED", `Status updated to ${targetStatus} safely.`);
+        fetchLiveAttendanceRecords();
+      }
+    } catch (err) {
+      console.error("Failed to post attendance index parameters:", err);
+    }
   }
 
   async function handleCreateExamSubmit(e) {
@@ -192,11 +223,13 @@ export default function Dashboard() {
       });
       const result = await res.json();
       if(result.success) {
-        triggerPopupNotification("EXAM DEPLOYED", `New test assignment "${examForm.title}" published online.`);
+        triggerPopupNotification("EXAM DEPLOYED", `New test assignment "${examForm.title}" built and broadcasted.`);
         setExamForm({ title: '', subject: 'ICT', questions: [] });
         fetchLiveExams();
       }
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+      console.error("Exam composition blueprint failed:", err); 
+    }
   }
 
   const addQuestionToExamPayload = () => {
@@ -218,11 +251,13 @@ export default function Dashboard() {
       });
       const result = await res.json();
       if(result.success) {
-        triggerPopupNotification("PAYMENT RECORDED", "Ledger asset calculations recalculated instantly.");
+        triggerPopupNotification("PAYMENT RECORDED", "Ledger statement updated over database layers.");
         setFinanceForm({ studentId: '', feeType: 'Tuition Q1', amountDue: '', amountPaid: '' });
         fetchLiveFinanceLedger();
       }
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+      console.error("Financial logging tracking error:", err); 
+    }
   }
 
   const handleSearchParentStudentLookup = (e) => {
@@ -230,11 +265,17 @@ export default function Dashboard() {
     const match = students.find(s => s.studentId === parentStudentSearchId);
     if(match) {
       setParentMonitoredStudent(match);
-      triggerPopupNotification("STUDENT PROFILE MOUNTED", `Showing analytical results metrics lookup for ${match.name}.`);
+      triggerPopupNotification("STUDENT PROFILE MOUNTED", `Analytical overview metrics loaded for ${match.name}.`);
     } else {
       setParentMonitoredStudent(null);
       alert("No corresponding student match found in active system register metrics.");
     }
+  };
+
+  // Helper function to extract recorded attendance status indicators
+  const getAttendanceStatus = (studentId) => {
+    const record = attendanceRecords.find(r => r.studentId === studentId);
+    return record ? record.status : 'Unmarked';
   };
 
   return (
@@ -255,7 +296,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* TOP DEEPLY BRANDED APP HEADER HEADER */}
+      {/* TOP DEEPLY BRANDED APP HEADER */}
       <header className="bg-slate-950 border-b border-slate-800 px-6 py-4 sticky top-0 z-40 shadow-md">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-4">
@@ -268,9 +309,6 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-            <button onClick={handleTriggerMockDatabaseSeed} className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2 rounded-lg font-bold text-xs tracking-wider transition shadow-sm uppercase flex items-center gap-1.5">
-              ⚡ Seed Mock Data
-            </button>
             <div className="bg-slate-900 px-4 py-1.5 rounded-lg border border-slate-800 text-right">
               <p className="text-xs text-slate-400 font-mono">Logged: <span className="text-slate-100 font-semibold">{username}</span></p>
               <p className="text-[10px] text-sky-400 uppercase font-bold tracking-widest">{userRole} Scope</p>
@@ -280,7 +318,7 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* SIDEBAR NAVIGATION CONTROLS CONTROLLER */}
+        {/* SIDEBAR NAVIGATION CONTROLS */}
         <section className="lg:col-span-1 space-y-6">
           <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 shadow-sm">
             <h2 className="text-xs uppercase font-bold tracking-widest text-slate-400 mb-3 font-mono">Switch Perspective</h2>
@@ -364,15 +402,15 @@ export default function Dashboard() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm">
                   <p className="text-xs text-slate-400 uppercase font-mono tracking-wider">Total Enrolled Records</p>
-                  <p className="text-3xl font-black text-sky-400 mt-1">{students.length || '3'}</p>
+                  <p className="text-3xl font-black text-sky-400 mt-1">{studentsLoading ? '...' : students.length}</p>
                 </div>
                 <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm">
                   <p className="text-xs text-slate-400 uppercase font-mono tracking-wider">Ledger Collection Status</p>
-                  <p className="text-3xl font-black text-emerald-400 mt-1">ETB {financeLedger.reduce((sum, item) => sum + (item.amount_paid || 0), 0) || '5,500'}</p>
+                  <p className="text-3xl font-black text-emerald-400 mt-1">ETB {financeLoading ? '...' : financeLedger.reduce((sum, item) => sum + (item.amount_paid || 0), 0)}</p>
                 </div>
                 <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm">
                   <p className="text-xs text-slate-400 uppercase font-mono tracking-wider">Active Exam Slugs</p>
-                  <p className="text-3xl font-black text-purple-400 mt-1">{exams.length || '1'}</p>
+                  <p className="text-3xl font-black text-purple-400 mt-1">{examsLoading ? '...' : exams.length}</p>
                 </div>
               </div>
 
@@ -393,11 +431,9 @@ export default function Dashboard() {
           {/* TAB 2: FINANCE LEDGER ASSET */}
           {activeTab === 'director-finance' && (
             <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-50">Financial Ledger Processing Ledger</h3>
-                  <p className="text-xs text-slate-400">Track and capture tuition, asset distributions, and lab access fees.</p>
-                </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-50">Financial Ledger Processing Ledger</h3>
+                <p className="text-xs text-slate-400">Track and capture tuition, asset distributions, and lab access fees.</p>
               </div>
 
               <form onSubmit={handlePostFinanceRecord} className="bg-slate-900 border border-slate-800 p-4 rounded-xl grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
@@ -433,21 +469,21 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800">
-                    {financeLedger.length === 0 ? (
-                      <tr>
-                        <td colSpan="6" className="p-4 text-center text-slate-500">No finance entries present. Trigger seed pipelines to inspect.</td>
-                      </tr>
+                    {financeLoading ? (
+                      <tr><td colSpan="6" className="p-4 text-center text-slate-400">Loading live asset ledger entries...</td></tr>
+                    ) : financeLedger.length === 0 ? (
+                      <tr><td colSpan="6" className="p-4 text-center text-slate-500">No finance statements found in the database.</td></tr>
                     ) : (
                       financeLedger.map((item, idx) => (
                         <tr key={idx} className="hover:bg-slate-900/50">
                           <td className="p-3 font-semibold text-slate-300">{item.studentId}</td>
                           <td className="p-3 text-slate-100">{item.name || 'External Record'}</td>
-                          <td className="p-3 text-slate-400">{item.fee_type || item.feeType}</td>
-                          <td className="p-3 text-slate-200">{item.amount_due || item.amountDue}</td>
-                          <td className="p-3 text-emerald-400 font-bold">{item.amount_paid || item.amountDue}</td>
+                          <td className="p-3 text-slate-400">{item.fee_type}</td>
+                          <td className="p-3 text-slate-200">{item.amount_due}</td>
+                          <td className="p-3 text-emerald-400 font-bold">{item.amount_paid}</td>
                           <td className="p-3">
                             <span className="bg-emerald-950 text-emerald-400 border border-emerald-900 px-2 py-0.5 rounded text-[10px] font-bold uppercase">
-                              {item.payment_status || 'Paid'}
+                              {item.payment_status}
                             </span>
                           </td>
                         </tr>
@@ -468,21 +504,19 @@ export default function Dashboard() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
-                <div className="p-4 rounded-xl border border-slate-800 bg-slate-900">
-                  <p className="font-bold text-slate-300">Default Root Sysadmin</p>
-                  <p className="text-slate-400 mt-1">admin@school.edu</p>
-                  <span className="inline-block mt-2 px-2 py-0.5 bg-sky-950 text-sky-400 border border-sky-900 rounded font-bold uppercase text-[10px]">Active Session</span>
-                </div>
-                <div className="p-4 rounded-xl border border-slate-800 bg-slate-900">
-                  <p className="font-bold text-slate-300">ICT Faculty Principal</p>
-                  <p className="text-slate-400 mt-1">ict-dept@school.edu</p>
-                  <span className="inline-block mt-2 px-2 py-0.5 bg-slate-800 text-slate-400 border border-slate-700 rounded font-bold uppercase text-[10px]">Offline log</span>
-                </div>
-                <div className="p-4 rounded-xl border border-slate-800 bg-slate-900">
-                  <p className="font-bold text-slate-300">Registrar Office Token</p>
-                  <p className="text-slate-400 mt-1">registrar-desk@school.edu</p>
-                  <span className="inline-block mt-2 px-2 py-0.5 bg-slate-800 text-slate-400 border border-slate-700 rounded font-bold uppercase text-[10px]">Offline log</span>
-                </div>
+                {usersLoading ? (
+                  <p className="text-slate-400 col-span-3 text-center">Auditing credentials tokens...</p>
+                ) : systemUsers.length === 0 ? (
+                  <p className="text-slate-500 col-span-3 text-center">No provisioned security roles cataloged.</p>
+                ) : (
+                  systemUsers.map((u, i) => (
+                    <div key={i} className="p-4 rounded-xl border border-slate-800 bg-slate-900">
+                      <p className="font-bold text-slate-300">{u.username}</p>
+                      <p className="text-slate-400 mt-1">{u.email}</p>
+                      <span className="inline-block mt-2 px-2 py-0.5 bg-sky-950 text-sky-400 border border-sky-900 rounded font-bold uppercase text-[10px]">{u.role} Scope</span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}
@@ -534,11 +568,9 @@ export default function Dashboard() {
           {/* TAB 5: INSTRUCTOR ROSTER & MARKS MANAGEMENT */}
           {activeTab === 'instructor-roster' && (
             <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 space-y-6">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-50">Register & Marks Roster Pipeline</h3>
-                  <p className="text-xs text-slate-400">Active evaluation metric ledger for class section: <span className="text-sky-400 font-mono font-bold">{selectedGrade}</span></p>
-                </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-50">Register & Marks Roster Pipeline</h3>
+                <p className="text-xs text-slate-400">Active evaluation metric ledger for class section: <span className="text-sky-400 font-mono font-bold">{selectedGrade}</span></p>
               </div>
 
               <form onSubmit={handleEnrollmentSubmit} className="bg-slate-900 border border-slate-800 p-4 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
@@ -568,10 +600,10 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800">
-                    {students.length === 0 ? (
-                      <tr>
-                        <td colSpan="8" className="p-4 text-center text-slate-500">No active students found under selected criteria filter. Hit ⚡ Seed Mock Data.</td>
-                      </tr>
+                    {studentsLoading ? (
+                      <tr><td colSpan="8" className="p-4 text-center text-slate-400">Loading student roster columns...</td></tr>
+                    ) : students.length === 0 ? (
+                      <tr><td colSpan="8" className="p-4 text-center text-slate-500">No active students registered under this grade filter.</td></tr>
                     ) : (
                       students.map((student, idx) => (
                         <tr key={idx} className="hover:bg-slate-900/50">
@@ -609,22 +641,34 @@ export default function Dashboard() {
               </div>
 
               <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-4">
-                <p className="text-xs font-mono text-slate-400">Click actions below to change present verification states directly before compiling records log payload.</p>
+                <p className="text-xs font-mono text-slate-400">Commit tracking configurations directly to the relational database tables.</p>
                 <div className="divide-y divide-slate-800">
-                  {students.map((student, index) => (
-                    <div key={index} className="py-2.5 flex items-center justify-between font-mono text-xs">
-                      <div>
-                        <p className="font-bold text-slate-200">{student.name}</p>
-                        <p className="text-[10px] text-slate-500">{student.studentId}</p>
-                      </div>
-                      <div className="flex space-x-2">
-                        <button onClick={() => triggerPopupNotification("ATTENDANCE PROVISIONED", `${student.name} marked Present.`)} className="px-2.5 py-1 rounded bg-emerald-950 border border-emerald-800 text-emerald-400 font-bold uppercase text-[10px]">Present</button>
-                        <button onClick={() => triggerPopupNotification("ATTENDANCE PROVISIONED", `${student.name} marked Absent.`)} className="px-2.5 py-1 rounded bg-rose-950 border border-rose-900 text-rose-400 font-bold uppercase text-[10px]">Absent</button>
-                      </div>
-                    </div>
-                  ))}
-                  {students.length === 0 && (
-                    <p className="text-slate-500 text-center py-4 text-xs font-mono">Enroll roster metrics or trigger seed pipeline to log entries.</p>
+                  {studentsLoading || attendanceLoading ? (
+                    <p className="text-slate-400 text-center py-4 text-xs font-mono">Loading data payload streams...</p>
+                  ) : students.length === 0 ? (
+                    <p className="text-slate-500 text-center py-4 text-xs font-mono">Enroll roster metrics to perform logging audits.</p>
+                  ) : (
+                    students.map((student, index) => {
+                      const currentStatus = getAttendanceStatus(student.studentId);
+                      return (
+                        <div key={index} className="py-2.5 flex items-center justify-between font-mono text-xs">
+                          <div>
+                            <p className="font-bold text-slate-200">{student.name}</p>
+                            <div className="flex items-center space-x-2 mt-0.5">
+                              <span className="text-[10px] text-slate-500">{student.studentId}</span>
+                              <span className={`text-[9px] px-1.5 rounded font-bold border uppercase \${
+                                currentStatus === 'Present' ? 'bg-emerald-950 border-emerald-900 text-emerald-400' :
+                                currentStatus === 'Absent' ? 'bg-rose-950 border-rose-900 text-rose-400' : 'bg-slate-800 border-slate-700 text-slate-400'
+                              }`}>{currentStatus}</span>
+                            </div>
+                          </div>
+                          <div className="flex space-x-2">
+                            <button onClick={() => handlePostAttendance(student.studentId, 'Present')} className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase text-[10px]">Mark Present</button>
+                            <button onClick={() => handlePostAttendance(student.studentId, 'Absent')} className="px-2.5 py-1 rounded bg-rose-600 hover:bg-rose-700 text-white font-bold uppercase text-[10px]">Mark Absent</button>
+                          </div>
+                        </div>
+                      );
+                    })
                   )}
                 </div>
               </div>
@@ -642,7 +686,7 @@ export default function Dashboard() {
               <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-mono uppercase text-slate-400 mb-1">Assessment Assessment Title</label>
+                    <label className="block text-xs font-mono uppercase text-slate-400 mb-1">Assessment Title</label>
                     <input type="text" placeholder="ICT Chapter 1 Network Quiz" value={examForm.title} onChange={e => setExamForm({...examForm, title: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-200" />
                   </div>
                   <div>
@@ -694,9 +738,11 @@ export default function Dashboard() {
                 <p className="text-xs text-slate-400 font-mono">Active tests broadcasted to class section matching your profiles parameters.</p>
               </div>
 
-              {exams.length === 0 ? (
+              {examsLoading ? (
+                <div className="p-8 text-center text-xs font-mono text-slate-400">Loading active exams...</div>
+              ) : exams.length === 0 ? (
                 <div className="p-8 border border-slate-800 rounded-xl bg-slate-900 text-center font-mono text-xs text-slate-500">
-                  No online examinations deployed yet for section {selectedGrade}. Trigger mock database generation to test layout frameworks.
+                  No online examinations deployed yet for section {selectedGrade}.
                 </div>
               ) : (
                 exams.map((ex, i) => (
@@ -704,7 +750,7 @@ export default function Dashboard() {
                     <div>
                       <span className="bg-purple-950 text-purple-400 border border-purple-900 rounded font-bold px-2 py-0.5 text-[9px] uppercase tracking-wider">{ex.subject}</span>
                       <h4 className="text-sm font-bold text-slate-100 mt-1.5">{ex.title}</h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5">Target Classification Scope: {ex.grade_section || selectedGrade}</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Questions Payload Matrix Size: {ex.questions_count} Items</p>
                     </div>
                     <button 
                       onClick={() => {
@@ -736,12 +782,12 @@ export default function Dashboard() {
                       <div key={qIdx} className="bg-slate-950 border border-slate-800 p-4 rounded-lg space-y-2">
                         <p className="font-bold text-slate-200">Q{qIdx + 1}: {q.text}</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1">
-                          <label className={`p-2 border rounded cursor-pointer transition ${studentAnswers[qIdx] === 'A' ? 'bg-purple-950/40 border-purple-500 text-purple-300' : 'border-slate-800 hover:bg-slate-900'}`}>
-                            <input type="radio" name={`q-${qIdx}`} value="A" onChange={() => setStudentAnswers({...studentAnswers, [qIdx]: 'A'})} className="mr-2 accent-purple-500 hidden" />
+                          <label className={`p-2 border rounded cursor-pointer transition \${studentAnswers[qIdx] === 'A' ? 'bg-purple-950/40 border-purple-500 text-purple-300' : 'border-slate-800 hover:bg-slate-900'}`}>
+                            <input type="radio" name={`q-\${qIdx}`} value="A" onChange={() => setStudentAnswers({...studentAnswers, [qIdx]: 'A'})} className="mr-2 accent-purple-500 hidden" />
                             A: {q.a}
                           </label>
-                          <label className={`p-2 border rounded cursor-pointer transition ${studentAnswers[qIdx] === 'B' ? 'bg-purple-950/40 border-purple-500 text-purple-300' : 'border-slate-800 hover:bg-slate-900'}`}>
-                            <input type="radio" name={`q-${qIdx}`} value="B" onChange={() => setStudentAnswers({...studentAnswers, [qIdx]: 'B'})} className="mr-2 accent-purple-500 hidden" />
+                          <label className={`p-2 border rounded cursor-pointer transition \${studentAnswers[qIdx] === 'B' ? 'bg-purple-950/40 border-purple-500 text-purple-300' : 'border-slate-800 hover:bg-slate-900'}`}>
+                            <input type="radio" name={`q-\${qIdx}`} value="B" onChange={() => setStudentAnswers({...studentAnswers, [qIdx]: 'B'})} className="mr-2 accent-purple-500 hidden" />
                             B: {q.b}
                           </label>
                         </div>
@@ -753,7 +799,7 @@ export default function Dashboard() {
                     onClick={() => {
                       setActiveQuizExam(null);
                       setStudentAnswers({});
-                      triggerPopupNotification("ANSWERS RECALCULATED", "Test submission logs pushed safely to teacher terminal queues.");
+                      triggerPopupNotification("ANSWERS PARSED", "Test submission metrics stored safely under evaluation profiles.");
                     }} 
                     className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs uppercase tracking-wider font-mono transition"
                   >
