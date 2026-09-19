@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '../../../lib/db'; // Maintained your library helper import
+import { connectToDatabase } from '../../../lib/db'; 
 
-// 1. GET ROUTE: Queries the Alwaysdata MySQL server using your column mappings
+// 1. GET ROUTE: Queries the MySQL server and maps columns cleanly for the frontend UI
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const grade = searchParams.get('grade');
     const db = await connectToDatabase();
     
-    // Maps database column fields to match your frontend roster expectations
+    // Maps database column fields to match your frontend roster expectations exactly
     let query = 'SELECT barataa_id AS studentId, maqaa AS name, kutaa AS grade FROM students';
     let params = [];
     
@@ -23,19 +23,26 @@ export async function GET(req) {
     return NextResponse.json({ success: true, data: rows });
   } catch (error) {
     console.error("MySQL GET query crashed:", error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 
-// 2. POST ROUTE: Captures the 14-field data payload stream and saves it securely
+// 2. POST ROUTE: Captures incoming frontend keys and normalizes them for the 14-field database record
 export async function POST(req) {
   try {
-    const body = await req.json();
-    const { barataa_id, maqaa, kutaa } = body;
+    const body = await request.json();
+    
+    // Normalization Layer: Accepts both frontend layout names AND native DB column names
+    const barataa_id = body.studentId || body.barataa_id;
+    const maqaa = body.name || body.maqaa;
+    const kutaa = body.grade || body.kutaa;
 
-    // Strict safety checks for your mandatory primary identification descriptors
+    // Strict validation safety checks using the normalized identifiers
     if (!barataa_id || !maqaa || !kutaa) {
-      return NextResponse.json({ error: "Missing required core keys (barataa_id, maqaa, or kutaa)" }, { status: 400 });
+      return NextResponse.json({ 
+        success: false, 
+        error: "Missing required enrollment keys (studentId/barataa_id, name/maqaa, or grade/kutaa)" 
+      }, { status: 400 });
     }
 
     const db = await connectToDatabase();
@@ -53,14 +60,14 @@ export async function POST(req) {
     `;
 
     await db.query(queryText, [
-      body.barataa_id, 
-      body.maqaa, 
+      barataa_id, 
+      maqaa, 
       body.maqaa_abbaa || null, 
       body.maqaa_akaaka || null, 
       body.saala || 'Dhiira', 
       body.umrii ? parseInt(body.umrii) : null, 
       body.bilbila_wabii || null, 
-      body.kutaa, 
+      kutaa, 
       body.sadarkaa_kutaa || null, 
       body.bara_galmee || null, 
       body.aradaa || null, 
@@ -72,6 +79,6 @@ export async function POST(req) {
     return NextResponse.json({ success: true, message: "Barataan milkiin galmaa'era!" }, { status: 201 });
   } catch (error) {
     console.error("MySQL POST transaction crashed:", error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
