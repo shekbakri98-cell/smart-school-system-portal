@@ -1,26 +1,22 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '../../../lib/db';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-    const grade = searchParams.get('grade') || '12 Natural';
+    const date = searchParams.get('date');
+    const grade = searchParams.get('grade');
 
-    const db = await connectToDatabase();
+    const data = await prisma.attendanceRecord.findMany({
+      where: {
+        date: date,
+        student: { grade: grade }
+      }
+    });
 
-    // Clean, bulletproof query that pulls students directly from your working table
-    const [records] = await db.query(
-      `SELECT studentId, name, grade, 'Not Marked' as status 
-       FROM students 
-       WHERE grade = ? 
-       ORDER BY name ASC`,
-      [grade]
-    );
-
-    return NextResponse.json({ success: true, data: records });
+    return NextResponse.json({ success: true, data });
   } catch (error) {
-    console.error("Attendance System Pipeline Error:", error);
-    return NextResponse.json({ error: "Failed loading attendance matrix: " + error.message }, { status: 500 });
+    return NextResponse.json({ error: "Failed loading attendance checkmarks: " + error.message }, { status: 500 });
   }
 }
 
@@ -28,20 +24,16 @@ export async function POST(req) {
   try {
     const { studentId, date, status } = await req.json();
 
-    if (!studentId || !date || !status) {
-      return NextResponse.json({ error: "Missing required attendance parameters." }, { status: 400 });
-    }
+    const record = await prisma.attendanceRecord.upsert({
+      where: {
+        studentId_date: { studentId, date }
+      },
+      update: { status },
+      create: { studentId, date, status }
+    });
 
-    const db = await connectToDatabase();
-    
-    // Safely insert or update logs in the history chart
-    await db.query(
-      'INSERT INTO student_attendance (student_id, attendance_date, status) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE status = ?',
-      [studentId, date, status, status]
-    );
-
-    return NextResponse.json({ success: true, message: "Attendance status saved successfully!" });
+    return NextResponse.json({ success: true, data: record });
   } catch (error) {
-    return NextResponse.json({ error: "Database transaction write error: " + error.message }, { status: 500 });
+    return NextResponse.json({ error: "Attendance index state write failed: " + error.message }, { status: 500 });
   }
 }
