@@ -1,13 +1,3 @@
-{
-  "name": "smart-student-hub-next",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
   "dependencies": {
     "next": "14.2.5",
     "react": "^18.3.1",
@@ -16,11 +6,12 @@
     "jsonwebtoken": "^9.0.2",
     "bcryptjs": "^2.4.3",
     "mammoth": "^1.8.0",
-    "pdfjs-dist": "^4.0.3"
+    "pdfjs-dist": "^4.0.3",
+    "@prisma/client": "^5.18.0"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.1",
     "postcss": "^8.4.40",
-    "autoprefixer": "^10.4.20"
+    "autoprefixer": "^10.4.20",
+    "prisma": "^5.18.0"
   }
-}
