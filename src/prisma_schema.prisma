@@ -1,0 +1,71 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  role      String   
+  createdAt DateTime @default(now())
+
+  @@map("users")
+}
+
+model Student {
+  id               Int                @id @default(autoincrement())
+  studentId        String             @unique 
+  name             String
+  grade            String             
+  subject          String             @default("ICT")
+  test1            Float              @default(0)
+  test2            Float              @default(0)
+  assignment       Float              @default(0)
+  finalExam        Float              @default(0)
+  attendanceRecord AttendanceRecord[]
+  createdAt        DateTime           @default(now())
+
+  @@map("students")
+}
+
+model AttendanceRecord {
+  id        Int      @id @default(autoincrement())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [studentId], onDelete: Cascade)
+  date      String   
+  status    String   
+  createdAt DateTime @default(now())
+
+  @@unique([studentId, date])
+  @@map("attendance_records")
+}
+
+model Exam {
+  id             Int      @id @default(autoincrement())
+  title          String
+  subject        String   @default("ICT")
+  grade_section  String   
+  questions_count Int     @default(0)
+  questions      Json     
+  createdAt      DateTime @default(now())
+
+  @@map("exams")
+}
+
+model FinanceLedger {
+  id             Int      @id @default(autoincrement())
+  studentId      String
+  fee_type       String   
+  amount_due     Float
+  amount_paid    Float    @default(0)
+  payment_status String   @default("Unpaid") 
+  createdAt      DateTime @default(now())
+
+  @@map("finance_ledger")
+}
