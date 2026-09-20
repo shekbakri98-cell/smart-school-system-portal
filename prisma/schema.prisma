@@ -1,5 +1,5 @@
 datasource db {
-  provider = "postgresql" // Or "mysql", "sqlite", "mongodb"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -7,59 +7,65 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  role      String   
+  createdAt DateTime @default(now())
+
+  @@map("users")
+}
+
 model Student {
-  id           String       @id @default(uuid())
-  studentId    String       @unique // e.g., "SMS/001"
-  name         String
-  grade        String       // e.g., "12 Natural"
-  subject      String       @default("ICT")
-  test1        Float        @default(0)
-  test2        Float        @default(0)
-  assignment   Float        @default(0)
-  finalExam    Float        @default(0)
-  totalScore   Float        @default(0)
-  createdAt    DateTime     @default(now())
-  finance      Finance[]
-  attendance   Attendance[]
+  id               Int                @id @default(autoincrement())
+  studentId        String             @unique 
+  name             String
+  grade            String             
+  subject          String             @default("ICT")
+  test1            Float              @default(0)
+  test2            Float              @default(0)
+  assignment       Float              @default(0)
+  finalExam        Float              @default(0)
+  attendanceRecord AttendanceRecord[]
+  createdAt        DateTime           @default(now())
+
+  @@map("students")
 }
 
-model Finance {
-  id            String   @id @default(uuid())
-  studentId     String
-  student       Student  @relation(fields: [studentId], references: [studentId], onDelete: Cascade)
-  feeType       String   // e.g., "Tuition Q1"
-  amountDue     Float
-  amountPaid    Float    @default(0)
-  paymentStatus String   @default("Unpaid") // "Paid", "Partial", "Unpaid"
-  createdAt     DateTime @default(now())
-}
-
-model Exam {
-  id            String   @id @default(uuid())
-  examId        String   @unique @default(cuid())
-  title         String
-  subject       String
-  gradeSection  String   // Maps to grade_section
-  questions     Json     // Stores array of objects: [{text, a, b, correct}]
-  createdAt     DateTime @default(now())
-}
-
-model Attendance {
-  id        String   @id @default(uuid())
+model AttendanceRecord {
+  id        Int      @id @default(autoincrement())
   studentId String
   student   Student  @relation(fields: [studentId], references: [studentId], onDelete: Cascade)
-  date      String   // stored as YYYY-MM-DD to match frontend input index
-  status    String   // "Present" or "Absent"
+  date      String   
+  status    String   
   createdAt DateTime @default(now())
 
   @@unique([studentId, date])
+  @@map("attendance_records")
 }
 
-model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
-  email     String   @unique
-  password  String   // Hashed password
-  role      String   // "Admin", "Director", "Teacher", "Student", "Parent"
-  createdAt DateTime @default(now())
+model Exam {
+  id             Int      @id @default(autoincrement())
+  title          String
+  subject        String   @default("ICT")
+  grade_section  String   
+  questions_count Int     @default(0)
+  questions      Json     
+  createdAt      DateTime @default(now())
+
+  @@map("exams")
+}
+
+model FinanceLedger {
+  id             Int      @id @default(autoincrement())
+  studentId      String
+  fee_type       String   
+  amount_due     Float
+  amount_paid    Float    @default(0)
+  payment_status String   @default("Unpaid") 
+  createdAt      DateTime @default(now())
+
+  @@map("finance_ledger")
 }
