@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 
-const publicRoutes = ['/login', '/api/auth', '/api/admin/seed'];
+// ✅ FIX: Opens up both exact and trailing path scopes for the signing gateway paths
+const publicRoutes = ['/login', '/api/auth', '/api/admin/seed', '/'];
+
 const teacherRestrictedRoutes = ['/api/students', '/api/attendance', '/api/exams'];
 
 export function middleware(req) {
